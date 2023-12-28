@@ -9,9 +9,22 @@ There is working examples for three cheap ST boards.
 * STM32F4 Discovery, based on stm32F407. ( device, host and otg )
 * STEVAL-3DP001V1, A 3D printer controlled based on stm32f401. ( device and host )
 
-## Goals achieved:
-* Same ld linker file for all uc's.  Be carefull with the dead code remover trick on the ld script if you want to change it.
+## Features:
+* Same ld linker file for all uc's. Beware of the dead code remover trick on the ld script if you want to change it.
 * No assembler code
-* USE OF OLD GOOD LIBRARY.
+* Back to old good LIBRARY.
+* Both cores support
+* Hub host support.
+* Test code for serial CDC and HID ( device ) and Mass storage and keyboard for host
+
+## Achiveable goals:
+* Support for similar boards (STM32F7, they share same engine).
+* Both cores simultaneous support.
+* Add my STM32 device support fom many other uc's. (also Infineon XMC2xxx )
+* Add more host an device drivers.  
+
+## Other goals:
+* Dual role OTG.
+* DMA support.
 
 
