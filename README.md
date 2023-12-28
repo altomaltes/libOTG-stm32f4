@@ -4,6 +4,7 @@
 ## Description:
 This is a bare metal zero dependencies USB OTG stack for stm32f4 uc's
 The used IDE is lightweigth EMBITZ, so porting to other IDE's must be easy.
+ Interrupt driven means no demands from this code to your code flux. It works totally on its own.
 There is working examples for three cheap ST boards.
 * STM32F429 Discovery. ( device, host and otg )
 * STM32F4 Discovery, based on stm32F407. ( device, host and otg )
