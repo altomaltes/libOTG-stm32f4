@@ -63,6 +63,23 @@ void usbHIDkeyArrived( byte * report )
 } }
 
 
+void usbHIDmouseArrived( byte * report )
+{ if ( report[ 2 ] )
+  { PIN_SET( LED2 ); PIN_SET( LED4 );
+  }
+  else
+  { PIN_RST( LED2 ); PIN_RST( LED4 );
+} }
+
+void usbHIDrawArrived( byte * report )
+{ if ( report[ 6 ] )
+  { PIN_SET( LED1 ); PIN_SET( LED3 );
+  }
+  else
+  { PIN_RST( LED1 ); PIN_RST( LED3 );
+} }
+
+
 /**
  * @brief  usbDevGotConnected
  *         Links the correct device handler

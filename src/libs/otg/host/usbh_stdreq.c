@@ -359,7 +359,7 @@ schar USBHsendInterface( byte request
 }
 
 schar USBHsetInterface( byte request
-                            , word index, word value )
+                      , word index, word value )
 { USB_Host.Control.setup.b.bmRequestType= USB_H2D
                                         | USB_REQ_TYPE_CLASS
                                         | USB_REQ_RECIPIENT_INTERFACE;

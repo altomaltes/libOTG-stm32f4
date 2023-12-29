@@ -234,6 +234,7 @@ void USBHsetControlChannelAddr( byte devAddr, byte ( *handle )( byte epNum ) );
 extern HCD_DEV        USB_HOST;
 extern USBH_HOST_REC  USB_Host;
 
+void usbHIDrawArrived(   byte * );
 void usbHIDkeyArrived(   byte * );
 void usbHIDmouseArrived( byte * );
 

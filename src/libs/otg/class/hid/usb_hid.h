@@ -53,7 +53,7 @@
 /** USB HID subclass codes
  */
 #define USB_HID_SUBCLASS_NONBOOT  0x00    /** Nonboot subclass.*/
-#define USB_HID_SUBCLASS_BOOT     0x01    /** Boot subclass.*/
+#define USB_HID_SUBCLASS_BOOT     0x01    /** Boot subclass.   */
 
 
 /** USB HID protocol codes

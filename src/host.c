@@ -98,8 +98,9 @@ hostClassLink USBHgetHandleAtConnect( USBHdeviceRec * dev )
 
     case USB_CLASS_HID:     /** 0x03  HID                 */
       switch( dev->Itf_Desc->bInterfaceProtocol )  /*Decode Bootclass Protocol: Mouse or Keyboard*/
-      { case USB_HID_PROTO_KEYBOARD: handler= usbHIDkeyArrived; break;
-        case USB_HID_PROTO_MOUSE   : handler= usbHIDkeyArrived; break;
+      { case USB_HID_PROTO_NONBOOT : handler= usbHIDrawArrived;   break;
+        case USB_HID_PROTO_KEYBOARD: handler= usbHIDkeyArrived;   break;
+        case USB_HID_PROTO_MOUSE   : handler= usbHIDmouseArrived; break;
       }
       hidAddr= dev->devAddr;
     return( USBHhidInterfaceInit( dev, handler ));

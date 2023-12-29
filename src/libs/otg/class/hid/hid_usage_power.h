@@ -40,10 +40,10 @@
 /**Measures and Physical Units ant it's exponents in Reports  according to this table.*/
 
 
-#define HID_POWER_UNIT_AC_VOLTAGE  0x67, 0x21, 0xD1, 0xF0, 0x00, 0x55, 0x07 /**AC voltage unit code. Volt.*/
-#define HID_POWER_UNIT_AC_CURRENT  0x67, 0x01, 0x00, 0x10, 0x00, 0x55, 0xFE /**AC current unit code. centiAmpere.*/
-#define HID_POWER_UNIT_FREQUENCY   0x66, 0x01, 0xF0, 0x55, 0x00                    /**Frequency unit code. Hertz.*/
-#define HID_POWER_UNIT_DC_VOLTAGE  0x67, 0x21, 0xD1, 0xF0, 0x00, 0x55, 0x07       /**DC voltage unit code. Volt.*/
+#define HID_POWER_UNIT_AC_VOLTAGE        0x67, 0x21, 0xD1, 0xF0, 0x00, 0x55, 0x07 /**AC voltage unit code. Volt.*/
+#define HID_POWER_UNIT_AC_CURRENT        0x67, 0x01, 0x00, 0x10, 0x00, 0x55, 0xFE /**AC current unit code. centiAmpere.*/
+#define HID_POWER_UNIT_FREQUENCY         0x66, 0x01, 0xF0, 0x55, 0x00                    /**Frequency unit code. Hertz.*/
+#define HID_POWER_UNIT_DC_VOLTAGE        0x67, 0x21, 0xD1, 0xF0, 0x00, 0x55, 0x07       /**DC voltage unit code. Volt.*/
 #define HID_POWER_UNIT_TIME              0x66, 0x01, 0x10, 0x55, 0x00             /**Time unit code. Second.*/
 #define HID_POWER_UNIT_DC_CURRENT        0x67, 0x01, 0x00, 0x10, 0x00, 0x55, 0xFE /**DC current unit code. centiAmpere.*/
 #define HID_POWER_UNIT_POWER             0x66, 0x21, 0xD1, 0x55, 0x07             /**Power unic code. Watt.*/

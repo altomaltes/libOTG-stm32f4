@@ -41,7 +41,6 @@ typedef struct
 { byte report_id;
   byte usage;
   byte usage_page[ 32 ];
-
 } hidReportInfoRec;
 
 
@@ -52,8 +51,9 @@ typedef struct
  */
 byte hidParseReportDescriptor( hidReportInfoRec * report_info_arr
                              , byte arr_count
-                             , byte const * desc_report, word desc_len )
-{
+                             , word desc_len )
+{ byte const * desc_report= (byte*)USBHgetBuffer();
+
 
   union PACKED // Report Item 6.2.2.2 USB HID 1.11
   { byte byte8;
@@ -206,11 +206,11 @@ void USBH_HID_HandleBOTXferOut( byte ep )
 void USBH_HID_HandleBOTXferIn( schar ep )
 { if ( ep < 0 )
   { USBH_InterruptReceiveData( report  /* Fire the self machine */
-                             , 8
+                             , HID_Machine.length
                              , -ep );
   }
   else
-  { HID_Machine.cb( report );
+  { HID_Machine.cb1( report );
 } }
 
 byte classReqStatus;
@@ -252,11 +252,11 @@ static void  USBH_ParseHIDDesc( usbHidDescriptor * desc )
 
   desc->bLength           = buf[ 0 ];
   desc->bType             = buf[ 1 ];
-  desc->bcdHID            = LE16  (buf + 2);
+  desc->bcdHID            = LE16( buf + 2 );
   desc->bCountryCode      = buf[ 4 ];
   desc->bNumDescriptors   = buf[ 5 ];
   desc->bType0            = buf[ 6 ];
-  desc->wDescriptorLength0= LE16  (buf + 7);
+  desc->wDescriptorLength0= LE16( buf + 7 );
 }
 
 
@@ -285,10 +285,9 @@ static schar USBH_HID_Handle( byte ep )
   break;
 
     case HID_REQ_SET_IDLE:     /* set Idle */
-    {// hidReportInfoRec info[ 2 ];
-      //hidParseReportDescriptor( info, 2
-        //                      , (byte*)USBHgetBuffer(), HID_Desc.wDescriptorLength0 );
-
+    { hidReportInfoRec info[ 2 ];
+    //  hidParseReportDescriptor( info, 2
+      //                        , HID_Desc.wDescriptorLength0 );
       USBHsetInterface( HID_SETIDLE, 0,  0 );  // (duration << 8 ) | reportId
       HID_Machine.ctl_state= HID_REQ_SET_PROTOCOL;
     }
@@ -299,20 +298,21 @@ static schar USBH_HID_Handle( byte ep )
                       , 0
                       , 1 ); /* 0 Boot Protocol 1 Report Protocol */
       HID_Machine.ctl_state= HID_REQ_CLEAR;
+      HID_Machine.ctl_state= HID_REQ_FIREUP;
     break;
 
-    case HID_REQ_CLEAR:                       /* set protocol */
-      USBH_ClrFeature( HID_Machine.ep_addr     /* Issue Clear Feature on interrupt IN endpoint */
-                     , HID_Machine.hcNumIn );
-    { //static byte leds= 0x03;
-
+//    case HID_REQ_CLEAR:                       /* set protocol */
+//      USBH_ClrFeature( HID_Machine.HIDIntInEp     /* Issue Clear Feature on interrupt IN endpoint */
+//                     , HID_Machine.hcNumIn );
+//    { //static byte leds= 0x03;
+//
   //    USBHsendInterface( HID_SETREPORT
     //                   , 0  // word index
       //                 , 20 // USB_HID_REPORT_OUT << 8  // word value
         //               , &leds, 1 );
-    }
-      HID_Machine.ctl_state= HID_REQ_FIREUP;
-    break;
+//    }
+  //    HID_Machine.ctl_state= HID_REQ_FIREUP;
+  //  break;
 
     case HID_REQ_FIREUP:                       /* set protocol */
       USBHclassSignaler.classHid= 1;
@@ -368,58 +368,61 @@ schar USBH_Set_Report( byte reportType
   */
 hostClassLink USBHhidInterfaceInit( USBHdeviceRec * dev, void * protocolHandler )
 { byte maxEP;
-  byte num =0;
+  USBHinterfaceDescRec * epIface;
 
-  HID_Machine.cb        = protocolHandler;
-  USBHepDescRec * epList= dev->Ep_Desc;
+  HID_Machine.cb1 = protocolHandler;
 
-  if ( dev->Itf_Desc->bInterfaceSubClass == USB_HID_SUBCLASS_BOOT )
-  { HID_Machine.state    = HID_IDLE;
-    HID_Machine.ctl_state= HID_REQ_IDLE;
-    HID_Machine.ep_addr  = epList[ 0 ].bEndpointAddress;
-    HID_Machine.length   = epList[ 0 ].wMaxPacketSize;
-    HID_Machine.poll     = epList[ 0 ].bInterval ;
+  for( epIface= dev->Itf_Desc
+     ; dev->Itf_Desc - epIface < USBH_MAX_NUM_INTERFACES
+     ; epIface ++ )
+  { if ( epIface->bInterfaceSubClass == USB_HID_SUBCLASS_BOOT )
+    { USBHepDescRec        * epList=  dev->Ep_Desc;
 
-    if ( HID_Machine.poll  < HID_MIN_POLL )
-    { HID_Machine.poll = HID_MIN_POLL;
-    }
+      HID_Machine.state    = HID_IDLE;
+      HID_Machine.ctl_state= HID_REQ_IDLE;
+      HID_Machine.length   = epList[ 0 ].wMaxPacketSize;
+      HID_Machine.poll     = epList[ 0 ].bInterval ;
+
+      if ( HID_Machine.poll  < HID_MIN_POLL )
+      { HID_Machine.poll = HID_MIN_POLL;
+      }
 
 
 /* Check fo available number of endpoints */
 /* Find the number of EPs in the Interface Descriptor */
 /* Choose the lower number in order not to overrun the buffer allocated */
-    maxEP= ( ( dev->Itf_Desc->bNumEndpoints <= USBH_MAX_NUM_ENDPOINTS)
-         ?  dev->Itf_Desc->bNumEndpoints
-         :  USBH_MAX_NUM_ENDPOINTS );
+      maxEP=( epIface->bNumEndpoints <= USBH_MAX_NUM_ENDPOINTS  )
+           ? epIface->bNumEndpoints
+           : USBH_MAX_NUM_ENDPOINTS;
 
 
 /* Decode endpoint IN and OUT address from interface descriptor */
 
-    for ( num= 0
-        ; num < maxEP
-        ; num++ )
-    { if ( epList[ num ].bEndpointAddress & 0x80 )  // IN ep
-      { HID_Machine.HIDIntInEp= epList[ num ].bEndpointAddress;
-        HID_Machine.hcNumIn=
-          UHOSTopenChannel( epList[ num ].bEndpointAddress /* Open channel for IN endpoint */
-                          , EPTYPE_INTERRUPT
-                          , HID_Machine.length
-                          , USBH_HID_HandleBOTXferIn );
-      }
-      else   // OUT ep
-      { HID_Machine.hcNumOut=
-          UHOSTopenChannel( epList[ num ].bEndpointAddress   /* Open channel for OUT endpoint */
-                          , EPTYPE_INTERRUPT
-                          , HID_Machine.length
-                          , USBH_HID_HandleBOTXferOut );
-    }  }
+      for ( int num= 0
+          ;     num < maxEP
+          ;     num++ )
+      { if ( epList[ num ].bEndpointAddress & 0x80 )  // IN ep
+        { HID_Machine.HIDIntInEp= epList[ num ].bEndpointAddress;
+          HID_Machine.hcNumIn=
+            UHOSTopenChannel( epList[ num ].bEndpointAddress /* Open channel for IN endpoint */
+                            , EPTYPE_INTERRUPT
+                            , HID_Machine.length
+                            , USBH_HID_HandleBOTXferIn );
+        }
+        else   // OUT ep
+        { HID_Machine.hcNumOut=
+            UHOSTopenChannel( epList[ num ].bEndpointAddress   /* Open channel for OUT endpoint */
+                            , EPTYPE_INTERRUPT
+                            , HID_Machine.length
+                            , USBH_HID_HandleBOTXferOut );
+      }  }
 
-    start_toggle= 0;
-    HID_Machine.ctl_state= HID_REQ_VOID;
-    USBH_HID_Handle( 0 );       /* Fire up enginw */
+      start_toggle= 0;
+      HID_Machine.ctl_state= HID_REQ_VOID;
+      USBH_HID_Handle( 0 );       /* Fire up enginw */
 
-    return( USBH_HID_Handle );
-  }
+      return( USBH_HID_Handle );
+  } }
 
   return( 0 );
 }

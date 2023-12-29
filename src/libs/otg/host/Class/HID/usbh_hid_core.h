@@ -77,7 +77,8 @@ typedef  struct
 }
 HID_Report_TypeDef;
 
-/* Structure for HID process */
+/* Structure for HID process
+ */
 typedef struct
 { byte             buff[ 64 ];
   byte             hcNumIn;
@@ -87,10 +88,9 @@ typedef struct
   byte             HIDIntInEp;
   HID_CtlState     ctl_state;
   word             length;
-  byte             ep_addr;
   word             poll;
-//  volatile word    timer;
-  void (*cb)( byte * report);
+
+  void ( *cb1 )( byte * report );
 }
 HID_Machine_TypeDef;
 
