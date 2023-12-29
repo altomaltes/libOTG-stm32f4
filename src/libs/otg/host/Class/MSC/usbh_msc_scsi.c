@@ -196,16 +196,18 @@ signed char USBH_MSC_Write10( byte *dataBuffer
   { USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
   }
 
-  USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_WRITE10;
-  USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]) ;       /*logical block address*/
-  USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
-  USBH_MSC_CBWData.field.CBWCB[ 4 ]= (((byte*)&address)[1]);
-  USBH_MSC_CBWData.field.CBWCB[ 5 ]= (((byte*)&address)[0]);
+  if ( address )                                                /* Not a repeat of last try */
+  { USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_WRITE10;
+    USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]);   /*logical block address*/
+    USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
+    USBH_MSC_CBWData.field.CBWCB[ 4 ]= (((byte*)&address)[1]);
+    USBH_MSC_CBWData.field.CBWCB[ 5 ]= (((byte*)&address)[0]);
 
-  word nbOfPages = nbOfbytes/ USBH_MSC_PAGE_LENGTH;   /*USBH_MSC_PAGE_LENGTH = 512*/
+    word nbOfPages = nbOfbytes/ USBH_MSC_PAGE_LENGTH;   /*USBH_MSC_PAGE_LENGTH = 512*/
 
-  USBH_MSC_CBWData.field.CBWCB[ 7 ] = (((byte *)&nbOfPages)[1]) ;       /*Transfer length */
-  USBH_MSC_CBWData.field.CBWCB[ 8 ] = (((byte *)&nbOfPages)[0]) ;
+    USBH_MSC_CBWData.field.CBWCB[ 7 ] = (((byte *)&nbOfPages)[1]) ;       /*Transfer length */
+    USBH_MSC_CBWData.field.CBWCB[ 8 ] = (((byte *)&nbOfPages)[0]) ;
+  }
 
   USBH_MSC_XferStart( 0 );
 
