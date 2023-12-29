@@ -60,7 +60,7 @@ USBH_HOST_REC USB_Host;
   */
 byte gotDevConnected()
 { mDelay( 100 );           /* wait denounce delay */
-  HCD_ResetPort();         /* Apply a port RESET */
+  HCDresetPort();         /* Apply a port RESET */
   usbHostGotResetDevice(); /* User RESET callback*/
   return( 0 );
 }
@@ -181,7 +181,7 @@ void USBHxferOutControl( dword channel )
             USB_Host.Control.state= CTRL_STATUS_IN;
         } }
 
-        USB_Host.Control.timer= HCD_GetCurrentFrame(); /* Set the delay timer to enable timeout for data stage completion */
+        USB_Host.Control.timer= HCDgetCurrentFrame( 0 ); /* Set the delay timer to enable timeout for data stage completion */
       }
 
       else if ( URB_Status == URB_ERROR )
@@ -404,10 +404,10 @@ byte gotDevPortEnabled()
 { mDelay( 50 );
   usbHostGotDeviceAttached();
 
- // if ( ! HCD_ResetPort( ))       /* Reset USB Device */
+ // if ( ! HCDresetPort( ))       /* Reset USB Device */
   { usbHostGotResetDevice(); //debug( "DEV ATACHED \r\n" );
 
-    USB_Host.deviceProp.speed= HCD_GetCurrentSpeed(); /* Host is Now ready to start the Enumeration */
+    USB_Host.deviceProp.speed= HCDgetCurrentSpeed(); /* Host is Now ready to start the Enumeration */
     usbHostGotDeviceSpeedDetected( USB_Host.deviceProp.speed );
 
     USB_Host.Control.hcNumIn =

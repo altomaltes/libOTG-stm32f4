@@ -37,7 +37,7 @@ schar USBcoreInitHost( )
 
   STM32F4.USB.PWRCLK.FS_PCGCCTL.atomic= 0;  /* Restart the Phy Clock */ // USB_OTGWrite_ REG32(USB_OTG->regs.PCGCCTL, 0 );
 
-  USB_OTG_InitFSLSPClkSel( HCFG_48_MHZ );  /* Initialize Host Configuration Register */
+  OTGinitFSLSPClkSel( HCFG_48_MHZ );  /* Initialize Host Configuration Register */
 
   USBHdeInit();                            /* Clear previous state */
   USB_OTG_ResetPort();
@@ -128,12 +128,12 @@ void USBdriveVbus( byte state )
 } }
 
 /**
- * @brief  USB_OTG_InitFSLSPClkSel : Initializes the FSLSPClkSel field of the
+ * @brief  OTGinitFSLSPClkSel : Initializes the FSLSPClkSel field of the
  *         HCFG register on the PHY type
  * @param  freq : clock frequency
  * @retval None
  */
-void USB_OTG_InitFSLSPClkSel( byte freq )
+void OTGinitFSLSPClkSel( byte freq )
 { STM32F4.USB.HOST.HCFG.FSLSPCS= freq; /** 0x00 FS/LS PHY clock select */ // hcfg.b.fslspclksel = freq;
 }
 
@@ -432,17 +432,17 @@ schar HCD1init( )
 
 
 /**
-  * @brief  HCD_GetCurrentSpeed
+  * @brief  HCDgetCurrentSpeed
   *         Get Current device Speed.
   * @retval Status
   */
 
-dword HCD_GetCurrentSpeed()
+dword HCDgetCurrentSpeed()
 { return( STM32F4.USB.HOST.HPRT.PSPD ); /** 0x11 Port speed */
 }
 
 /**
-  * @brief  HCD_ResetPort
+  * @brief  HCDresetPort
   *         Issues the reset command to device
   * @retval Status
   */
@@ -454,7 +454,7 @@ dword HCD_GetCurrentSpeed()
  */
 
 
-dword HCD_ResetPort(  )
+dword HCDresetPort(  )
 { USB_OTG_ResetPort();
   return( 0 );
 }
@@ -803,7 +803,7 @@ void handlePortISR( )
         { STM32F4.USB.HOST.HFIR.FRIVL= HFIR_USEC_CLOCKS;        /** 0x00 Frame interval, JACS, 1us step over 6Mhz (5999) */
 
           if ( STM32F4.USB.HOST.HCFG.FSLSPCS != HCFG_6_MHZ )    /** 0x00 FS/LS PHY clock select */
-          { USB_OTG_InitFSLSPClkSel( HCFG_6_MHZ );
+          { OTGinitFSLSPClkSel( HCFG_6_MHZ );
       } } }
 
       gotDevPortEnabled();

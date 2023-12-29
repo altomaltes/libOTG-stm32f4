@@ -48,15 +48,21 @@ DRESULT diskRead( BYTE   pdrv			  /* Physical drive number (0) */
 
     count *= 512;
 
-    if ( USBH_MSC_Read10((BYTE*)buff /* Not able to read */
-                        , sector
-                        , count  ) < 0 )
-    { return( RES_ERROR );   /* IO error */
-    }
+    word maxTry= 5;
+    while( maxTry-- )                       /* Allow 5 tries     */
+    { if ( USBH_MSC_Read10( buff            /* Not able to read */
+                          , sector
+                          , count  ) < 0 )
+      { return( RES_ERROR );                /* IO error */
+      }
 
-    while( USBH_MSC_BOTXferParam.MSCState != USBH_MSC_IDLE );  /* Is it busy ? */
+      word end= HCDgetCurrentFrame( 5 );       /* Allow 5 ms to read */
+      while( end != HCDgetCurrentFrame( 0 ))
+      { if ( USBH_MSC_BOTXferParam.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
+        { return( RES_OK );   /* read achieved */
+    } } }
+    return( RES_NOTRDY );
   }
-
   return( RES_OK );
 }
 
@@ -77,18 +83,33 @@ DRESULT diskWrite( BYTE pdrv			      /* Physical drive number (0) */
     if ( Stat & STA_NOINIT  ) return( RES_NOTRDY );
     if ( Stat & STA_PROTECT ) return( RES_WRPRT  );
 
-    while( USBH_MSC_BOTXferParam.MSCState != USBH_MSC_IDLE );  /* Is it previously busy ? */
-
     count *= 512;
 
-    if ( USBH_MSC_Write10((BYTE*)buff /* Not able to read */
-       , sector
-       , count ) < 0 )
-    { return( RES_ERROR );   /* IO error */
-  } }
+    word maxTry= 5;        /* Allow 5 tries     */
+    while( maxTry-- )
+    { word end= HCDgetCurrentFrame( 5 );                        /* Allow 5 ms to read */
+      while( end != HCDgetCurrentFrame( 0 ))                    /* Timer not reached */
+      { if ( USBH_MSC_BOTXferParam.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
+        { //if ( USBH_MSC_Write10( buff                         /* Write previous  */
+          //                     , sector
+          //                     , count ) < 0 )
+          //{ return( RES_ERROR );   /* IO error */
 
+        } break;  // !!!
+     } } //}
+
+//    if ( maxTry )                                    /* Able to write */
+    { if ( USBH_MSC_Write10( buff                         /* Write previous  */
+                           , sector
+                           , count ) < 0 )
+     { return( RES_ERROR );   /* IO error */
+   } }
+
+    return( RES_NOTRDY );
+  }
   return( RES_OK );
 }
+
 
 #endif /* _READONLY == 0 */
 

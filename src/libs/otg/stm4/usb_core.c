@@ -354,13 +354,13 @@ void USBenableCommonInt( byte mode )        /* Give OTG a chance */
 }
 
 /**
-  * @brief  HCD_GetCurrentFrame
-  *         This function returns the frame number for sof packet
+  * @brief  HCDgetCurrentFrame
+  *         This function returns the future frame number for sof packet
   * @retval Frame number
   *
   */
-dword HCD_GetCurrentFrame ()
-{ return( STM32F4.USB.HOST.HFNUM.FRNUM ); /** 0x00 Frame number */
+dword HCDgetCurrentFrame( word delta )
+{ return( ( STM32F4.USB.HOST.HFNUM.FRNUM + delta ) & 0x3FFF ); /** 0x00 Frame number */
 }
 
 

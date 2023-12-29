@@ -158,11 +158,11 @@ byte USBHdeallocAllChannel()
 
 
 /**
-  * @brief  HCD_GetXferCnt
+  * @brief  HCDgetXferCnt
   *
   * @retval No. of data bytes transferred
   */
-dword HCD_GetXferCnt( byte ch_num )
+dword HCDgetXferCnt( byte ch_num )
 { return( USB_HOST.XferCnt[ ch_num ] );
 }
 

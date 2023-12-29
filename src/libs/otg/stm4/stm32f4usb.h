@@ -646,7 +646,7 @@ union STM32_USB_HOST$HFIR
     dword            :  16; /** 0x10 */
   };
 
-  volatile dword atomic;            /** atomic access */
+  volatile dword atomic;    /** atomic access */
 };
 
 union STM32_USB_HOST$FS_HFNUM
@@ -655,7 +655,7 @@ union STM32_USB_HOST$FS_HFNUM
     dword      FTREM :  16; /** 0x10 Frame time remaining */
   };
 
-  volatile dword atomic;            /** atomic access */
+  volatile dword atomic;     /** atomic access */
 };
 
 union STM32_USB_HOST$HPTXSTS

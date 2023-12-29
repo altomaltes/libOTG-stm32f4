@@ -22,11 +22,10 @@
 #include "usb_hcd.h"
 
 dword  HCDsubmitRequest( byte hcNum, byte dataPid, byte * buff, word len );
-
-dword  HCD_GetCurrentSpeed();
-dword  HCD_ResetPort      ();
-dword  HCD_GetCurrentFrame( ) ;
-dword  HCD_GetXferCnt     ( byte ch_num );
+dword  HCDgetCurrentSpeed();
+dword  HCDresetPort      ();
+dword  HCDgetCurrentFrame( word delta );
+dword  HCDgetXferCnt     ( byte ch_num );
 
 byte   OTGgetCoreSpeed();
 
@@ -48,7 +47,7 @@ schar USBinitHC(   byte hcNum
               ,   byte devAddr, word maxPacket );
 
 void  USBdriveVbus      ( byte state );
-void  USB_OTG_InitFSLSPClkSel( byte freq );
+void  OTGinitFSLSPClkSel( byte freq );
 byte  USB_OTG_IsEvenFrame();
 void  USB_OTG_StopHost   ();
 

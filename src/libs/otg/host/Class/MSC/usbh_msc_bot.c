@@ -55,7 +55,7 @@ void USBH_MSC_Init( )
  */
 
 static byte USBH_MSC_DecodeCSW(  )
-{ if ( HCD_GetXferCnt( MSC_Machine.hcNumIn ) != USBH_MSC_CSW_LENGTH )      /* Checking if the transfer length is different than 13 */
+{ if ( HCDgetXferCnt( MSC_Machine.hcNumIn ) != USBH_MSC_CSW_LENGTH )      /* Checking if the transfer length is different than 13 */
   { return( USBH_MSC_PHASE_ERROR );
   }
 

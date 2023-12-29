@@ -215,7 +215,7 @@ signed char USBH_MSC_Write10( byte *dataBuffer
 /**
   * @brief  USBH_MSC_Read10
   *         Issue the read command to the device. Once the response received,
-  *         it updates the status to upper layer
+  *         it updates the status to upper layer ( ASYNC )
   * @param  dataBuffer : DataBuffer will contain the data to be read
   * @param  address : Address from which the data will be read
   * @param  nbOfbytes : NbOfbytes to be read

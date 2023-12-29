@@ -136,7 +136,7 @@ void usbHostGotDisconnected( byte devAddr )
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 48000000, 8000000 );  // 8 Mhz xtal
+{ SET_SYSCLK_HZ( 84000000, 8000000 );  // 8 Mhz xtal
   sysTickConfig( 8000 );               // OS scheduler
 
 /* Demo pins ( carrousel leds )
