@@ -16,7 +16,8 @@ There is working examples for three cheap ST boards.
 * Back to old good LIBRARY.
 * Both cores support
 * Hub host support.
-* Test code for serial CDC and HID ( device ) and Mass storage and keyboard for host
+* Test code for serial CDC and HID ( device ) and Mass storage and keyboard for host.
+* Zero dependencies. No cmsys or hal ever changing entropy not stmcube internet plugged life.
 
 ## Achiveable goals:
 * Support for similar boards (STM32F7, they share same engine).
