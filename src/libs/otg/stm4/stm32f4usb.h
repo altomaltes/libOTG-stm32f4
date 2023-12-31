@@ -709,21 +709,21 @@ union STM32_USB_HOST$HAINTMSK
 
 union STM32_USB_HOST$HPRT
 { volatile struct
-  { dword      PCSTS :   1; /** 0x00 Port connect status */
-    dword      PCDET :   1; /** 0x01 Port connect detected */
-    dword       PENA :   1; /** 0x02 Port enable */
+  { dword      PCSTS :   1; /** 0x00 Port connect status        */
+    dword      PCDET :   1; /** 0x01 Port connect detected      */
+    dword       PENA :   1; /** 0x02 Port enable                */
     dword    PENCHNG :   1; /** 0x03 Port enable/disable change */
-    dword       POCA :   1; /** 0x04 Port overcurrent active */
-    dword    POCCHNG :   1; /** 0x05 Port overcurrent change */
-    dword       PRES :   1; /** 0x06 Port resume */
-    dword      PSUSP :   1; /** 0x07 Port suspend */
-    dword       PRST :   1; /** 0x08 Port reset */
-    dword            :   1; /** 0x09 */
-    dword      PLSTS :   2; /** 0x0A Port line status */
-    dword       PPWR :   1; /** 0x0C Port power */
-    dword      PTCTL :   4; /** 0x0D Port test control */
-    dword       PSPD :   2; /** 0x11 Port speed */
-    dword            :  13; /** 0x13 */
+    dword       POCA :   1; /** 0x04 Port overcurrent active    */
+    dword    POCCHNG :   1; /** 0x05 Port overcurrent change    */
+    dword       PRES :   1; /** 0x06 Port resume                */
+    dword      PSUSP :   1; /** 0x07 Port suspend               */
+    dword       PRST :   1; /** 0x08 Port reset                 */
+    dword            :   1; /** 0x09                            */
+    dword      PLSTS :   2; /** 0x0A Port line status           */
+    dword       PPWR :   1; /** 0x0C Port power                 */
+    dword      PTCTL :   4; /** 0x0D Port test control          */
+    dword       PSPD :   2; /** 0x11 Port speed                 */
+    dword            :  13; /** 0x13                            */
   };
 
   volatile dword atomic;            /** atomic access */

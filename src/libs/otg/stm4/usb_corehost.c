@@ -23,7 +23,7 @@
  * @retval status
  */
 schar USBcoreInitHost( )
-{ word vbusPin= USB_OTG_Core.vbusPin & 0xFFF; /* Extract ID pin flags */
+{ word vbusPin= USB_OTG_Core.vbusPin & 0x0FFF; /* Extract ID pin flags */
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
 
@@ -109,7 +109,7 @@ byte USB_OTG_IsEvenFrame( )
  * @retval None
  */
 void USBdriveVbus( byte state )
-{ word vbusPin= USB_OTG_Core.vbusPin & 0xFFF; /* Extract ID pin flags */
+{ word vbusPin= USB_OTG_Core.vbusPin & 0x0FFF; /* Extract ID pin flags */
 
   if ( vbusPin )
   { if ( state )
@@ -117,15 +117,29 @@ void USBdriveVbus( byte state )
     else
     { PIN_SET( vbusPin ); } /* DISABLE is needed on output of the Power Switch */
 
-    mDelay( 400 );
+     mDelay( 200 );
   }
 
   if (( STM32F4.USB.HOST.HPRT.PPWR == 0 ) && ( state == 1 )) /* Turn on the Host port power. */
-  { STM32F4.USB.HOST.HPRT.PPWR= 1;
+  { STM32F4.USB.HOST.HPRT.PENA=
+    STM32F4.USB.HOST.HPRT.PCDET=
+    STM32F4.USB.HOST.HPRT.PENCHNG=
+    STM32F4.USB.HOST.HPRT.POCCHNG= 0;
+
+    STM32F4.USB.HOST.HPRT.PPWR= 1;
   }
   if (( STM32F4.USB.HOST.HPRT.PPWR == 1 ) && ( state == 0 ))
-  { STM32F4.USB.HOST.HPRT.PPWR= 0;
-} }
+  { STM32F4.USB.HOST.HPRT.PENA=
+    STM32F4.USB.HOST.HPRT.PCDET=
+    STM32F4.USB.HOST.HPRT.PENCHNG=
+    STM32F4.USB.HOST.HPRT.POCCHNG= 1;
+
+    STM32F4.USB.HOST.HPRT.PPWR= 0;
+  }
+
+   mDelay( 200 );
+}
+
 
 /**
  * @brief  OTGinitFSLSPClkSel : Initializes the FSLSPClkSel field of the

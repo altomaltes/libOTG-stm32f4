@@ -77,13 +77,29 @@ void usbHIDkeyArrived( byte * report )
   { PIN_RST( LED1 ); PIN_RST( LED2 );
 } }
 
+void usbHIDmouseArrived( byte * report )
+{ if ( report[ 2 ] )
+  { PIN_SET( LED1 ); PIN_SET( LED2 );
+  }
+  else
+  { PIN_RST( LED1 ); PIN_RST( LED2 );
+} }
+
+void usbHIDrawArrived( byte * report )
+{ if ( report[ 2 ] )
+  { PIN_SET( LED1 ); PIN_SET( LED2 );
+  }
+  else
+  { PIN_RST( LED1 ); PIN_RST( LED2 );
+} }
+
 /**
   * @brief  Main program.
   * @param  None
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 84000000, 8000000 );
+{ SET_SYSCLK_HZ( 42000000, 8000000 );
   sysTickConfig( 8000 );
 
 /* Demo pins  ( carrousel leds )
@@ -92,7 +108,7 @@ int main( void )
   PIN_MODE( LED2, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
-// USBinitD( USB_VBUS_INT );      /* Activate 1ms per packet callback ( handleSofDevISR ) */
+ //USBinitD( USB_VBUS_INT );      /* Activate 1ms per packet callback ( handleSofDevISR ) */
  // USBinitH(   PORTPIN( PORTC, 4 ) | USB_ID_PIN | USB_SOF_INT );
   USBinitOTG( PORTPIN( PORTC, 4 ) | USB_VBUS_INT | USB_ID_PIN  );
 

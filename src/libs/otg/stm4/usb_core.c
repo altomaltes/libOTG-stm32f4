@@ -238,6 +238,7 @@ schar OTGselectCore( dword flags )
     default: return( -1 );
   }
 
+
   DEVICE_ENABLE( RCC_SYSCFG ); // ???
 
   return( USBcoreInit());

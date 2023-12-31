@@ -56,9 +56,9 @@
 #define   MAX_DATA_LENGTH    0x200
 
 #define USB_ID_PIN   0x4000
-#define USB_SOF_INT  0x2000    /* Activate start of frame periodic interrupt */
-#define USB_VBUS_INT 0x8000
-#define USB_ULPI_PHY 0x8000
+#define USB_VBUS_INT 0x2000
+#define USB_ULPI_PHY 0x1000
+#define USB_VBUS_EMB 0x0400
 
 
 

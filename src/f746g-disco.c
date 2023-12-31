@@ -152,7 +152,7 @@ int main( void )
 
 
   USBinitD( USB_ULPI_PHY );
-// USBinitH( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
+//  USBinitH( USB_VBUS_EMB );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
