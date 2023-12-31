@@ -38,6 +38,7 @@ schar OTGcoreInitDev()
   USBDdeInit();
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
+  DCD_DevDisconnect();
   STM32F4.USB.DEVICE.DCTL.SDIS= 1;    /** 0x01 Soft disconnect. This places the DEVICE off */
 
   struct STM32_USB_GLOBAL$FIFOMEM size;
@@ -125,7 +126,7 @@ schar OTGcoreInitDev()
 
   USBenableCommonInt( DEVICE_MODE );  /* Enable the common interrupts */
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
-  STM32F4.USB.DEVICE.DCTL.SDIS= 0;    /** 0x01 Soft disconnect. This tell the host device ON */
+  DCD_DevConnect(); /** 0x01 Soft disconnect. This tell the host device ON */
 
   return( 0 );
 }

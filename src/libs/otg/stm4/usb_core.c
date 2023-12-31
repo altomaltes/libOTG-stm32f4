@@ -32,7 +32,7 @@ static schar USB_OTG_CoreReset(  )
   } }
   while( !STM32F4.USB.GLOBAL.GRSTCTL.AHBIDL ); /** 0x1F AHB master idle */
 
-  mDelay( 200 );
+  mDelay( 20 );  // Must wait 10ms
 
   count = 0; do  /* Core Soft Reset */
   { uDelay( 100 );
@@ -41,7 +41,7 @@ static schar USB_OTG_CoreReset(  )
   } }
   while( STM32F4.USB.GLOBAL.GRSTCTL.CSRST );
 
-  mDelay( 200 );
+//  mDelay( 20 );
 
   return( 0 );
 }
@@ -123,8 +123,7 @@ static schar USBcoreInit(  )
 ///  if ( USB_OTG_Core.vbusPin & USB_VBUS_INT )  /* Vbus sense enabled *///
 //  { STM32F4.USB.GLOBAL.GCCFG.SOFOUTEN= 1;     /** 0x14 SOF output enable */
 //  }
-
-  mDelay( 20 );
+//  mDelay( 20 );   // AWFULL !!!
 
   if ( USB_OTG_Core.dmaEnable )          /* case the HS core is working in FS mode */
   { STM32F4.USB.GLOBAL.GAHBCFG.HBURSTLEN1= 5;  /* 64 x 32-bits*/
@@ -132,7 +131,7 @@ static schar USBcoreInit(  )
   }
 
 #if defined (STM32F446xx) || defined (STM32F469_479xx)
-  STM32F4.USB.GLOBAL.GUSBCFG.SRPCAP = 1;
+//  STM32F4.USB.GLOBAL.GUSBCFG.SRPCAP = 1;
 #endif
 
   return( 0 );

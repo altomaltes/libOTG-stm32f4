@@ -504,16 +504,22 @@ volatile static  word  uSecs;
   return( 0 );
 }
 
+
 /* ------------------------------------------------------------------------- */
    dword mDelay( dword msecs )
 /* ------------------------------------------------------------------------- */
 { msecs *= 1000;
   msecs /= uSecs; /* Convert to cycles */
 
-  while( msecs-- )
-  { while( STK.VALUE > ( STK.LOAD >> 1 ));       /* Wait for a tournement */
-    while( STK.VALUE < ( STK.LOAD >> 1 ));       /* Wait for a tournement */
-  }
+  while( msecs )
+  { if ( STK.CTRL.CBIT )  // Returns 1 if timer counted to 0 since last time this was read.
+    { msecs--;
+  } }
+
+//  while( msecs-- )
+//  { while( STK.VALUE > ( STK.LOAD >> 1 ));       /* Wait for a tournement */
+//    while( STK.VALUE < ( STK.LOAD >> 1 ));       /* Wait for a tournement */
+//  }
 
   return( 0 );
 }
@@ -531,7 +537,7 @@ volatile static  word  uSecs;
 /* ------------------------------------------------------------------------- */
 { STK.CTRL.CSRC= 0;  // AHB, resolution / 8
 
- // uSecs= 1000000 / ticks;        /* usecs per step */
+  uSecs= 1000000 / ticks;        /* usecs per step */
   ticks= ( SYSCLK_HZ( 0 ) >> 3 ) /* Main clock     */
        / ticks;
 
