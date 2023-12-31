@@ -555,19 +555,19 @@ static word handleHcnOutISR( volatile struct HC_STRUCT * HC, word status )
   { HC->INTMSK.CHHLT= 0;
 
     switch( status )
-    { case HC_NAK    : status |= URB_NACK  << 8; break;
-      case HC_STALL  : status |= URB_STALL << 8; break;
-      case HC_XACTERR: status |= URB_ERROR << 8; break;
+    { case HC_NAK    : status |= URB_STATE_NACK  << 8; break;
+      case HC_STALL  : status |= URB_STATE_STALL << 8; break;
+      case HC_XACTERR: status |= URB_STATE_ERROR << 8; break;
 
       case HC_NYET:
         if ( HC->INTMSK.ACK )          // do_ping
         { USBdoPingHC( HC );
         }
-        status |= URB_NACK << 8;
+        status |= URB_STATE_NACK << 8;
       break;
 
       case HC_XFRC:
-        status |= URB_DONE << 8;
+        status |= URB_STATE_DONE << 8;
         if ( HC->CHAR.EPTYP == USB_EP_TYPE_BULK )
         { status |= URB_TOGGLE_OUT << 8; // USBHtoggle( num, 0 ); // USB_HOST.hc[ num ].toggleOut ^= 1;
         }
@@ -636,17 +636,17 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
 
     else if ( HC->CHAR.EPTYP == USB_EP_TYPE_INTR )
     { HC->CHAR.ODDFRM= 1;
-      status |= URB_DONE << 8;
+      status |= URB_STATE_DONE << 8;
   } }
 
   if ( HCINT.CHHLT ) /** 0x01 Channel halted */
   { HC->INTMSK.CHHLT= 0;
 
     switch( status )
-    { case HC_XFRC:       status |=  URB_DONE  << 8; break;
-      case HC_STALL:      status |=  URB_STALL << 8; break;
+    { case HC_XFRC:       status |=  URB_STATE_DONE  << 8; break;
+      case HC_STALL:      status |=  URB_STATE_STALL << 8; break;
       case HC_XACTERR:
-      case HC_DATATGLERR: status |=  URB_ERROR << 8; break;
+      case HC_DATATGLERR: status |=  URB_STATE_ERROR << 8; break;
       default: if ( HC->CHAR.EPTYP == USB_EP_TYPE_INTR )
       { status |= URB_TOGGLE_IN << 8;  // USBHtoggle( num, 1 ); // USB_HOST.hc[ num ].toggleIn ^= 1;
   } } }
@@ -664,7 +664,7 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
       { USBhaltHC( HC );
     } }
 
-    status= HC_NAK | ( URB_NACK << 8 );
+    status= HC_NAK | ( URB_STATE_NACK << 8 );
 
     if  (( HC->CHAR.EPTYP == USB_EP_TYPE_CTRL ) /* re-activate the channel  */
     ||   ( HC->CHAR.EPTYP == USB_EP_TYPE_BULK ))

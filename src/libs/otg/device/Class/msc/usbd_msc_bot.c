@@ -117,7 +117,7 @@ static void  MSC_BOT_CBW_Decode()
   MSC_BOT_csw.dTag = MSC_BOT_cbw.dTag;
   MSC_BOT_csw.dDataResidue = MSC_BOT_cbw.dDataLength;
 
-  if (( USBD_GetRxCount( MSC_OUT_EP ) != BOT_CBW_LENGTH )
+  if (( USBDgetRxCount( MSC_OUT_EP ) != BOT_CBW_LENGTH )
   ||  ( MSC_BOT_cbw.dSignature != BOT_CBW_SIGNATURE )
   ||  ( MSC_BOT_cbw.bLUN      > 1 )
   ||  ( MSC_BOT_cbw.bCBLength < 1 )

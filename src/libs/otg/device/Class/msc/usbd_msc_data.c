@@ -71,7 +71,7 @@ typedef struct PACKED
 
 /* USB Mass storage Page 0 Inquiry Data
  */
-const byte  MSC_Page00_Inquiry_Data[]=  //7
+const byte  MSCpage00inquirydata[]=  //7
 { 0x00  /* Qualifier 3, device type 5 */
 , 0x01                        /* Is removable RMB 1, reserverd 6*/
 ,	0x00                        /* AERC, obsolete,NORM ACA, HISUP, Response format */
@@ -83,7 +83,7 @@ const byte  MSC_Page00_Inquiry_Data[]=  //7
 
 /* USB Mass storage sense 6  Data
  */
-const byte  MSC_Mode_Sense6_data[] = /* From USB stick */
+const byte  MSCmodeSense6Data[] = /* From USB stick */
 { 0x0B
 ,	0x00
 ,	0x00    /* 0x80 -> write protect */
@@ -92,5 +92,5 @@ const byte  MSC_Mode_Sense6_data[] = /* From USB stick */
 
 /* USB Mass storage sense 10  Data
 */
-const byte  MSC_Mode_Sense10_data[] =
+const byte  MSCmodeSense10Data[] =
 { 0x00,	0x06,	0x00,	0x00,	0x00,	0x00,	0x00,	0x00 };

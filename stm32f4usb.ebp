@@ -249,6 +249,37 @@
 					<Add library="bin\Debug\stm32f4usb.a" />
 				</Linker>
 			</Target>
+			<Target title="F746G-DISCO">
+				<Option output="bin\Debug\stm32f4usb.elf" />
+				<Option object_output="obj\Debug\" />
+				<Option type="0" />
+				<Option compiler="armgcc_eb" />
+				<Option projectDeviceOptionsRelation="0" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-fdata-sections" />
+					<Add option="-ffunction-sections" />
+					<Add option="-O2" />
+					<Add option="-O0" />
+					<Add option="-g2" />
+					<Add option="-Os" />
+					<Add symbol="DEBUG_TARGET" />
+				</Compiler>
+				<Cpp>
+					<Add option="-Wall" />
+					<Add option="-fdata-sections" />
+					<Add option="-ffunction-sections" />
+					<Add option="-O0" />
+					<Add option="-g2" />
+				</Cpp>
+				<Assembler>
+					<Add option="-Wa,--gdwarf-2" />
+				</Assembler>
+				<Linker>
+					<Add option="-eb_use_semi" />
+					<Add option="-Wl,--gc-sections" />
+				</Linker>
+			</Target>
 		</Build>
 		<Device>
 			<Add option="$device=cortex-m4" />
@@ -281,6 +312,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\cortexm\cortexm.h" />
 		<Unit filename="src\cortexm\stm32\f4\stm32f4.c">
@@ -290,6 +322,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\cortexm\stm32\f4\stm32F4.h" />
 		<Unit filename="src\cortexm\stm32\stm32.h" />
@@ -302,6 +335,10 @@
 			<Option compilerVar="CC" />
 			<Option target="F429-DISCO" />
 			<Option target="429-DISCO-LIB" />
+		</Unit>
+		<Unit filename="src\f746g-disco.c">
+			<Option compilerVar="CC" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\host.c">
 			<Option compilerVar="CC" />
@@ -325,6 +362,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_button.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -334,6 +372,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_desktop.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -343,6 +382,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_device.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -352,6 +392,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_game.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -361,6 +402,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_keyboard.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -370,6 +412,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_led.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -379,6 +422,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_ordinal.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -388,6 +432,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_power.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -397,6 +442,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_simulation.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -406,6 +452,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_sport.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -415,6 +462,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_telephony.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -424,6 +472,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\hid_usage_vr.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -433,6 +482,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\class\hid\usb_hid.h" />
 		<Unit filename="src\libs\otg\class\msc\usbd_mass.h">
@@ -443,6 +493,7 @@
 			<Option target="libf4otg" />
 			<Option target="407-DISCO-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\device\Class\cdc\usbd_cdc_core.c">
 			<Option compilerVar="CC" />
@@ -458,6 +509,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\device\Class\hid\usbd_hid_core.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -467,6 +519,7 @@
 			<Option target="407-DISCO-LIB" />
 			<Option target="3DP001V1-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_bot.c">
 			<Option compilerVar="CC" />
@@ -495,6 +548,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\device\usbd_core.h" />
 		<Unit filename="src\libs\otg\device\usbd_ioreq.c">
@@ -504,6 +558,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\device\usbd_req.c">
 			<Option compilerVar="CC" />
@@ -512,6 +567,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\Class\HID\usbh_hid_core.c">
 			<Option compilerVar="CC" />
@@ -521,6 +577,7 @@
 			<Option target="407-DISCO-LIB" />
 			<Option target="3DP001V1-LIB" />
 			<Option target="429-DISCO-LIB" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\Class\HID\usbh_hid_core.h" />
 		<Unit filename="src\libs\otg\host\Class\HID\usbh_hid_keybd.c">
@@ -543,12 +600,14 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\Class\MSC\usbh_msc_bot.h">
 			<Option target="STEVAL-3DP001V1" />
 			<Option target="Release" />
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\Class\MSC\usbh_msc_core.c">
 			<Option compilerVar="CC" />
@@ -557,6 +616,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\Class\MSC\usbh_msc_core.h" />
 		<Unit filename="src\libs\otg\host\Class\MSC\usbh_msc_fatfs.c">
@@ -569,12 +629,14 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\Class\MSC\usbh_msc_scsi.h">
 			<Option target="STEVAL-3DP001V1" />
 			<Option target="Release" />
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\usbh_core.c">
 			<Option compilerVar="CC" />
@@ -583,6 +645,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\usbh_core.h" />
 		<Unit filename="src\libs\otg\host\usbh_hcs.c">
@@ -592,6 +655,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\usbh_ioreq.c">
 			<Option compilerVar="CC" />
@@ -600,6 +664,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\host\usbh_stdreq.c">
 			<Option compilerVar="CC" />
@@ -608,6 +673,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\stm32f4usb.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -615,6 +681,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_core.c">
 			<Option compilerVar="CC" />
@@ -623,6 +690,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_core.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -630,6 +698,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_coredev.c">
 			<Option compilerVar="CC" />
@@ -638,6 +707,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_corehost.c">
 			<Option compilerVar="CC" />
@@ -646,6 +716,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_dcd.h" />
 		<Unit filename="src\libs\otg\stm4\usb_hcd.h">
@@ -654,6 +725,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_otg.c">
 			<Option compilerVar="CC" />
@@ -662,6 +734,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\stm4\usb_otg.h">
 			<Option target="STEVAL-3DP001V1" />
@@ -669,6 +742,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\usb-glue.h" />
 		<Unit filename="src\libs\otg\usb_conf.h" />
@@ -679,6 +753,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="src\libs\otg\usbser.inf">
 			<Option target="Release" />
@@ -691,6 +766,7 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Unit filename="stm32.ld">
 			<Option target="STEVAL-3DP001V1" />
@@ -698,10 +774,14 @@
 			<Option target="F407-DISCO" />
 			<Option target="F429-DISCO" />
 			<Option target="libf4otg" />
+			<Option target="F746G-DISCO" />
 		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger>
+				<target_debugging_settings target="F746G-DISCO">
+					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
+				</target_debugging_settings>
 				<target_debugging_settings target="STEVAL-3DP001V1">
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>

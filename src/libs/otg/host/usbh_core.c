@@ -89,21 +89,21 @@ schar USBHxferInControl( dword channel )
   switch( USB_Host.Control.state )
   { case CTRL_DATA_IN:
       switch( URB_Status )
-      { case URB_DONE:         /* check is DATA packet transferred successfully */
+      { case URB_STATE_DONE:         /* check is DATA packet transferred successfully */
           USB_HOST.hc[ USB_Host.Control.hcNumOut ].toggleOut ^= 1;
           USBH_CtlSendData( USB_Host.Control.hcNumOut, 0, 0 );
           USB_Host.Control.state= CTRL_STATUS_OUT;
         break;
 
-        case URB_STALL:         /* manage error cases*/
+        case URB_STATE_STALL:         /* manage error cases*/
           USB_Host.Control.state= CTRL_STALLED;
         break;
 
-        case URB_ERROR:
+        case URB_STATE_ERROR:
           USB_Host.Control.state= CTRL_ERROR;   /* Device error */
         break;
 
-        case URB_NACK:                          /* Not recognized */
+        case URB_STATE_NACK:                          /* Not recognized */
           USB_Host.handleCtrlPkg( channel );    /* Next step             */
         break;
 
@@ -112,17 +112,17 @@ schar USBHxferInControl( dword channel )
     break;
 
     case CTRL_STATUS_IN:
-      if  ( URB_Status == URB_DONE )           /* Control transfers completed, Exit the State Mech */
+      if  ( URB_Status == URB_STATE_DONE )           /* Control transfers completed, Exit the State Mech */
       { USB_Host.Control.state= CTRL_IDLE;
         USB_Host.handleCtrlPkg( channel );     /* Next step             */
       break;                                   /* Ready for another one */
       }
 
-      else if ( URB_Status == URB_STALL ) /* Control transfers completed, Exit the State Mech */
+      else if ( URB_Status == URB_STATE_STALL ) /* Control transfers completed, Exit the State Mech */
       { USB_Host.Control.state= CTRL_STALLED;
       }
 
-      else if ( URB_Status == URB_ERROR )
+      else if ( URB_Status == URB_STATE_ERROR )
       { USB_Host.Control.state= CTRL_ERROR;
       }
 
@@ -150,7 +150,7 @@ void USBHxferOutControl( dword channel )
     case CTRL_SETUP_WAIT:
       URB_Status= USB_HOST.URB_State[ USB_Host.Control.hcNumOut ];
 
-      if ( URB_Status == URB_DONE )    /* case SETUP packet sent successfully */
+      if ( URB_Status == URB_STATE_DONE )    /* case SETUP packet sent successfully */
       { int direction= ( USB_Host.Control.setup.b.bmRequestType & USB_REQ_DIR_MASK );
 
 
@@ -184,7 +184,7 @@ void USBHxferOutControl( dword channel )
         USB_Host.Control.timer= HCDgetCurrentFrame( 0 ); /* Set the delay timer to enable timeout for data stage completion */
       }
 
-      else if ( URB_Status == URB_ERROR )
+      else if ( URB_Status == URB_STATE_ERROR )
       { USB_Host.Control.state = CTRL_ERROR;
         USB_Host.Control.status= CTRL_XACTERR;
       }
@@ -193,45 +193,45 @@ void USBHxferOutControl( dword channel )
     case CTRL_DATA_OUT:
       URB_Status = USB_HOST.URB_State[ USB_Host.Control.hcNumOut ];
 
-      if ( URB_Status == URB_DONE )
+      if ( URB_Status == URB_STATE_DONE )
       { USBH_CtlReceiveData( USB_Host.Control.hcNumIn
                            , 0, 0 );            /* Data Direction is OUT */
         USB_Host.Control.state= CTRL_STATUS_IN; /* If the Setup Pkt is sent successful, then change the state */
       }
 
       /* handle error cases */
-      else if ( URB_Status == URB_STALL ) /* In stall case, return to previous machine state*/
+      else if ( URB_Status == URB_STATE_STALL ) /* In stall case, return to previous machine state*/
       { USB_Host.Control.state= CTRL_STALLED;
       }
 
-      else if ( URB_Status == URB_NACK ) /* Nack received from device, again */
+      else if ( URB_Status == URB_STATE_NACK ) /* Nack received from device, again */
       { USB_HOST.hc[ USB_Host.Control.hcNumOut ].toggleOut = 1;
         USBH_CtlSendData( USB_Host.Control.hcNumOut
                         , USB_Host.Control.buff
                         , USB_Host.Control.length );
       }
 
-      else if (URB_Status == URB_ERROR) /* device error */
+      else if (URB_Status == URB_STATE_ERROR) /* device error */
       { USB_Host.Control.state= CTRL_ERROR;
       }
     break;
 
     case CTRL_STATUS_OUT: switch( USB_HOST.URB_State[ USB_Host.Control.hcNumOut ] )
-    { case URB_DONE:
+    { case URB_STATE_DONE:
         USB_Host.Control.state= CTRL_IDLE;
         USB_Host.handleCtrlPkg( channel );  /* Next step             */
       break;                                /* Ready for another one */
 
-      case URB_NACK:
+      case URB_STATE_NACK:
         USB_HOST.hc[ USB_Host.Control.hcNumOut ].toggleOut ^= 1;
         USBH_CtlSendData( USB_Host.Control.hcNumOut, 0, 0 );
       break;
 
-      case URB_ERROR:
+      case URB_STATE_ERROR:
         USB_Host.Control.state= CTRL_ERROR;
 
-      case URB_IDLE:
-      case URB_STALL:
+      case URB_STATE_IDLE:
+      case URB_STATE_STALL:
       break;
 
       default: break;
@@ -460,7 +460,7 @@ schar USBHdeInit( void ) /* Software Init */
       ;     i ++ )
   { USBHfreeChannel( i );
     USB_HOST.XferCnt[ i   ]= 0;
-    USB_HOST.URB_State[ i ]= URB_VOID;
+    USB_HOST.URB_State[ i ]= URB_STATE_VOID;
   }
 
 /* Make sure the FIFOs are flushed.
@@ -501,8 +501,8 @@ byte USBHsetUrbState( byte num, byte state )
 
   if ( state )    /* Additional action */
   { switch( USB_HOST.URB_State[ num ]= state )
-    { case URB_NACK: /*  USB_HOST.sched[ num ].action( num ); */  break;
-      case URB_DONE:  USB_HOST.sched[ num ].action( num );        break;
+    { case URB_STATE_NACK: /*  USB_HOST.sched[ num ].action( num ); */  break;
+      case URB_STATE_DONE:  USB_HOST.sched[ num ].action( num );        break;
       default: break;
   } }
 

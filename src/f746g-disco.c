@@ -13,19 +13,10 @@
 #include "usbd_hid_core.h"
 #include "stm32.h"
 
-extern byte hubAddr;
-extern byte mscAddr;
-extern byte hidAddr;
-
-
-
-#define LED1 PORTPIN( PORTD, 12 )
-#define LED2 PORTPIN( PORTD, 13 )
-#define LED3 PORTPIN( PORTD, 14 )
-#define LED4 PORTPIN( PORTD, 15 )
+#define LED1 PORTPIN( PORTI, 1 )
 
 word HIDpoll( word frame )
-{ static schar buf[]={0,0,0,0};
+{ static signed char buf[]={0,0,0,0};
 
   frame <<= 2;
 
@@ -40,13 +31,12 @@ word HIDpoll( word frame )
     case 0x70: buf[ 1 ]=  1; buf[ 2 ]=  1; break;
   }
 
-  PIN_PUT( LED1, buf[ 1 ] > 0 );
-  PIN_PUT( LED2, buf[ 2 ] > 0 );
-  PIN_PUT( LED3, buf[ 1 ] < 0 );
-  PIN_PUT( LED4, buf[ 2 ] < 0 );
+    PIN_PUT( LED1, buf[ 1 ] > 0 );
+  //PIN_PUT( LED2, buf[ 2 ] > 0 );
 
   return( USBD_HID_SendReport( buf, 4 ));
 }
+
 
 
 /**
@@ -56,27 +46,27 @@ word HIDpoll( word frame )
  */
 void usbHIDkeyArrived( byte * report )
 { if ( report[ 2 ] )
-  { PIN_SET( LED2 ); PIN_SET( LED4 );
+  { PIN_SET( LED1 );
   }
   else
-  { PIN_RST( LED2 ); PIN_RST( LED4 );
+  { PIN_RST( LED1 );
 } }
 
 
 void usbHIDmouseArrived( byte * report )
 { if ( report[ 2 ] )
-  { PIN_SET( LED2 ); PIN_SET( LED4 );
+  { PIN_SET( LED1 );
   }
   else
-  { PIN_RST( LED2 ); PIN_RST( LED4 );
+  { PIN_RST( LED1 );
 } }
 
 void usbHIDrawArrived( byte * report )
 { if ( report[ 6 ] )
-  { PIN_SET( LED1 ); PIN_SET( LED3 );
+  { PIN_SET( LED1 );
   }
   else
-  { PIN_RST( LED1 ); PIN_RST( LED3 );
+  { PIN_RST( LED1 );
 } }
 
 
@@ -89,8 +79,8 @@ void usbDevGotConnected()
 { for( int loop= 0
      ;     loop < 3
      ;     loop ++ )
-  { PIN_SET( LED2 ); PIN_SET( LED4 ); mDelay( 90 );
-    PIN_RST( LED2 ); PIN_RST( LED4 ); mDelay( 70 );
+  { PIN_SET( LED1 ); mDelay( 90 );
+    PIN_RST( LED1 ); mDelay( 70 );
 } }
 
 /**
@@ -102,8 +92,8 @@ void usbDevGotDisconnected(  )
 { for( int loop= 0
      ;     loop < 3
      ;     loop ++ )
-  { PIN_SET( LED1 ); PIN_SET( LED3 ); mDelay( 80 );
-    PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 40 );
+  { PIN_SET( LED1 ); mDelay( 80 );
+    PIN_RST( LED1 ); mDelay( 40 );
 } }
 
 
@@ -130,7 +120,7 @@ word USBdevGotSuspended( byte status )
  */
 void usbHostGotDisconnected( byte devAddr )
 {
-  if ( devAddr == mscAddr )
+ /* if ( devAddr == mscAddr )
   { for( int loop= 0
        ;     loop < 3
        ;     loop ++ )
@@ -144,7 +134,7 @@ void usbHostGotDisconnected( byte devAddr )
        ;     loop ++ )
     { PIN_SET( LED1 ); PIN_SET( LED3 ); mDelay( 90 );
       PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 60 );
-} } }
+} } */}
 
 
 /**
@@ -153,23 +143,20 @@ void usbHostGotDisconnected( byte devAddr )
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 42000000, 8000000 );  // 8 Mhz xtal
-  sysTickConfig( 8000 );               // OS scheduler
+{ SET_SYSCLK_HZ( 42000000, 25000000 );  // 8 Mhz xtal
+  sysTickConfig( 8000 );                // OS scheduler
 
 /* Demo pins ( carrousel leds )
  */
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
-  PIN_MODE( LED2, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
-  PIN_MODE( LED3, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
-  PIN_MODE( LED4, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
- USBinitD( /*USB_VBUS_INT*/0 );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
+  USBinitD( 0 );
 // USBinitH( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
-  { testForEvents( LED1, LED2 );
+  { testForEvents( LED1, LED1 );
     mDelay(10);
   }
   return( 0 );
@@ -180,12 +167,8 @@ int main( void )
   * @param
   * @retval
   */
-
 ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
-
-/* Linker attributes, Ram and flash size
- */
-ABSOLUTE(   RAM_SIZE, 0x00020000 );
+ABSOLUTE(   RAM_SIZE, 0x00010000 );
 ABSOLUTE( FLASH_SIZE, 0x00100000 );
 
 

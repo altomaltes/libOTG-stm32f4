@@ -265,7 +265,7 @@ schar usbd_CDCsetup( USB_SETUP_REQ * req )
                            , CmdBuff
                            , req->wLength );  /* Get the data to be sent to Host from interface layer */
 
-          USBD_CtlSendData( CmdBuff           /* Send the data to the host */
+          USBDctlSendData( CmdBuff           /* Send the data to the host */
                           , req->wLength );
         }
 
@@ -277,7 +277,7 @@ schar usbd_CDCsetup( USB_SETUP_REQ * req )
    Next step: the received data will be managed in usbd_cdc_EP0_TxSent()
    function.
  */
-          USBD_CtlPrepareRx( CmdBuff
+          USBDctlPrepareRx( CmdBuff
                            , req->wLength );
       } }
 
@@ -289,17 +289,17 @@ schar usbd_CDCsetup( USB_SETUP_REQ * req )
     return( 0 );
 
     default:
-      USBD_CtlError( req );
+      USBDctlError( req );
   return( -1 );
 
 
   case USB_REQ_TYPE_STANDARD: switch ( req->bRequest )
   { case USB_REQ_GET_DESCRIPTOR:
-      USBD_CtlError( req );
+      USBDctlError( req );
     return( -1);
 
     case USB_REQ_GET_INTERFACE :
-      USBD_CtlSendData( (byte *)&usbd_cdc_AltSet
+      USBDctlSendData( (byte *)&usbd_cdc_AltSet
                       , 1 );
     break;
 
@@ -308,7 +308,7 @@ schar usbd_CDCsetup( USB_SETUP_REQ * req )
       { usbd_cdc_AltSet = (byte)(req->wValue);
       }
       else /* Call the error management function (command will be nacked */
-      { USBD_CtlError( req);
+      { USBDctlError( req);
       }
     break;
   } }

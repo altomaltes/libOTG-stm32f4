@@ -129,12 +129,12 @@ static schar USBD_HID_Setup( USB_SETUP_REQ * req )
   switch ( req->bmRequest & USB_REQ_TYPE_MASK )
   { case USB_REQ_TYPE_CLASS: switch (req->bRequest)
     { case HID_SETPROTOCOL: USBD_HID_Protocol = (byte  )(req->wValue);            break;
-      case HID_GETPROTOCOL: USBD_CtlSendData(   (byte *)&USBD_HID_Protocol, 1 );  break;
+      case HID_GETPROTOCOL: USBDctlSendData(   (byte *)&USBD_HID_Protocol, 1 );  break;
 
       case HID_SETIDLE:     USBD_HID_IdleState= (byte  )(req->wValue >> 8);       break;
-      case HID_GETIDLE:     USBD_CtlSendData(   (byte *)&USBD_HID_IdleState, 1 ); break;
+      case HID_GETIDLE:     USBDctlSendData(   (byte *)&USBD_HID_IdleState, 1 ); break;
 
-      default:              USBD_CtlError( req );      return( -1 );
+      default:              USBDctlError( req );      return( -1 );
     }
     break;
 
@@ -160,13 +160,13 @@ static schar USBD_HID_Setup( USB_SETUP_REQ * req )
         {
         }
 
-        USBD_CtlSendData( pbuf
+        USBDctlSendData( pbuf
                         , len );
 
       break;
 
       case USB_REQ_GET_INTERFACE:
-         USBD_CtlSendData ((byte *)&USBD_HID_AltSet, 1);
+         USBDctlSendData ((byte *)&USBD_HID_AltSet, 1);
       break;
 
       case USB_REQ_SET_INTERFACE:
@@ -179,7 +179,7 @@ static schar USBD_HID_Setup( USB_SETUP_REQ * req )
     }
     break;
 
-    default: USBD_CtlSendData((byte *)&USBD_HID_AltSet, 1);   break;
+    default: USBDctlSendData((byte *)&USBD_HID_AltSet, 1);   break;
   }
 
   return( 0 );

@@ -18,15 +18,17 @@
 #ifndef _USBD_MSC_DATA_H_
 #define _USBD_MSC_DATA_H_
 
+#include "uc.h" // ççç
+
 
 #define MODE_SENSE6_LEN		       	 8
 #define MODE_SENSE10_LEN       		 8
 #define LENGTH_INQUIRY_PAGE00		   7
 #define LENGTH_FORMAT_CAPACITIES	20
 
-extern const byte MSC_Page00_Inquiry_Data[];
-extern const byte MSC_Mode_Sense6_data[];
-extern const byte MSC_Mode_Sense10_data[] ;
+extern const byte MSCpage00inquirydata[];
+extern const byte MSCmodeSense6Data[];
+extern const byte MSCmodeSense10Data[] ;
 
 #endif
 

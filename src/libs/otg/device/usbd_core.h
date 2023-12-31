@@ -94,22 +94,22 @@ typedef struct
 
 void * USBinitD( word flags );
 
-schar USBD_ClrCfg( byte cfgidx );
+schar USBDclrCfg( byte cfgidx );
 schar USBD_SetCfg( byte cfgidx );
 
-void  USBD_ParseSetupRequest( USB_SETUP_REQ * );
+void  USBDparseSetupRequest( USB_SETUP_REQ * );
 
-schar USBD_StdDevReq( USB_SETUP_REQ * );
-schar USBD_StdItfReq( USB_SETUP_REQ * );
-schar USBD_StdEPReq(  USB_SETUP_REQ * );
+schar USBDstdDevReq( USB_SETUP_REQ * );
+schar USBDstdItfReq( USB_SETUP_REQ * );
+schar USBDstdEPReq(  USB_SETUP_REQ * );
 
-void  USBD_CtlError( USB_SETUP_REQ * );
+void  USBDctlError( USB_SETUP_REQ * );
 
 byte * USBDgetString( const char * desc );
 
 short USBDreadPacket(  byte epNum, word size );
 short USBDwritePacket( byte epNum, word size );
-word  USBD_GetRxCount( byte epnum );
+word  USBDgetRxCount( byte epnum );
 
 extern DCD_DEV USB_DEV;
 extern USBD_DEVICE USBdeviceDesc;
@@ -158,12 +158,12 @@ enum
 
 /* -------------------------------------------------------- */
 
-schar USBD_CtlSendData        ( byte * pbuf, word len );
-schar USBD_CtlContinueSendData( byte * pbuf, word len );
-schar USBD_CtlPrepareRx       ( byte * pbuf, word len );
-schar USBD_CtlContinueRx      ( byte * pbuf, word len );
-schar USBD_CtlSendStatus      ( );
-schar USBD_CtlReceiveStatus   ( );
+schar USBDctlSendData        ( byte * pbuf, word len );
+schar USBDctlContinueSendData( byte * pbuf, word len );
+schar USBDctlPrepareRx       ( byte * pbuf, word len );
+schar USBDctlContinueRx      ( byte * pbuf, word len );
+schar USBDctlSendStatus      ( );
+schar USBDctlReceiveStatus   ( );
 
 dword USBDepPrepareRx( byte epnum, byte * pbuf, word buf_len );
 dword USBDepOpen       ( byte epnum, word ep_mps, byte epType, void (*doIt)( word what ) );

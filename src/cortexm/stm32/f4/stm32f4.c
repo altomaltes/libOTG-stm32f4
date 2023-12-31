@@ -150,18 +150,18 @@ volatile extern struct
   } PLLCFRG;
 
   struct                    /* 0x08 */
-  { dword         SW :   2; /** 0x00 System clock switch */
-    dword        SWS :   2; /** 0x02 System clock switch status */
-    dword       HPRE :   4; /** 0x04 AHB prescaler */
-    dword            :   2; /** 0x08 */
-    dword      PPRE1 :   3; /** 0x0A APB Low speed prescaler (APB1) */
-    dword      PPRE2 :   3; /** 0x0D APB high-speed prescaler (APB2) */
-    dword     RTCPRE :   5; /** 0x10 HSE division factor for RTC clock */
-    dword       MCO1 :   2; /** 0x15 Microcontroller clock output 1 */
-    dword     I2SSRC :   1; /** 0x17 I2S clock selection */
-    dword    MCO1PRE :   3; /** 0x18 MCO1 prescaler */
-    dword    MCO2PRE :   3; /** 0x1B MCO2 prescaler */
-    dword       MCO2 :   2; /** 0x1E Microcontroller clock output 2 */
+  { dword         SW : 2; /** 0x00 System clock switch */
+    dword        SWS : 2; /** 0x02 System clock switch status */
+    dword       HPRE : 4; /** 0x04 AHB prescaler */
+    dword            : 2; /** 0x08 */
+    dword      PPRE1 : 3; /** 0x0A APB Low speed prescaler (APB1) */
+    dword      PPRE2 : 3; /** 0x0D APB high-speed prescaler (APB2) */
+    dword     RTCPRE : 5; /** 0x10 HSE division factor for RTC clock */
+    dword       MCO1 : 2; /** 0x15 Microcontroller clock output 1 */
+    dword     I2SSRC : 1; /** 0x17 I2S clock selection */
+    dword    MCO1PRE : 3; /** 0x18 MCO1 prescaler */
+    dword    MCO2PRE : 3; /** 0x1B MCO2 prescaler */
+    dword       MCO2 : 2; /** 0x1E Microcontroller clock output 2 */
   } CFGR;
 
   dword         CIR;        /** 0x0C RST: 0x00000000 clock interrupt register */
@@ -470,12 +470,13 @@ static dword XTAL= 25;
 /* Configure the main PLL
  */
 
+    hz= ( 336000000 >> 1 ) / hz; hz --; /* xlate */
 
     RCC.PLLCFRG.PLLSRC= 1;      /* XTAL */
     RCC.PLLCFRG.PLLM  = XTAL= xtal / 1000000; /* same as 25 Mhz XTAL */ /** 0x00 Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
     RCC.PLLCFRG.PLLN  = 336; /* Fixed, 1MHZ abobe   */
 
-    RCC.PLLCFRG.PLLP  = ( (4) / 2 ) - 1 + 2;  /* 84 / 48 -> 7/4 */ /** 0x10 Main PLL (PLL) division factor for main system clock */
+    RCC.PLLCFRG.PLLP  =  hz; //( (4) / 2 ) - 1 + 2;  /* 84 / 48 -> 7/4 */ /** 0x10 Main PLL (PLL) division factor for main system clock */
     RCC.PLLCFRG.PLLQ0 =  7       ; /** 0x18 Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
 
     RCC.CR.PLLON= 1; while( !RCC.CR.PLLRDY );  /* Enable the main PLL, Wait till the main PLL is ready */

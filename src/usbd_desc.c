@@ -18,9 +18,9 @@
 #include "usbd_core.h"
 #include "usb_std.h"
 
-#include "usbd_msc_core.h"
+//#include "usbd_msc_core.h"
 #include "usbd_hid_core.h"
-#include "usbd_cdc_core.h"
+//#include "usbd_cdc_core.h"
 
 #define USBD_VID  0x0483
 #define USBD_PID  0x3752
@@ -70,6 +70,7 @@ USBD_DEVICE USBdeviceDesc=
  ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
  , &USBD_HID_cb };
 
+/*
 USBD_DEVICE USBdeviceDescCdc=
 //USBD_DEVICE USBdeviceDesc=
 { USBD_DeviceDesc
@@ -92,4 +93,6 @@ USBD_DEVICE USBdeviceMsc=
  ,  "Mass Config"          // 4
  ,  "Mass Interface" }     // 5 USBD_INTERFACE_FS_STRING
  , &USBD_MSC_cb };
+
+ */
 

@@ -72,7 +72,7 @@ static schar SCSI_Inquiry( byte lun, byte * params )
   word   len;
 
   if ( params[ 1 ] & 0x01 ) /* Evpd is set */
-  { pPage = (byte *)MSC_Page00_Inquiry_Data;
+  { pPage = (byte *)MSCpage00inquirydata;
     len = LENGTH_INQUIRY_PAGE00;
   }
   else
@@ -178,7 +178,7 @@ static schar SCSI_ModeSense6( byte lun, byte *params )
 
   while( len )
   { len--;
-    MSC_BOT_Data[ len ]= MSC_Mode_Sense6_data[len];
+    MSC_BOT_Data[ len ]= MSCmodeSense6Data[len];
   }
   return 0;
 }
@@ -197,7 +197,7 @@ static schar SCSI_ModeSense10( byte lun, byte *params)
 
   while( len )
   { len--;
-    MSC_BOT_Data[len]= MSC_Mode_Sense10_data[ len ];
+    MSC_BOT_Data[len]= MSCmodeSense10Data[ len ];
   }
 
   return( 0 );

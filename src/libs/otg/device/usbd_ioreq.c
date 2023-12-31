@@ -55,13 +55,13 @@ dword USBDepTx( byte   epAddr
 }
 
 /**
- * @brief  USBD_CtlSendData
+ * @brief  USBDctlSendData
  *         send data on the ctl pipe
  * @param  buff: pointer to data buffer
  * @param  len: length of data to be sent
  * @retval status
  */
-schar USBD_CtlSendData( byte * pbuf, word len )
+schar USBDctlSendData( byte * pbuf, word len )
 { USB_DEV.inEp[ 0 ].totalDataLen= len;
   USB_DEV.inEp[ 0 ].remDataLen  = len;
   USB_DEV.deviceState= USB_OTG_EP0_DATA_IN;
@@ -72,13 +72,13 @@ schar USBD_CtlSendData( byte * pbuf, word len )
 }
 
 /**
- * @brief  USBD_CtlPrepareRx
+ * @brief  USBDctlPrepareRx
  *         receive data on the ctl pipe
  * @param  buff: pointer to data buffer
  * @param  len: length of data to be received
  * @retval status
  */
-schar USBD_CtlPrepareRx( byte * pbuf, word len )
+schar USBDctlPrepareRx( byte * pbuf, word len )
 { USB_DEV.outEp[ 0 ].totalDataLen= len;
   USB_DEV.outEp[ 0 ].remDataLen  = len;
   USB_DEV.deviceState= USB_OTG_EP0_DATA_OUT;
@@ -89,37 +89,37 @@ schar USBD_CtlPrepareRx( byte * pbuf, word len )
 }
 
 /**
- * @brief  USBD_CtlContinueSendData
+ * @brief  USBDctlContinueSendData
  *         continue sending data on the ctl pipe
  * @param  buff: pointer to data buffer
  * @param  len: length of data to be sent
  * @retval status
  */
-schar  USBD_CtlContinueSendData( byte * pbuf, word len )
+schar  USBDctlContinueSendData( byte * pbuf, word len )
 { USBDepTx( 0, pbuf, len);
 
   return( 0 );
 }
 
 /**
-* @brief  USBD_CtlContinueRx
+* @brief  USBDctlContinueRx
 *         continue receive data on the ctl pipe
  * @param  buff: pointer to data buffer
  * @param  len: length of data to be received
  * @retval status
  */
-schar USBD_CtlContinueRx( byte * pbuf, word len)
+schar USBDctlContinueRx( byte * pbuf, word len)
 { USBDepPrepareRx( 0, pbuf, len );
 
   return( 0 );
 }
 
 /**
- * @brief  USBD_CtlSendStatus
+ * @brief  USBDctlSendStatus
  *         send zero length packet on the ctl pipe
  * @retval status
  */
-schar  USBD_CtlSendStatus(  )
+schar  USBDctlSendStatus(  )
 { USB_DEV.deviceState = USB_OTG_EP0_STATUS_IN;
   USBDepTx (0,  NULL, 0 );
   USB_OTG_EP0_OutStart();
@@ -128,11 +128,11 @@ schar  USBD_CtlSendStatus(  )
 }
 
 /**
- * @brief  USBD_CtlReceiveStatus
+ * @brief  USBDctlReceiveStatus
  *         receive zero length packet on the ctl pipe
  * @retval status
  */
-schar USBD_CtlReceiveStatus(  )
+schar USBDctlReceiveStatus(  )
 { USB_DEV.deviceState= USB_OTG_EP0_STATUS_OUT;
   USBDepPrepareRx( 0, NULL, 0 );
 
@@ -165,12 +165,12 @@ short USBDreadPacket( byte epNum, word size )
 }
 
 /**
- * @brief  USBD_GetRxCount
+ * @brief  USBDgetRxCount
  *         returns the received data length
  *         epnum: endpoint index
  * @retval Rx Data blength
  */
-word  USBD_GetRxCount( byte epnum )
+word  USBDgetRxCount( byte epnum )
 { return( USB_DEV.outEp[ epnum ].xferCount );
 }
 

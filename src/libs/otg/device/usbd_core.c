@@ -49,12 +49,12 @@ dword  USBDepStall( byte epAddr )
 schar USBD_SetupStage()
 { USB_SETUP_REQ req;
 
-  USBD_ParseSetupRequest( &req );
+  USBDparseSetupRequest( &req );
 
   switch ( req.bmRequest & 0x1F )
-  { case USB_REQ_RECIPIENT_DEVICE:    USBD_StdDevReq( &req ); break;
-    case USB_REQ_RECIPIENT_INTERFACE: USBD_StdItfReq( &req ); break;
-    case USB_REQ_RECIPIENT_ENDPOINT:  USBD_StdEPReq(  &req ); break;
+  { case USB_REQ_RECIPIENT_DEVICE:    USBDstdDevReq( &req ); break;
+    case USB_REQ_RECIPIENT_INTERFACE: USBDstdItfReq( &req ); break;
+    case USB_REQ_RECIPIENT_ENDPOINT:  USBDstdEPReq(  &req ); break;
 
     default: USBDepStall( req.bmRequest & 0x80);    break;
   }
@@ -93,7 +93,7 @@ schar USBD_DataOutStage( byte epnum )
         { ep->xferBuffEp += ep->maxpacket; /* in slave mode this, is handled by the RxSTSQLvl ISR */
         }
 
-        USBD_CtlContinueRx( ep->xferBuffEp
+        USBDctlContinueRx( ep->xferBuffEp
                           , MIN( ep->remDataLen
                                , ep->maxpacket ));
       }
@@ -102,7 +102,7 @@ schar USBD_DataOutStage( byte epnum )
       { if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
         { ep->doIt( 0xFFFF );
         }
-        USBD_CtlSendStatus();
+        USBDctlSendStatus();
   } } }
 
   else if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
@@ -135,7 +135,7 @@ schar USBD_DataInStage( byte epnum )
         { ep->xferBuffEp += ep->maxpacket; /* in slave mode this, is handled by the TxFifoEmpty ISR */
         }
 
-        USBD_CtlContinueSendData( ep->xferBuffEp
+        USBDctlContinueSendData( ep->xferBuffEp
                                 , ep->remDataLen );
         USBDepPrepareRx( 0, NULL, 0 );
       }
@@ -144,7 +144,7 @@ schar USBD_DataInStage( byte epnum )
       { if (( ep->totalDataLen %  ep->maxpacket == 0 )
         &&  ( ep->totalDataLen >= ep->maxpacket )
         &&  ( ep->totalDataLen <  ep->ctl_data_len ))
-        { USBD_CtlContinueSendData( NULL, 0);
+        { USBDctlContinueSendData( NULL, 0);
           ep->ctl_data_len= 0;
           USBDepPrepareRx ( 0, NULL, 0 );   /* Start the transfer */
         }
@@ -153,7 +153,7 @@ schar USBD_DataInStage( byte epnum )
         { if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
           { ep->doIt( 0xFFFF );
           }
-          USBD_CtlReceiveStatus(  );
+          USBDctlReceiveStatus(  );
     } } }
 
     if ( USB_DEV.testMode == 1 )
@@ -204,12 +204,12 @@ schar USBD_SetCfg( byte cfgidx )
 }
 
 /**
- * @brief  USBD_ClrCfg
+ * @brief  USBDclrCfg
  *         Clear current configuration
  * @param  cfgidx: configuration index
  * @retval status: USBD_Status
  */
-schar USBD_ClrCfg( byte cfgidx )
+schar USBDclrCfg( byte cfgidx )
 { USBdeviceDesc.driver->Ctrl( ACTION_DEINIT, cfgidx );
 
   return( 0 );
@@ -261,8 +261,8 @@ schar USBD_DevDisconnected()
  */
 void * USBinitD( word flags )
 { OTGselectCore( flags );
-  OTGcoreInitDev();    /* set USB OTG core params */
   OTGsetCurrentMode( DEVICE_MODE );
+  OTGcoreInitDev();    /* set USB OTG core params */
 
   return( &USBIrqHandlerDEV );  /* Be sure is linked */
 }

@@ -140,7 +140,7 @@ byte buff[ 64 ];
  * @retval Result of the opeartion: USBD_OK if all operations are OK else USBD_FAIL
  */
 static schar TEMPLATE_DataRx( byte epNum )
-{ word len= USBD_GetRxCount( epNum ); /* Get the received data buffer and update the counter */
+{ word len= USBDgetRxCount( epNum ); /* Get the received data buffer and update the counter */
 
   if ( len )
   { buff[ 1 ]= ' ';
@@ -165,7 +165,7 @@ static schar TEMPLATE_DataRx( byte epNum )
 }
 
 static schar TEMPLATE_DataCt( byte epNum )
-{ word len= USBD_GetRxCount( epNum ); /* Get the received data buffer and update the counter */
+{ word len= USBDgetRxCount( epNum ); /* Get the received data buffer and update the counter */
 
   if ( len )
   {

@@ -146,13 +146,13 @@ schar STORAGE_GetMaxLun( byte Cmd, byte * Buf, byte Len )
       { MSC_BOT_Reset();
       }
       else
-      { //USBD_CtlError( req );
+      { //USBDctlError( req );
         return( -1 );
       }
     break;
 
     default:
-   //   USBD_CtlError( req );
+   //   USBDctlError( req );
     return( -1 );
   }
 

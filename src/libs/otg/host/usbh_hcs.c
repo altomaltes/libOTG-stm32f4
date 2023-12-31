@@ -176,7 +176,7 @@ dword HCDsubmitRequest( byte   hcNum
                       , byte   pid
                       , byte * buff
                       , word   len )
-{ USB_HOST.URB_State[ hcNum ]= URB_IDLE;
+{ USB_HOST.URB_State[ hcNum ]= URB_STATE_IDLE;
   USB_HOST.hc[ hcNum ].xferBuff= buff;
 
   return( USBstartXferHC( hcNum, pid, buff, len ));

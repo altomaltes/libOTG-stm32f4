@@ -113,9 +113,13 @@ static schar USBcoreInit(  )
     STM32F4.USB.GLOBAL.GCCFG.VBUSASEN= 0; /** 0x12 Disable the VBUS sensing device */
     STM32F4.USB.GLOBAL.GCCFG.VBUSBSEN= 0; /** 0x12 Disable the VBUS sensing device */
 #endif
-    STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN= 1;
+    STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN=  0;
+/* B-peripheral session valid override enable
+ */
+    STM32F4.USB.GLOBAL.GOTGCTL.BVALOEN=
+    STM32F4.USB.GLOBAL.GOTGCTL.BVALOVAL= 1;
   }
-
+//STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN= 0; //// çççç
 ///  if ( USB_OTG_Core.vbusPin & USB_VBUS_INT )  /* Vbus sense enabled *///
 //  { STM32F4.USB.GLOBAL.GCCFG.SOFOUTEN= 1;     /** 0x14 SOF output enable */
 //  }
@@ -123,12 +127,11 @@ static schar USBcoreInit(  )
   mDelay( 20 );
 
   if ( USB_OTG_Core.dmaEnable )          /* case the HS core is working in FS mode */
-  { STM32F4.USB.GLOBAL.GAHBCFG.HBURSTLEN= 5;  /* 64 x 32-bits*/
-    STM32F4.USB.GLOBAL.GAHBCFG.DMAENABLE= 1;
+  { STM32F4.USB.GLOBAL.GAHBCFG.HBURSTLEN1= 5;  /* 64 x 32-bits*/
+    STM32F4.USB.GLOBAL.GAHBCFG.DMAENABLE1= 1;
   }
 
 #if defined (STM32F446xx) || defined (STM32F469_479xx)
-  STM32F4.USB.DEVICE.DCTL.SDIS= 0; /** 0x01 Soft disconnect */
   STM32F4.USB.GLOBAL.GUSBCFG.SRPCAP = 1;
 #endif
 
@@ -142,9 +145,9 @@ static schar USBcoreInit(  )
  * @retval schar : status
  */
 schar OTGselectCore( dword flags )
-{ USB_OTG_Core.vbusPin= flags;
+{ USB_OTG_Core.vbusPin  = flags;
   USB_OTG_Core.dmaEnable= 0;
-  USB_OTG_Core.mps= 64; // çççç USB_OTG_FS_MAX_PACKET_SIZE;
+  USB_OTG_Core.mps      = 64; // çççç USB_OTG_FS_MAX_PACKET_SIZE;
 
   /* initialize device cfg following its address */
   switch( (dword)&STM32F4.USB )
@@ -317,7 +320,6 @@ void USBenableCommonInt( byte mode )        /* Give OTG a chance */
       INTS.IEPINT=
       INTS.OEPINT=
       INTS.USBSUSP=         /** 0x0B USB suspend mask */
-      INTS.DISCINT=         /** 0x1D Disconnect detected interrupt ?? done after*/
       INTS.ENUMDNE=
       INTS.INCOMPISOOUT= 1;
 
@@ -345,10 +347,11 @@ void USBenableCommonInt( byte mode )        /* Give OTG a chance */
   }
 
   INTS.SOF=
-  INTS.CIDSCHG=         /** 0x1C Connector ID status change mask, keep this one */
+ // INTS.CIDSCHG=         /** 0x1C Connector ID status change mask, keep this one */
   INTS.INCOMPISOIN=
   INTS.INCOMPISOOUT= 1;  /** 0x14 Incomplete isochronous IN transfer */
 
+INTS.SRQINT= 0;
   STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFF; /* disable all previous */
   STM32F4.USB.GLOBAL.GINTMSK= INTS;
 }

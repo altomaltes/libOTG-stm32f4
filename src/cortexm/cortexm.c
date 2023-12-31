@@ -531,7 +531,7 @@ volatile static  word  uSecs;
 /* ------------------------------------------------------------------------- */
 { STK.CTRL.CSRC= 0;  // AHB, resolution / 8
 
-  uSecs= 1000000 / ticks;        /* usecs per step */
+ // uSecs= 1000000 / ticks;        /* usecs per step */
   ticks= ( SYSCLK_HZ( 0 ) >> 3 ) /* Main clock     */
        / ticks;
 

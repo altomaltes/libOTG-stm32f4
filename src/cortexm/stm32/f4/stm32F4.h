@@ -83,19 +83,19 @@ PB15 | RTC_RN| TIM1_CH3N| -        | -        | -         | SPI2_MOSI | -       
 #define UART1_TX_PA9  7 | 0x80
 #define UART1_RX_PA10 7 | 0x80
 
-#define RCC_GPIOA  ( 0x0000 | 0x00 ) /** IO port A reset, enable, sleep */
-#define RCC_GPIOB  ( 0x0000 | 0x01 ) /** IO port B reset, enable, sleep */
-#define RCC_GPIOC  ( 0x0000 | 0x02 ) /** IO port C reset, enable, sleep */
-#define RCC_GPIOD  ( 0x0000 | 0x03 ) /** IO port D reset, enable, sleep */
-#define RCC_GPIOE  ( 0x0000 | 0x04 ) /** IO port E reset, enable, sleep */
-#define RCC_GPIOH  ( 0x0000 | 0x07 ) /** IO port H reset, enable, sleep */
-#define RCC_GPIOI  ( 0x0000 | 0x08 ) /** IO port H reset, enable, sleep */
-#define RCC_GPIOJ  ( 0x0000 | 0x09 ) /** IO port H reset, enable, sleep */
-#define RCC_GPIOK  ( 0x0000 | 0x0A ) /** IO port H reset, enable, sleep */
+#define RCC_GPIOA   ( 0x0000 | 0x00 ) /** IO port A reset, enable, sleep */
+#define RCC_GPIOB   ( 0x0000 | 0x01 ) /** IO port B reset, enable, sleep */
+#define RCC_GPIOC   ( 0x0000 | 0x02 ) /** IO port C reset, enable, sleep */
+#define RCC_GPIOD   ( 0x0000 | 0x03 ) /** IO port D reset, enable, sleep */
+#define RCC_GPIOE   ( 0x0000 | 0x04 ) /** IO port E reset, enable, sleep */
+#define RCC_GPIOH   ( 0x0000 | 0x07 ) /** IO port H reset, enable, sleep */
+#define RCC_GPIOI   ( 0x0000 | 0x08 ) /** IO port H reset, enable, sleep */
+#define RCC_GPIOJ   ( 0x0000 | 0x09 ) /** IO port H reset, enable, sleep */
+#define RCC_GPIOK   ( 0x0000 | 0x0A ) /** IO port H reset, enable, sleep */
 
-#define RCC_CRC    ( 0x0000 | 0x0C ) /** CRC reset       */
-#define RCC_DMA1   ( 0x0000 | 0x15 ) /** DMA2 reset      */
-#define RCC_DMA2   ( 0x0000 | 0x16 ) /** DMA2 reset      */
+#define RCC_CRC     ( 0x0000 | 0x0C ) /** CRC reset       */
+#define RCC_DMA1    ( 0x0000 | 0x15 ) /** DMA2 reset      */
+#define RCC_DMA2    ( 0x0000 | 0x16 ) /** DMA2 reset      */
 
 #define RCC_ETH_MAC ( 0x0000 | 0x10 ) /**        */
 #define RCC_ETH_TX  ( 0x0000 | 0x1A ) /**        */

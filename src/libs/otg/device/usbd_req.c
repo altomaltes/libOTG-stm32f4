@@ -39,13 +39,13 @@ static byte USBD_GetLen( const char * buf )
 }
 
 /**
- * @brief  USBD_StdItfReq
+ * @brief  USBDstdItfReq
  *         Handle standard usb interface requests
  *
  * @param  req: usb request
  * @retval status
  */
-schar  USBD_StdItfReq( USB_SETUP_REQ * req )
+schar  USBDstdItfReq( USB_SETUP_REQ * req )
 { switch ( USB_DEV.deviceStatus )
   { case USB_OTG_CONFIGURED:
 
@@ -53,26 +53,26 @@ schar  USBD_StdItfReq( USB_SETUP_REQ * req )
       { USBdeviceDesc.driver->Setup( req );
 
         if (( req->wLength == 0 ) /*&& (ret == USBD_OK) */ )
-        { USBD_CtlSendStatus();
+        { USBDctlSendStatus();
       } }
       else
-      { USBD_CtlError( req );
+      { USBDctlError( req );
       }
       break;
 
-    default: USBD_CtlError( req );  break;
+    default: USBDctlError( req );  break;
   }
   return( 0 );
 }
 
 /**
- * @brief  USBD_StdEPReq
+ * @brief  USBDstdEPReq
  *         Handle standard usb endpoint requests
  *
  * @param  req: usb request
  * @retval status
  */
-schar  USBD_StdEPReq( USB_SETUP_REQ * req )
+schar  USBDstdEPReq( USB_SETUP_REQ * req )
 { byte   ep_addr;
   //schar ret = 0;
 
@@ -100,10 +100,10 @@ schar  USBD_StdEPReq( USB_SETUP_REQ * req )
           { USBDepStall(  ep_addr);
         } }
         USBdeviceDesc.driver->Setup( req );
-        USBD_CtlSendStatus();
+        USBDctlSendStatus();
       break;
 
-      default: USBD_CtlError( req);          break;
+      default: USBDctlError( req);          break;
     }
     break;
 
@@ -122,11 +122,11 @@ schar  USBD_StdEPReq( USB_SETUP_REQ * req )
             { USBDepClrStall(  ep_addr );
               USBdeviceDesc.driver->Setup( req );
             }
-            USBD_CtlSendStatus();
+            USBDctlSendStatus();
           }
         break;
 
-        default: USBD_CtlError( req);     break;
+        default: USBDctlError( req);     break;
       }
       break;
 
@@ -161,10 +161,10 @@ schar  USBD_StdEPReq( USB_SETUP_REQ * req )
           { /* Do Nothing */
           }
 
-          USBD_CtlSendData( (byte *)&USBD_ep_status, 2 );
+          USBDctlSendData( (byte *)&USBD_ep_status, 2 );
         break;
 
-        default: USBD_CtlError( req);        break;
+        default: USBDctlError( req);        break;
       }
     break;
 
@@ -226,11 +226,11 @@ static void USBD_GetDescriptor( USB_SETUP_REQ *req )
         break;
       }
       else
-      { USBD_CtlError( req );
+      { USBDctlError( req );
         return;
       }
 #else
-      USBD_CtlError( req );
+      USBDctlError( req );
       return;
 #endif
 
@@ -242,22 +242,22 @@ static void USBD_GetDescriptor( USB_SETUP_REQ *req )
         break;
       }
       else
-      { USBD_CtlError( req);
+      { USBDctlError( req);
         return;
       }
 #else
-      USBD_CtlError( req);
+      USBDctlError( req);
     return;
 #endif
     default:
-      USBD_CtlError( req);
+      USBDctlError( req);
     return;
   }
 
   if (( len ) && (req->wLength ))
   { len= MIN( len, req->wLength );
 
-    USBD_CtlSendData( pbuf, len );
+    USBDctlSendData( pbuf, len );
 } }
 
 /**
@@ -274,11 +274,11 @@ static void USBD_SetAddress( USB_SETUP_REQ * req )
   { dev_addr= (byte)(req->wValue) & 0x7F;
 
     if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
-    { USBD_CtlError( req );
+    { USBDctlError( req );
     }
     else
     { USBDepSetAddress( dev_addr );
-      USBD_CtlSendStatus();
+      USBDctlSendStatus();
 
       if (dev_addr != 0)
       { USB_DEV.deviceStatus= USB_OTG_ADDRESSED;
@@ -288,7 +288,7 @@ static void USBD_SetAddress( USB_SETUP_REQ * req )
   } } }
 
   else
-  { USBD_CtlError( req );
+  { USBDctlError( req );
 } }
 
 /**
@@ -304,7 +304,7 @@ static void USBD_SetConfig( USB_SETUP_REQ * req )
   cfgidx = (byte)(req->wValue);
 
   if ( cfgidx > 1 )  // çççç USBD_CFG_MAX_NUM )
-  { USBD_CtlError( req);
+  { USBDctlError( req);
   }
   else
   { switch( USB_DEV.deviceStatus )
@@ -313,10 +313,10 @@ static void USBD_SetConfig( USB_SETUP_REQ * req )
         { USB_DEV.deviceConfig = cfgidx;
           USB_DEV.deviceStatus = USB_OTG_CONFIGURED;
           USBD_SetCfg( cfgidx);
-          USBD_CtlSendStatus();
+          USBDctlSendStatus();
         }
         else
-        { USBD_CtlSendStatus();
+        { USBDctlSendStatus();
         }
         break;
 
@@ -324,23 +324,23 @@ static void USBD_SetConfig( USB_SETUP_REQ * req )
         if ( cfgidx == 0 )
         { USB_DEV.deviceStatus= USB_OTG_ADDRESSED;
           USB_DEV.deviceConfig= cfgidx;
-          USBD_ClrCfg( cfgidx);
-          USBD_CtlSendStatus();
+          USBDclrCfg( cfgidx);
+          USBDctlSendStatus();
         }
         else if (cfgidx != USB_DEV.deviceConfig )
-        { USBD_ClrCfg( USB_DEV.deviceConfig);     /* Host Task handler */
+        { USBDclrCfg( USB_DEV.deviceConfig);     /* Host Task handler */
 
           USB_DEV.deviceConfig = cfgidx; /* set new configuration */
           USBD_SetCfg( cfgidx);
-          USBD_CtlSendStatus();
+          USBDctlSendStatus();
         }
         else
-        { USBD_CtlSendStatus();
+        { USBDctlSendStatus();
         }
       break;
 
       default:
-        USBD_CtlError( req);
+        USBDctlError( req);
       break;
 } } }
 
@@ -353,13 +353,13 @@ static void USBD_SetConfig( USB_SETUP_REQ * req )
  */
 static void USBD_GetConfig( USB_SETUP_REQ *req )
 { if ( req->wLength != 1 )
-  { USBD_CtlError( req);
+  { USBDctlError( req);
   }
   else
   { switch (USB_DEV.deviceStatus )
-    { case USB_OTG_ADDRESSED:  USBD_CtlSendData((byte *)&USBD_default_cfg, 1 ); break;
-      case USB_OTG_CONFIGURED: USBD_CtlSendData(&USB_DEV.deviceConfig,     1 ); break;
-      default:                 USBD_CtlError   ( req );                         break;
+    { case USB_OTG_ADDRESSED:  USBDctlSendData((byte *)&USBD_default_cfg, 1 ); break;
+      case USB_OTG_CONFIGURED: USBDctlSendData(&USB_DEV.deviceConfig,     1 ); break;
+      default:                 USBDctlError   ( req );                         break;
 } } }
 
 /**
@@ -384,10 +384,10 @@ static void USBD_GetStatus( USB_SETUP_REQ *req )
       { USBD_cfg_status |= USB_CONFIG_REMOTE_WAKEUP;
       }
 
-      USBD_CtlSendData ((byte *)&USBD_cfg_status, 2 );
+      USBDctlSendData ((byte *)&USBD_cfg_status, 2 );
       break;
 
-    default: USBD_CtlError( req );  break;
+    default: USBDctlError( req );  break;
 } }
 
 
@@ -402,14 +402,14 @@ static void USBD_SetFeature( USB_SETUP_REQ * req )
 { if ( req->wValue == USB_FEATURE_REMOTE_WAKEUP )
   { USB_DEV.devRemoteWakeup= 1;
     USBdeviceDesc.driver->Setup( req );
-    USBD_CtlSendStatus();
+    USBDctlSendStatus();
   }
 
   else if (( req->wValue == USB_FEATURE_TEST_MODE )
        && (( req->wIndex & 0xFF ) == 0))
   { USBDepSetTestMode( req->wIndex >> 8 );
     USB_DEV.testMode = 1;
-    USBD_CtlSendStatus();
+    USBDctlSendStatus();
   }
   else
   { /* Do Nothing */
@@ -430,22 +430,22 @@ static void USBD_ClrFeature( USB_SETUP_REQ *req )
       if (req->wValue == USB_FEATURE_REMOTE_WAKEUP)
       { USB_DEV.devRemoteWakeup= 0;
         USBdeviceDesc.driver->Setup( req );
-        USBD_CtlSendStatus();
+        USBDctlSendStatus();
       }
       break;
 
-    default: USBD_CtlError( req ); break;
+    default: USBDctlError( req ); break;
 } }
 
 /**
- * @brief  USBD_ParseSetupRequest
+ * @brief  USBDparseSetupRequest
  *         Copy buffer into setup structure
  *
  * @param  req: usb request
  * @retval None
  */
 
-void USBD_ParseSetupRequest( USB_SETUP_REQ * req )
+void USBDparseSetupRequest( USB_SETUP_REQ * req )
 { req->bmRequest= *(byte *)( USB_DEV.setupPacket + 0 );
   req->bRequest = *(byte *)( USB_DEV.setupPacket + 1 );
   req->wValue   = SWAPBYTE ( USB_DEV.setupPacket + 2 );
@@ -457,13 +457,13 @@ void USBD_ParseSetupRequest( USB_SETUP_REQ * req )
 }
 
 /**
- * @brief  USBD_CtlError
+ * @brief  USBDctlError
  *         Handle USB low level Error
  *
  * @param  req: usb request
  * @retval None
  */
-void USBD_CtlError( USB_SETUP_REQ * req )
+void USBDctlError( USB_SETUP_REQ * req )
 { USBDepStall( 0x80 );
   USBDepStall( 0x00 );
   USB_OTG_EP0_OutStart();
@@ -495,13 +495,13 @@ byte * USBDgetString( const char * desc )
 }
 
 /**
- * @brief  USBD_StdDevReq
+ * @brief  USBDstdDevReq
  *         Handle standard usb device requests
  *
  * @param  req: usb request
  * @retval status
  */
-schar  USBD_StdDevReq( USB_SETUP_REQ  * req )
+schar  USBDstdDevReq( USB_SETUP_REQ  * req )
 { switch ( req->bRequest )
   { case USB_REQ_GET_STATUS:        USBD_GetStatus (    req ); break;
     case USB_REQ_GET_DESCRIPTOR:    USBD_GetDescriptor( req ); break;
@@ -510,7 +510,7 @@ schar  USBD_StdDevReq( USB_SETUP_REQ  * req )
     case USB_REQ_GET_CONFIGURATION: USBD_GetConfig (    req ); break;
     case USB_REQ_SET_FEATURE:       USBD_SetFeature(    req ); break;
     case USB_REQ_CLEAR_FEATURE:     USBD_ClrFeature(    req ); break;
-    default:                        USBD_CtlError(      req ); break;
+    default:                        USBDctlError(      req ); break;
   }
 
   return( 0 );

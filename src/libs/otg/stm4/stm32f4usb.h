@@ -376,17 +376,24 @@ union STM32_USB_GLOBAL$GOTGCTL
 { volatile struct
   { dword     SRQSCS :   1; /** 0x00 Session request success */
     dword        SRQ :   1; /** 0x01 Session request */
-    dword            :   6; /** 0x02 */
+    dword   VBVALOEN :   1; /**     0x02 VBUS valid override enable */
+    dword  VBVALOVAL :   1; /**     0x03 VBUS valid override value */
+    dword    AVALOEN :   1; /**     0x04 A-peripheral session valid override enable */
+    dword   AVALOVAL :   1; /**     0x05 A-peripheral session valid override value */
+    dword    BVALOEN :   1; /**     0x06 B-peripheral session valid override enable */
+    dword   BVALOVAL :   1; /**     0x07 B-peripheral session valid override value */
     dword     HNGSCS :   1; /** 0x08 Host negotiation success */
     dword      HNPRQ :   1; /** 0x09 HNP request */
     dword    HSHNPEN :   1; /** 0x0A Host set HNP enable */
     dword     DHNPEN :   1; /** 0x0B Device HNP enabled */
-    dword            :   4; /** 0x0C */
+    dword      EHEN7 :   1; /** 0x0C Embedded host enable */
+    dword            :   3; /** 0x0D */
     dword     CIDSTS :   1; /** 0x10 Connector ID status */
     dword       DBCT :   1; /** 0x11 Long/short debounce time */
     dword      ASVLD :   1; /** 0x12 A-session valid */
     dword      BSVLD :   1; /** 0x13 B-session valid */
-    dword            :  12; /** 0x14 */
+    dword     OTGVER :   1; /**     0x14 OTG version */
+    dword            :  11; /** 0x15 */
   };
 
   volatile dword atomic;            /** atomic access */
@@ -412,8 +419,8 @@ union STM32_USB_GLOBAL$GOTGINT
 union STM32_USB_GLOBAL$GAHBCFG
 { volatile struct
   { dword       GINT :  1; /** 0x00 Global interrupt mask */
-    dword  HBURSTLEN :  4;
-    dword  DMAENABLE :  1;
+    dword  HBURSTLEN1 :  4;
+    dword  DMAENABLE1 :  1;
     dword        Res :  1;
     dword    TXFELVL :  1; /** 0x07 TxFIFO empty level */
     dword   PTXFELVL :  1; /** 0x08 Periodic TxFIFO empty level */
@@ -425,28 +432,29 @@ union STM32_USB_GLOBAL$GAHBCFG
 
 union STM32_USB_GLOBAL$GUSBCFG
 { volatile struct
-  { dword        TOCAL     : 3; /** 0x00 FS timeout calibration */
-    dword        PHYIF     : 1; /* 8 bits */
-    dword   ULPI_U_SEL     : 1; /* ULPI seleInterfacect */
-    dword       FSINTF     : 1;
-    dword       PHYSEL     : 1; /** 0x06 Full Speed serial transceiver select */
-    dword       DDRSEL     : 1; /* single data rate */
-    dword       SRPCAP     : 1; /** 0x08 SRP-capable */
-    dword       HNPCAP     : 1; /** 0x09 HNP-capable */
-    dword         TRDT     : 4; /** 0x0A USB turnaround time */
-    dword NPTXFRWNDEND     : 1;
-    dword PHYLPWCLKSEL     : 1;
-    dword OTGUTMIFSSEL     : 1;
-    dword ULPI_FSLS        : 1;
-    dword ULPI_AUTO_RES    : 1;
-    dword ULPI_CLK_SUS_M   : 1;
-    dword ULPI_EXT_VBUS_DRV: 1;
-    dword ULPI_INT_VBUS_IND: 1;
-    dword TERM_SEL_DL_PULSE: 1;  /* Data line pulsing using utmi_txvalid */
-    dword                  : 6; /** 0x0E */
-    dword            FHMOD : 1; /** 0x1D Force host mode */
-    dword            FDMOD : 1; /** 0x1E Force device mode */
-    dword           CTXPKT : 1; /** 0x1F Corrupt Tx packet */
+  { dword      TOCAL :   3; /** 0x00 FS timeout calibration */
+    dword            :   3; /** 0x03 */
+    dword     PHYSEL :   1; /** 0x06 USB 2.0 high-speed ULPI PHY or USB 1.1 full-speed serial transceiver select */
+    dword            :   1; /** 0x07 */
+    dword     SRPCAP :   1; /** 0x08 SRP-capable */
+    dword     HNPCAP :   1; /** 0x09 HNP-capable */
+    dword       TRDT :   4; /** 0x0A USB turnaround time */
+    dword            :   1; /** 0x0E */
+    dword    PHYLPCS :   1; /** 0x0F PHY Low-power clock select */
+    dword            :   1; /** 0x10 */
+    dword   ULPIFSLS :   1; /** 0x11 ULPI FS/LS select */
+    dword     ULPIAR :   1; /** 0x12 ULPI Auto-resume */
+    dword    ULPICSM :   1; /** 0x13 ULPI Clock SuspendM */
+    dword ULPIEVBUSD :   1; /** 0x14 ULPI External VBUS Drive */
+    dword ULPIEVBUSI :   1; /** 0x15 ULPI external VBUS indicator */
+    dword      TSDPS :   1; /** 0x16 TermSel DLine pulsing selection */
+    dword       PCCI :   1; /** 0x17 Indicator complement */
+    dword       PTCI :   1; /** 0x18 Indicator pass through */
+    dword    ULPIIPD :   1; /** 0x19 ULPI interface protect disable */
+    dword            :   3; /** 0x1A */
+    dword      FHMOD :   1; /** 0x1D Forced host mode */
+    dword      FDMOD :   1; /** 0x1E Forced peripheral mode */
+    dword            :   1; /** 0x1F */
   };
 
   volatile dword atomic;            /** atomic access */
@@ -565,15 +573,28 @@ union STM32_USB_GLOBAL$GNPTXSTS
   volatile dword atomic;            /** atomic access */
 };
 
+
+//   dword      DCDET :   1; /** 0x00 Data contact detection (DCD) status */
+//    dword       PDET :   1; /** 0x01 Primary detection (PD) status */
+//    dword       SDET :   1; /** 0x02 Secondary detection (SD) status *///
+//  dword     PS2DET :   1; /** 0x03 DM pull-up detection status */
+//    dword            :  12; /** 0x04 *///
+//    dword     PWRDWN :   1; /** 0x10 Power down */
+//    dword      BCDEN :   1; /** 0x11 Battery charging detector (BCD) enable */
+//    dword      DCDEN :   1; /** 0x12 Data contact detection (DCD) mode enable */
+//    dword       PDEN :   1; /** 0x13 Primary detection (PD) mode enable */
+//    dword       SDEN :   1; /** 0x14 Secondary detection (SD) mode enable */
+//    dword      VBDEN :   1; /** 0x15 USB VBUS detection enable */
+
 union STM32_USB_GLOBAL$GCCFG
 { volatile struct
   { dword            :  16; /** 0x00 */
     dword     PWRDWN :   1; /** 0x10 Power down */
-    dword   i2cifen  :   1; /** 0x11 */
-    dword   VBUSASEN :   1; /** 0x12 Enable the VBUS sensing device */
-    dword   VBUSBSEN :   1; /** 0x13 Enable the VBUS sensing device */
-    dword   SOFOUTEN :   1; /** 0x14 SOF output enable */
-    dword   NOVBUSEN :   1;
+    dword       BCDEN :   1; /** 0x11 Battery charging detector (BCD) enable */
+    dword   VBUSASEN :   1; /** DCDEN 0x12 Enable the VBUS sensing device */
+    dword   VBUSBSEN :   1; /** PDEN 0x13 Enable the VBUS sensing device */
+    dword   SOFOUTEN :   1; /** SDEN 0x14 SOF output enable */
+    dword   NOVBUSEN :   1; // VBDEN :   1; /** 0x15 USB VBUS detection enable */
     dword            :  10; /** 0x15 */
   };
 

@@ -38,6 +38,7 @@ schar OTGcoreInitDev()
   USBDdeInit();
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
+  STM32F4.USB.DEVICE.DCTL.SDIS= 1;    /** 0x01 Soft disconnect. This places the DEVICE off */
 
   struct STM32_USB_GLOBAL$FIFOMEM size;
   size.TXSA= 0;                                          /* Reset the fifo mem giver*/
@@ -72,7 +73,8 @@ schar OTGcoreInitDev()
   }
 
 
-  /* Flush the FIFOs */
+/* Flush the FIFOs
+ */
   USB_OTG_FlushTxFifo( 0x10 );  /* all Tx FIFOs */
   USB_OTG_FlushRxFifo(      );
 
@@ -88,30 +90,22 @@ schar OTGcoreInitDev()
   for ( top = 0
       ; top < USB_OTG_Core.devEndpoints
       ; top++ )
-  { CTL= STM32F4.USB.DEVICE.DIEP[ top ].CTL;
+  { CTL= STM32F4.USB.DEVICE.DIEP[ top ].CTL; CTL.atomic = 0;
 
     if ( CTL.EPENA  )
-    { CTL.atomic = 0;
-      CTL.EPDIS = 1;
+    { CTL.EPDIS= 1;
       CTL.SNAK = 1;
-    }
-    else
-    { CTL.atomic = 0;
     }
 
     STM32F4.USB.DEVICE.DIEP[ top ].CTL= CTL;
-    STM32F4.USB.DEVICE.DIEP[ top ].TSIZ.atomic= 0;
-    STM32F4.USB.DEVICE.DIEP[ top ].INT.atomic= 0xFF;
+    STM32F4.USB.DEVICE.DIEP[ top ].INT.atomic=  0xFF;
+    STM32F4.USB.DEVICE.DIEP[ top ].TSIZ.atomic= 0x00;
 
-    CTL= STM32F4.USB.DEVICE.DIEP[ top ].CTL;
+    CTL= STM32F4.USB.DEVICE.DOEP[ top ].CTL; CTL.atomic = 0;  // DIEP çççç
 
     if ( CTL.EPENA  )
-    { CTL.atomic = 0;
-      CTL.EPDIS = 1;
+    { CTL.EPDIS= 1;
       CTL.SNAK = 1;
-    }
-    else
-    { CTL.atomic = 0;
     }
 
     STM32F4.USB.DEVICE.DOEP[ top ].CTL= CTL;
@@ -131,6 +125,8 @@ schar OTGcoreInitDev()
 
   USBenableCommonInt( DEVICE_MODE );  /* Enable the common interrupts */
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
+  STM32F4.USB.DEVICE.DCTL.SDIS= 0;    /** 0x01 Soft disconnect. This tell the host device ON */
+
   return( 0 );
 }
 
@@ -1062,10 +1058,9 @@ static word handleOtgISR()
 INTERRUPT void USBIrqHandlerDEV( /* dword core */ )
 { union STM32_USB_GLOBAL$GINTSTS INTS;
 
-  if (( INTS.atomic= STM32F4.USB.GLOBAL.GINTSTS.atomic
-                   & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
+  if ( INTS.atomic= ( STM32F4.USB.GLOBAL.GINTSTS.atomic
+                    & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
   { STM32F4.USB.GLOBAL.GINTSTS= INTS; /* Clear stored interrupts */
-
   /* Device events
    */
     if ( INTS.MMIS        ) { handleMmisISR      (); } /** 0x01 Mode mismatch interrupt */

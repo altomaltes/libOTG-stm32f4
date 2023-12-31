@@ -28,12 +28,12 @@
 #define LOW_SPEED_FLAG  0x20
 
 typedef enum
-{ URB_VOID = 0
-, URB_IDLE
-, URB_DONE
-, URB_NACK
-, URB_ERROR
-, URB_STALL
+{ URB_STATE_VOID = 0
+, URB_STATE_IDLE
+, URB_STATE_DONE
+, URB_STATE_NACK
+, URB_STATE_ERROR
+, URB_STATE_STALL
 
 , URB_TOGGLE_OUT= 0x80 /* Needs toogle action */
 , URB_TOGGLE_IN = 0x80 /* Needs toogle action */

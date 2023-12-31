@@ -129,7 +129,7 @@ static schar USBD_MSC_Setup( USB_SETUP_REQ * req )
         { USBD_STORAGE_fops->GetMaxLun( req->bRequest
                                       , CmdBuff
                                       , req->wLength );  /* Get the data to be sent to Host from interface layer */
-          USBD_CtlSendData( CmdBuff           /* Send the data to the host */
+          USBDctlSendData( CmdBuff           /* Send the data to the host */
                           , req->wLength );
         }
 
@@ -141,7 +141,7 @@ static schar USBD_MSC_Setup( USB_SETUP_REQ * req )
    Next step: the received data will be managed in usbd_cdc_EP0_TxSent()
    function.
  */
-          USBD_CtlPrepareRx( CmdBuff
+          USBDctlPrepareRx( CmdBuff
                            , req->wLength );
       } }
 
@@ -155,7 +155,7 @@ static schar USBD_MSC_Setup( USB_SETUP_REQ * req )
 
     case USB_REQ_TYPE_STANDARD: switch (req->bRequest)     /* Interface & Endpoint request */
     { case USB_REQ_GET_INTERFACE :
-        USBD_CtlSendData( &USBD_MSC_AltSet, 1 );
+        USBDctlSendData( &USBD_MSC_AltSet, 1 );
       break;
 
       case USB_REQ_SET_INTERFACE :
