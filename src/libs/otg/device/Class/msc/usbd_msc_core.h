@@ -20,6 +20,7 @@
 
 #define MSC_IN_EP      0x81
 #define MSC_OUT_EP     0x02
+
 #define MSC_MAX_PACKET 512
 #define MSC_MEDIA_PACKET MSC_MAX_PACKET
 

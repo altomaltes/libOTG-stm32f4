@@ -31,7 +31,7 @@
 #define SCSI_MODE_SELECT10        0x55
 #define SCSI_MODE_SENSE6          0x1A
 #define SCSI_MODE_SENSE10         0x5A
-#define SCSI_ALLOW_MEDIUM_REMOVAL 0x1E
+#define SCSI_ALLOW_REMOVAL 0x1E
 #define SCSI_READ6                0x08
 #define SCSI_READ10               0x28
 #define SCSI_READ12               0xA8
@@ -50,7 +50,7 @@
 #define SCSI_VERIFY12         0xAF
 #define SCSI_VERIFY16         0x8F
 #define SCSI_SEND_DIAGNOSTIC        0x1D
-#define SCSI_READ_FORMAT_CAPACITIES 0x23
+#define SCSI_READ_FMT_CAP 0x23
 
 enum
 { NO_SENSE        = 0
@@ -117,7 +117,7 @@ extern SCSI_Sense_TypeDef  SCSI_Sense[ SENSE_LIST_DEEPTH ];
 extern byte   SCSI_Sense_Head;
 extern byte   SCSI_Sense_Tail;
 
-schar SCSI_ProcessCmd( byte   lun
+int8_t SCSI_ProcessCmd( byte   lun
                      , byte * cmd );
 
 void   SCSI_SenseCode( byte lun

@@ -95,30 +95,44 @@ void * USB_OTG_ReadPacket( void * buff
  */
 static schar USBcoreInit(  )
 { STM32F4.USB.GLOBAL.GUSBCFG.PHYSEL= 1; /* FS interface (embedded Phy) */
-  USB_OTG_CoreReset();                  /* Reset after a PHY select and set Host mode */
 
-  STM32F4.USB.GLOBAL.GCCFG.PWRDWN= 1;    /** 0x10 Power down */
+  if ( USB_OTG_Core.vbusPin &  USB_ULPI_PHY )   /* External interface */
+  { STM32F4.USB.GLOBAL.GCCFG.PWRDWN= 0;    /** 0x10 Power down */
 
-  if ( USB_OTG_Core.vbusPin & USB_VBUS_INT )    /* Vbus sense enabled */
-  { STM32F4.USB.GLOBAL.GCCFG.VBUSASEN= 1; /** 0x12 Enable the VBUS sensing device */
-    STM32F4.USB.GLOBAL.GCCFG.VBUSBSEN= 1; /** 0x12 Enable the VBUS sensing device */
-    STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN= 0;
+    STM32F4.USB.GLOBAL.GUSBCFG.TSDPS=
+    STM32F4.USB.GLOBAL.GUSBCFG.PHYSEL=
+    STM32F4.USB.GLOBAL.GUSBCFG.ULPIFSLS=
+    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSI= 0;  /* FS interface  */
+
+    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSD= 0;  /* External VBUS */
+
+    USB_OTG_CoreReset();                  /* Reset after a PHY select and set Host mode */
   }
   else
-  {
+  { USB_OTG_CoreReset();                  /* Reset after a PHY select and set Host mode */
+
+    STM32F4.USB.GLOBAL.GCCFG.PWRDWN= 1;    /** 0x10 Power down */
+
+    if ( USB_OTG_Core.vbusPin & USB_VBUS_INT )    /* Vbus sense enabled */
+    { STM32F4.USB.GLOBAL.GCCFG.VBUSASEN= 1; /** 0x12 Enable the VBUS sensing device */
+      STM32F4.USB.GLOBAL.GCCFG.VBUSBSEN= 1; /** 0x12 Enable the VBUS sensing device */
+      STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN= 0;
+    }
+    else
+    {
 
 #if defined (STM32F446xx) || defined (STM32F469_479xx)
-    STM32F4.USB.GLOBAL.GCCFG.VBDEN = 1;
+      STM32F4.USB.GLOBAL.GCCFG.VBDEN = 1;
 #else
-    STM32F4.USB.GLOBAL.GCCFG.VBUSASEN= 0; /** 0x12 Disable the VBUS sensing device */
-    STM32F4.USB.GLOBAL.GCCFG.VBUSBSEN= 0; /** 0x12 Disable the VBUS sensing device */
+      STM32F4.USB.GLOBAL.GCCFG.VBUSASEN= 0; /** 0x12 Disable the VBUS sensing device */
+      STM32F4.USB.GLOBAL.GCCFG.VBUSBSEN= 0; /** 0x12 Disable the VBUS sensing device */
 #endif
-    STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN=  0;
+      STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN=  0;
 /* B-peripheral session valid override enable
  */
-    STM32F4.USB.GLOBAL.GOTGCTL.BVALOEN=
-    STM32F4.USB.GLOBAL.GOTGCTL.BVALOVAL= 1;
-  }
+      STM32F4.USB.GLOBAL.GOTGCTL.BVALOEN=
+      STM32F4.USB.GLOBAL.GOTGCTL.BVALOVAL= 1;
+  } }
 //STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN= 0; //// çççç
 ///  if ( USB_OTG_Core.vbusPin & USB_VBUS_INT )  /* Vbus sense enabled *///
 //  { STM32F4.USB.GLOBAL.GCCFG.SOFOUTEN= 1;     /** 0x14 SOF output enable */
@@ -182,16 +196,35 @@ schar OTGselectCore( dword flags )
      USB_OTG_Core.dmaEnable       = 1;
 #endif
 
-      if ( flags & USB_VBUS_INT )
-      { PIN_MODE( PORTPIN( PORTB, 13 ), GPIO_IN  | GPIO_FLOAT                     );  /* Vbus, left as default */
+      if ( flags &  USB_ULPI_PHY )   /* External interface */
+      { PIN_MODE( PORTPIN( PORTA,  5 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* FS_DM   */
+        PIN_MODE( PORTPIN( PORTA,  3 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* FS_DM   */
+        PIN_MODE( PORTPIN( PORTB,  0 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D1   */
+        PIN_MODE( PORTPIN( PORTB,  1 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D2   */
+        PIN_MODE( PORTPIN( PORTB,  5 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D3   */
+        PIN_MODE( PORTPIN( PORTB, 10 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D4   */
+        PIN_MODE( PORTPIN( PORTB, 11 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D5   */
+        PIN_MODE( PORTPIN( PORTB, 12 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D6   */
+        PIN_MODE( PORTPIN( PORTB, 13 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D7  */
+        PIN_MODE( PORTPIN( PORTC,  0 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* STP */
+        PIN_MODE( PORTPIN( PORTH,  4 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* NXT */
+        PIN_MODE( PORTPIN( PORTC,  2 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* DIR */
+
+        DEVICE_ENABLE( RCC_OTG_ULPI );
+      }
+      else
+      { if ( flags & USB_VBUS_INT )
+        { PIN_MODE( PORTPIN( PORTB, 13 ), GPIO_IN  | GPIO_FLOAT                     );  /* Vbus, left as default */
+        }
+
+        if ( USB_OTG_Core.vbusPin & USB_ID_PIN )
+        { PIN_MODE( PORTPIN( PORTB, 12 ), GPIO_IN  | GPIO_PULLUP         | AF_OTG_HS );  /* ID pin */
+        }
+
+        PIN_MODE( PORTPIN( PORTB, 14 ), GPIO_OUT | GPIO_FAIR | GPIO_HIGH | AF_OTG_HS );
+        PIN_MODE( PORTPIN( PORTB, 15 ), GPIO_OUT | GPIO_FAIR | GPIO_HIGH | AF_OTG_HS );
       }
 
-      if ( USB_OTG_Core.vbusPin & USB_ID_PIN )
-      { PIN_MODE( PORTPIN( PORTB, 12 ), GPIO_IN  | GPIO_PULLUP         | AF_OTG_HS );  /* ID pin */
-      }
-
-      PIN_MODE( PORTPIN( PORTB, 14 ), GPIO_OUT | GPIO_FAIR | GPIO_HIGH | AF_OTG_HS );
-      PIN_MODE( PORTPIN( PORTB, 15 ), GPIO_OUT | GPIO_FAIR | GPIO_HIGH | AF_OTG_HS );
       DEVICE_RESET(  RCC_OTG_FS );
       DEVICE_ENABLE( RCC_OTG_HS );
 

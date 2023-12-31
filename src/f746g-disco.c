@@ -151,7 +151,7 @@ int main( void )
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
-  USBinitD( 0 );
+  USBinitD( USB_ULPI_PHY );
 // USBinitH( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
@@ -167,7 +167,8 @@ int main( void )
   * @param
   * @retval
   */
-ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
+//ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
+ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
 ABSOLUTE(   RAM_SIZE, 0x00010000 );
 ABSOLUTE( FLASH_SIZE, 0x00100000 );
 
