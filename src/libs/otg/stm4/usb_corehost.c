@@ -31,7 +31,7 @@ schar USBcoreInitHost( )
  */
   if ( vbusPin )
   { PIN_MODE( vbusPin, GPIO_OUT | GPIO_HIGH );
-    PIN_SET( vbusPin );
+    PIN_PUT( vbusPin, ( USB_OTG_Core.vbusPin & USB_VBUS_INV ) ? 0 : 1 );  /*ENABLE the Power Switch by driving the Enable LOW */
     mDelay( 400 );   /* Delay is need for stabilising the Vbus Low  in Reset Condition, when Vbus=1 and Reset-button is pressed by user */
   }
 
@@ -112,27 +112,23 @@ void USBdriveVbus( byte state )
 { word vbusPin= USB_OTG_Core.vbusPin & 0x0FFF; /* Extract ID pin flags */
 
   if ( vbusPin )
-  { if ( state )
-    { PIN_RST( vbusPin ); } /*ENABLE the Power Switch by driving the Enable LOW */
-    else
-    { PIN_SET( vbusPin ); } /* DISABLE is needed on output of the Power Switch */
-
-     mDelay( 200 );
+  { PIN_PUT( vbusPin, ( USB_OTG_Core.vbusPin & USB_VBUS_INV ) ? !!state : !state   );  /*ENABLE the Power Switch by driving the Enable LOW */
+    mDelay( 200 );
   }
 
   if (( STM32F4.USB.HOST.HPRT.PPWR == 0 ) && ( state == 1 )) /* Turn on the Host port power. */
-  { STM32F4.USB.HOST.HPRT.PENA=
-    STM32F4.USB.HOST.HPRT.PCDET=
-    STM32F4.USB.HOST.HPRT.PENCHNG=
-    STM32F4.USB.HOST.HPRT.POCCHNG= 0;
+  { //STM32F4.USB.HOST.HPRT.PENA=
+    //STM32F4.USB.HOST.HPRT.PCDET=
+    //STM32F4.USB.HOST.HPRT.PENCHNG=
+    //STM32F4.USB.HOST.HPRT.POCCHNG= 0;
 
     STM32F4.USB.HOST.HPRT.PPWR= 1;
   }
   if (( STM32F4.USB.HOST.HPRT.PPWR == 1 ) && ( state == 0 ))
-  { STM32F4.USB.HOST.HPRT.PENA=
-    STM32F4.USB.HOST.HPRT.PCDET=
-    STM32F4.USB.HOST.HPRT.PENCHNG=
-    STM32F4.USB.HOST.HPRT.POCCHNG= 1;
+  { //STM32F4.USB.HOST.HPRT.PENA=
+    //STM32F4.USB.HOST.HPRT.PCDET=
+    //STM32F4.USB.HOST.HPRT.PENCHNG=
+    //STM32F4.USB.HOST.HPRT.POCCHNG= 1;
 
     STM32F4.USB.HOST.HPRT.PPWR= 0;
   }

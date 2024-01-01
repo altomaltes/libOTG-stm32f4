@@ -235,7 +235,7 @@ byte USB_OTG_GetCurrentState ()
   * @param  None
   * @retval : None
   */
-void * USBinitOTG( word vbusPin )
+void * USBinitOTG( dword vbusPin )
 { OTGselectCore( vbusPin );
   OTGsetCurrentMode(  OTG_MODE );
 

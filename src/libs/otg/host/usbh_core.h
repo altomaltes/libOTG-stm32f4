@@ -138,7 +138,7 @@ typedef struct
 extern union USBclassBM USBHclassSignaler;
 
 void   usbHostSetXferDest( schar( *handleXferPkg )( byte epNum ) );       /* HostLibInitialized */
-void * USBinitH( word vbusPin );
+void * USBinitH( dword vbusPin );
 schar  USBHdeInit( void );
 byte   USBH_HandleEnum( byte ep );
 

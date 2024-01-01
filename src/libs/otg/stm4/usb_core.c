@@ -93,24 +93,25 @@ void * USB_OTG_ReadPacket( void * buff
  *         device mode or host mode operation.
  * @retval schar : status
  */
-static schar USBcoreInit(  )
-{ STM32F4.USB.GLOBAL.GUSBCFG.PHYSEL= 1; /* FS interface (embedded Phy) */
-
-  if ( USB_OTG_Core.vbusPin &  USB_ULPI_PHY )   /* External interface */
+ schar USBcoreInit(  )
+{
+  if ( USB_OTG_Core.vbusPin & USB_ULPI_PHY )   /* External interface */
   { STM32F4.USB.GLOBAL.GCCFG.PWRDWN= 0;    /** 0x10 Power down */
-
     STM32F4.USB.GLOBAL.GUSBCFG.TSDPS=
     STM32F4.USB.GLOBAL.GUSBCFG.PHYSEL=
-    STM32F4.USB.GLOBAL.GUSBCFG.ULPIFSLS=
-    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSI= 0;  /* FS interface  */
+    STM32F4.USB.GLOBAL.GUSBCFG.ULPIFSLS= 0; /* FS interface  */
 
-    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSD= 0;  /* External VBUS */
+//    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSD=UTMISEL;  UTMI interface ( for STM32F722xx )
+
+    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSD= 1;  /* External VBUS */
+    STM32F4.USB.GLOBAL.GUSBCFG.ULPIEVBUSI= 0;
 
     USB_OTG_CoreReset();                  /* Reset after a PHY select and set Host mode */
   }
   else
-  { USB_OTG_CoreReset();                  /* Reset after a PHY select and set Host mode */
-
+  {
+    STM32F4.USB.GLOBAL.GUSBCFG.PHYSEL= 1; /* FS interface (embedded Phy) */
+    USB_OTG_CoreReset();                  /* Reset after a PHY select and set Host mode */
     STM32F4.USB.GLOBAL.GCCFG.PWRDWN= 1;    /** 0x10 Power down */
 
     if ( USB_OTG_Core.vbusPin & USB_VBUS_INT )    /* Vbus sense enabled */

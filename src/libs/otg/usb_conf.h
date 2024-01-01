@@ -55,12 +55,11 @@
 
 #define   MAX_DATA_LENGTH    0x200
 
-#define USB_ID_PIN   0x4000
-#define USB_VBUS_INT 0x2000
-#define USB_ULPI_PHY 0x1000
-#define USB_VBUS_EMB 0x0400
-
-
+#define USB_VBUS_INV 0x08000
+#define USB_ID_PIN   0x80000
+#define USB_VBUS_INT 0x40000
+#define USB_ULPI_PHY 0x20000
+#define USB_VBUS_EMB 0x10000
 
 #define RX_FIFO_FS_SIZE 128
 #define RX_FIFO_HS_SIZE 512

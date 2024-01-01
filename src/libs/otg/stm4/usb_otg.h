@@ -25,7 +25,7 @@
 //void USB_OTG_Switchback (USB_OTG_CORE_DEVICE *pdev);
 //uint32_t  USB_OTG_GetCurrentState (USB_OTG_CORE_DEVICE *pdev);
 
-void * USBinitOTG( word vbusPin );
+void * USBinitOTG( dword vbusPin );
 
 
 #endif

@@ -477,7 +477,7 @@ schar USBHdeInit( void ) /* Software Init */
  *         Host hardware and stack initializations
  * @retval None
  */
-void * USBinitH( word vbusPin )
+void * USBinitH( dword vbusPin )
 { OTGselectCore( vbusPin );
   USBcoreInitHost();              /* Start the USB OTG core  */
   OTGsetCurrentMode( HOST_MODE ); /* No OTG, force Host Mode */

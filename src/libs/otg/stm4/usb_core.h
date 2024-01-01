@@ -58,7 +58,7 @@ typedef struct USB_OTG_handle
   byte speed;
   byte dmaEnable;
   word mps;
-  word vbusPin;
+  dword vbusPin;
 }
 USB_OTG_CORE_HANDLE;
 

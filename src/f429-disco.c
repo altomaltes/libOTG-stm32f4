@@ -109,8 +109,8 @@ int main( void )
 
 
  //USBinitD( USB_VBUS_INT );      /* Activate 1ms per packet callback ( handleSofDevISR ) */
- // USBinitH(   PORTPIN( PORTC, 4 ) | USB_ID_PIN | USB_SOF_INT );
-  USBinitOTG( PORTPIN( PORTC, 4 ) | USB_VBUS_INT | USB_ID_PIN  );
+  USBinitH(   PORTPIN( PORTC, 4 ) | USB_ID_PIN  );
+ // USBinitOTG( PORTPIN( PORTC, 4 ) | USB_VBUS_INT | USB_ID_PIN  );
 
 
    while( 1 )

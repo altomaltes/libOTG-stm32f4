@@ -164,8 +164,8 @@ int main( void )
   PIN_MODE( LED4, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
- USBinitD( /*USB_VBUS_INT*/0 );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
-// USBinitH( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
+//USBinitD( USB_VBUS_INT );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
+ USBinitH( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )

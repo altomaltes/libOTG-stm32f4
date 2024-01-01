@@ -151,8 +151,9 @@ int main( void )
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
-  USBinitD( USB_ULPI_PHY );
-//  USBinitH( USB_VBUS_EMB );
+//  USBinitD( USB_ULPI_PHY );
+//  USBinitH( PORTPIN( PORTJ, 12 ) |  USB_ID_PIN  | USB_ULPI_PHY );
+    USBinitH( USB_ID_PIN  | USB_ULPI_PHY );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
