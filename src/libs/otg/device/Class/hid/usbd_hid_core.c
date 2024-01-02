@@ -252,9 +252,9 @@ static schar  USBD_HID_Crtl( byte what, word cfgidx )
 { switch( what )
   { case ACTION_INIT:         /* Open EP IN */
       USBDepOpen( HID_IN_EP
-                 , HID_IN_PACKET
-                 , EPTYPE_INTERRUPT
-                 , USBD_HID_DataIn );
+                , HID_IN_PACKET
+                , EPTYPE_INTERRUPT
+                , USBD_HID_DataIn );
       USBDepTimer( HID_IN_EP, 2 );
     break;
 

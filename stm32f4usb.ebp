@@ -288,7 +288,7 @@
 		</Device>
 		<Compiler>
 			<Add option="-mfloat-abi=hard" />
-			<Add option="-fno-strict-aliasing" />
+			<Add option="-fno-strict-aliasing -O0" />
 			<Add symbol="ARM_MATH_CM4" />
 			<Add symbol="PROJECT_C" />
 		</Compiler>
@@ -538,31 +538,11 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_scsi.h" />
-		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_bot.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_bot.h" />
-		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_core.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_core.h" />
-		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_data.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_data.h" />
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_mem.h" />
-		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_scsi.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_scsi.h" />
-		<Unit filename="src\libs\otg\device\Class\msc\usbd_storage_template.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\usbd_core.c">
 			<Option compilerVar="CC" />
 			<Option target="STEVAL-3DP001V1" />
@@ -830,7 +810,7 @@
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
 				<target_debugging_settings target="F746G-DISCO">
-					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
+					<debug_interface description="STM32F7x6.svd" options="2" reg_filter="10" probe="STlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset;" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
 			</debugger>
 			<envvars />

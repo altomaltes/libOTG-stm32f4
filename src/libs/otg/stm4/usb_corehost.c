@@ -112,7 +112,8 @@ void USBdriveVbus( byte state )
 { word vbusPin= USB_OTG_Core.vbusPin & 0x0FFF; /* Extract ID pin flags */
 
   if ( vbusPin )
-  { PIN_PUT( vbusPin, ( USB_OTG_Core.vbusPin & USB_VBUS_INV ) ? !!state : !state   );  /*ENABLE the Power Switch by driving the Enable LOW */
+  { PIN_PUT( vbusPin, ( USB_OTG_Core.vbusPin & USB_VBUS_INV )
+                    ? !!state : !state   );  /*ENABLE the Power Switch by driving the Enable LOW */
     mDelay( 200 );
   }
 
@@ -885,7 +886,7 @@ INTERRUPT void USBIrqHandlerHOST( /* dword core */)
 
   if (( INTS.atomic= STM32F4.USB.GLOBAL.GINTSTS.atomic
                    & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
-  { STM32F4.USB.GLOBAL.GINTSTS= INTS; /* Clear stored interrupts */
+  { STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFF; /* Clear stored interrupts, keep OTG */
 
   /* Host events
    */

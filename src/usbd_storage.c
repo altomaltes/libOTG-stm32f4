@@ -80,8 +80,8 @@ schar STORAGE_Inquirydata[] =   /* 36 */
   * @param  lun: Logical unit number
   * @retval Status (0 : OK / -1 : Error)
   */
-schar STORAGE_Init(byte lun)
-{ return FATFS_OK;
+schar STORAGE_Init( byte lun )
+{ return( FATFS_OK );
 }
 
 /**
@@ -93,8 +93,9 @@ schar STORAGE_Init(byte lun)
   */
 schar STORAGE_GetCapacity(byte lun, dword *block_num, word *block_size)
 { *block_num = TOTAL_SECTORS;
-  *block_size = SECTOR_SIZE;
-  return FATFS_OK;
+  *block_size= SECTOR_SIZE;
+
+  return( FATFS_OK );
 }
 
 /**
@@ -103,7 +104,7 @@ schar STORAGE_GetCapacity(byte lun, dword *block_num, word *block_size)
   * @retval Status (0: OK / -1: Error)
   */
 schar STORAGE_IsReady(byte lun)
-{ return FATFS_OK;
+{ return( FATFS_OK );
 }
 
 /**
@@ -112,7 +113,7 @@ schar STORAGE_IsReady(byte lun)
   * @retval Status (0: write enabled / -1: otherwise)
   */
 schar STORAGE_IsWriteProtected(byte lun)
-{ return FATFS_OK;
+{ return( FATFS_OK );
 }
 
 /**
@@ -125,27 +126,27 @@ schar STORAGE_IsWriteProtected(byte lun)
 schar STORAGE_Read(byte lun, byte *buf, dword blk_addr, word blk_len)
 { dword blk_addr_offset = 0;
   dword blk_copy_number = 0;
-  if(lun == 0)
+  if ( lun == 0 )
   { do
     { if(blk_addr == BOOT_TABLE_SECTOR_IDX)
       { blk_copy_number = 1;
         memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), BOOT_TABLE, BOOT_TABLE_USED_SIZE);
         memset(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + BOOT_TABLE_USED_SIZE, 0, BOOT_TABLE_SIZE - BOOT_TABLE_USED_SIZE);
-        (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[BOOT_TABLE_SIZE - 2] = 0x55;
-        (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[BOOT_TABLE_SIZE - 1] = 0xAA;
+        (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[ BOOT_TABLE_SIZE - 2 ] = 0x55;
+        (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[ BOOT_TABLE_SIZE - 1 ] = 0xAA;
       }
 
-      else if(blk_addr < FAT2_TABLE_SECTOR_IDX)
+      else if( blk_addr < FAT2_TABLE_SECTOR_IDX)
       { blk_copy_number = (FAT2_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : FAT2_TABLE_SECTOR_IDX - blk_addr;
         memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
       }
 
-      else if(blk_addr < ROOT_TABLE_SECTOR_IDX)
+      else if( blk_addr < ROOT_TABLE_SECTOR_IDX)
       { blk_copy_number = (ROOT_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : ROOT_TABLE_SECTOR_IDX - blk_addr;
         memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
       }
 
-      else if(blk_addr < FATFS_TOTAL_SECTORS)
+      else if( blk_addr < FATFS_TOTAL_SECTORS)
       { blk_copy_number = (FATFS_TOTAL_SECTORS - blk_addr > blk_len) ? blk_len : FATFS_TOTAL_SECTORS - blk_addr;
         memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), ROOT_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - ROOT_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
       }
@@ -155,7 +156,7 @@ schar STORAGE_Read(byte lun, byte *buf, dword blk_addr, word blk_len)
         { if(blk_addr == README_SECT_IDX + README_SECT_NUM - 1)  /* END OF FILE */
           { blk_copy_number = 1;
             memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), README_DATA + SECTORS_CONV_BYTES(README_SECT_NUM - 1), README_TAIL_LEN);
-            USBD_memset(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + README_TAIL_LEN, 0, SECTOR_SIZE - README_TAIL_LEN);
+            memset(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + README_TAIL_LEN, 0, SECTOR_SIZE - README_TAIL_LEN);
            }
            else
            { blk_copy_number = (README_SECT_IDX + README_SECT_NUM - blk_addr - 1 > blk_len) ? blk_len : README_SECT_IDX + README_SECT_NUM - blk_addr - 1;
@@ -171,15 +172,16 @@ schar STORAGE_Read(byte lun, byte *buf, dword blk_addr, word blk_len)
            { blk_copy_number = blk_len;
            }
          } }
-      blk_len -= blk_copy_number;
-      blk_addr += blk_copy_number;
+      blk_len         -= blk_copy_number;
+      blk_addr        += blk_copy_number;
       blk_addr_offset += blk_copy_number;
     }
-    while(blk_len);
+    while( blk_len );
 
-    return FATFS_OK;
+    return( FATFS_OK );
   }
-  return FATFS_ERROR;
+
+  return( FATFS_ERROR );
 }
 
 /**
@@ -208,8 +210,8 @@ schar STORAGE_Write(byte lun, byte *buf, dword blk_addr, word blk_len)
           { blk_wrte_number = (ROOT_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : ROOT_TABLE_SECTOR_IDX - blk_addr;
 //        memcpy(FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
           }
-          else
-            if(blk_addr < FATFS_TOTAL_SECTORS)
+
+          else if(blk_addr < FATFS_TOTAL_SECTORS)
             { blk_wrte_number = (FATFS_TOTAL_SECTORS - blk_addr > blk_len) ? blk_len : FATFS_TOTAL_SECTORS - blk_addr;
               memcpy(ROOT_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - ROOT_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
             }

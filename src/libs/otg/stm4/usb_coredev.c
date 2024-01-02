@@ -268,7 +268,7 @@ schar USB_OTG_EPStartXmit( byte epAddr
     STM32F4.USB.DEVICE.DIEP[ epAddr ].TSIZ.PKTCNT= (xferLen - 1 + maxpacket) / maxpacket;
 
     if ( epType == USB_EP_TYPE_ISOC )
-    { STM32F4.USB.DEVICE.DIEP[ epAddr ].TSIZ.MC_NW = 1;
+    { STM32F4.USB.DEVICE.DIEP[ epAddr ].TSIZ.MULTICNT= 1;
   } }
 
   if ( USB_OTG_Core.dmaEnable == 1)
@@ -831,12 +831,10 @@ void handleEnumDoneISR(  )
 
   if ( USB_OTG_GetDeviceSpeed() == USB_SPEED_HIGH )   /* Full or High speed */
   { USB_OTG_Core.speed= USB_OTG_SPEED_HIGH;
-    USB_OTG_Core.mps  = USB_OTG_HS_MAX_PACKET_SIZE ;
     STM32F4.USB.GLOBAL.GUSBCFG.TRDT= 9;
   }
   else
-  {USB_OTG_Core.speed    = USB_OTG_SPEED_FULL;
-   USB_OTG_Core.mps      = USB_OTG_FS_MAX_PACKET_SIZE ;
+  { USB_OTG_Core.speed    = USB_OTG_SPEED_FULL;
 //    STM32F4.USB.GLOBAL.GUSBCFG.TRDT= 5;
 
     if      ((hclk >= 15000000) && (hclk < 16000000)) { STM32F4.USB.GLOBAL.GUSBCFG.TRDT= 0xE; } /* hclk Clock Range between 15-16 MHz */
@@ -919,9 +917,8 @@ void handleOutEpISR()  /** 0x13 OUT endpoint interrupt */
 void handleInEpISR()                            /** 0x12 IN endpoint interrupt */
 { union STM32_USB_DEVICE$DIEPINT DIEPINT;
 
-  dword ep_intr;
-  dword epnum = 0;
-  ep_intr= USB_OTG_ReadDevAllInEPItr();
+  dword ep_intr= USB_OTG_ReadDevAllInEPItr();
+  volatile dword epnum= 0;
 
   while ( ep_intr )
   { if ( ep_intr & 0x1 ) /* In ITR */
@@ -930,6 +927,11 @@ void handleInEpISR()                            /** 0x12 IN endpoint interrupt *
       if ( DIEPINT.TXFE  )                      /* Token received */
       { STM32F4.USB.DEVICE.DIEP[ epnum ].INT.TXFE= 1;
         DCD_WriteEmptyTxFifo( epnum );
+      }
+      else
+      { epnum += 1;
+        epnum -= 1;
+
       }
 
       if ( DIEPINT.XFRC ) /** 0x00 Transfer completed */
@@ -1061,7 +1063,7 @@ INTERRUPT void USBIrqHandlerDEV( /* dword core */ )
 
   if ( INTS.atomic= ( STM32F4.USB.GLOBAL.GINTSTS.atomic
                     & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
-  { STM32F4.USB.GLOBAL.GINTSTS= INTS; /* Clear stored interrupts */
+  { STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFF; /* Clear stored interrupts */
   /* Device events
    */
     if ( INTS.MMIS        ) { handleMmisISR      (); } /** 0x01 Mode mismatch interrupt */

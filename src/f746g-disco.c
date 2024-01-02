@@ -31,7 +31,7 @@ word HIDpoll( word frame )
     case 0x70: buf[ 1 ]=  1; buf[ 2 ]=  1; break;
   }
 
-    PIN_PUT( LED1, buf[ 1 ] > 0 );
+   // PIN_PUT( LED1, buf[ 1 ] > 0 );
   //PIN_PUT( LED2, buf[ 2 ] > 0 );
 
   return( USBD_HID_SendReport( buf, 4 ));
@@ -153,11 +153,28 @@ int main( void )
 
 //  USBinitD( USB_ULPI_PHY );
 //  USBinitH( PORTPIN( PORTJ, 12 ) |  USB_ID_PIN  | USB_ULPI_PHY );
-    USBinitH( USB_ID_PIN  | USB_ULPI_PHY );
+//    USBinitH( USB_ID_PIN  | USB_ULPI_PHY );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
-
+   USBinitOTG( USB_ID_PIN  | USB_ULPI_PHY | USB_VBUS_INT | USB_ID_PIN  );
+volatile int step;
   while( 1 )
   { testForEvents( LED1, LED1 );
+
+/*    int top= udelayTop( 100 );
+
+    for( int loop = 0; loop < 5000; loop ++ )
+    {
+
+     again:
+      if ( step= udelayGet( top ) )
+      { step++; goto again;
+      }
+      else
+      { step--;
+      }
+      //uDelay( 100 );
+    }
+    PIN_TGL( LED1 );*/
     mDelay(10);
   }
   return( 0 );

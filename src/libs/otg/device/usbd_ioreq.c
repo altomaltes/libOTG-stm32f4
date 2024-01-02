@@ -18,6 +18,8 @@
 
 #include "usbd_core.h"
 
+#pragma GCC optimize ("O0")
+
 /**
  * @brief  Transmit data over USB
  * @param epAddr: endpoint address
@@ -28,7 +30,9 @@
 dword USBDepTx( byte   epAddr
               , byte * pbuf
               , word   buf_len )
-{ USB_OTG_EP * ep= &USB_DEV.inEp[ epAddr & 0x7F ];
+{ static volatile USB_OTG_EP * ep;
+
+  ep= &USB_DEV.inEp[ epAddr & 0x7F ];
 
 /* Setup and start the Transfer
  */

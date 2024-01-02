@@ -22,8 +22,8 @@
 
 /* JACS, from regs
  */
-#define USB_OTG_MAX_TX_FIFOS        12 //( HS -> 12 FS -> 8 )
-#define USB_OTG_MAX_EP0_SIZE        64
+#define USB_OTG_MAX_TX_FIFOS   12 //( HS -> 12 FS -> 8 )
+#define USB_OTG_MAX_EP0_SIZE   64
 
 
 #define FALSE 0

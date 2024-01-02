@@ -41,9 +41,9 @@ ALIGN_THIS( static const char USBD_DeviceDesc[ USB_SIZ_DEVICE_DESC ] ) =
 , USB_DEVICE_DESCRIPTOR_TYPE              /* bDescriptorType */
 , 0x00, 0x02                              /* bcdUSB          */
 
-, USB_CLASS_PER_INTERFACE   /* Defined on interface level */
+//, USB_CLASS_PER_INTERFACE   /* Defined on interface level */
 //, USB_CLASS_CDC // 0x00                                    /* bDeviceClass    */
-//, USB_CLASS_MASS_STOR
+, USB_CLASS_MASS_STOR
 
 , USB_SUBCLASS_NONE
 
@@ -58,7 +58,7 @@ ALIGN_THIS( static const char USBD_DeviceDesc[ USB_SIZ_DEVICE_DESC ] ) =
 , 1  // USBD_CFG_MAX_NUM                        /* bNumConfigurations*/
 }; /* USB_DeviceDescriptor */
 
-
+/*
 //USBD_DEVICE USBdeviceDescHid=
 USBD_DEVICE USBdeviceDesc=
 { USBD_DeviceDesc
@@ -70,7 +70,7 @@ USBD_DEVICE USBdeviceDesc=
  ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
  , &USBD_HID_cb };
 
-/*
+
 USBD_DEVICE USBdeviceDescCdc=
 //USBD_DEVICE USBdeviceDesc=
 { USBD_DeviceDesc
@@ -82,9 +82,11 @@ USBD_DEVICE USBdeviceDescCdc=
  ,  "Serial CDC Interface" }    // 5 USBD_INTERFACE_FS_STRING
  , &USBD_CDC_cb };
 
-
-//USBD_DEVICE USBdeviceDesc=
 USBD_DEVICE USBdeviceMsc=
+*/
+extern USBDclassDefREC USBD_MSC_cb;
+
+USBD_DEVICE USBdeviceDesc=
 { USBD_DeviceDesc
 ,{ "\0x4\0x9"              // 0 USBD_LANGID_STRING
  ,  "STMicroelectronics"   // 1 USBD_MANUFACTURER_STRING
@@ -94,5 +96,5 @@ USBD_DEVICE USBdeviceMsc=
  ,  "Mass Interface" }     // 5 USBD_INTERFACE_FS_STRING
  , &USBD_MSC_cb };
 
- */
+
 

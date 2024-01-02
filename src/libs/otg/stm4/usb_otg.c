@@ -237,7 +237,7 @@ byte USB_OTG_GetCurrentState ()
   */
 void * USBinitOTG( dword vbusPin )
 { OTGselectCore( vbusPin );
-  OTGsetCurrentMode(  OTG_MODE );
+  OTGsetCurrentMode( OTG_MODE );
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Enable interrupts ( global ) */
   USBenableCommonInt( OTG_MODE );
@@ -274,7 +274,7 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
 
   if (( INTS.atomic= STM32F4.USB.GLOBAL.GINTSTS.atomic
                    & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
-  { STM32F4.USB.GLOBAL.GINTSTS= INTS; /* Clear stored interrupts */
+  { STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFF; /* Clear stored interrupts */
 
     if ( INTS.CIDSCHG )            /* Less probable, but void any other */
     { handleConIDStChgISR();   /** 0x1C Connector ID status change */
@@ -287,7 +287,8 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
     if ( INTS.PTXFE   ) { handlePtxfemptyISR (); } /** 0x1A Periodic TxFIFO empty         */
     if ( INTS.HPRTINT ) { handlePortISR      (); } /** 0x18 Host port interrupt           */
     if ( INTS.HCINT   ) { handleChannelISR   (); } /** 0x19 Host channels interrupt       */
-    if ( INTS.DISCINT ) { handleDisconnectISR(); } /** 0x1D Disconnect detected interrupt */
+    if ( INTS.DISCINT )
+     { handleDisconnectISR(); } /** 0x1D Disconnect detected interrupt */
 
   /* Device events
    */
@@ -314,7 +315,9 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
     } }
 
     else                                               /* Device mode */
-    { if ( INTS.RXFLVL       ) handleCanReadDEV   ();    /** 0x04 RxFIFO non-empty */
+    { if ( INTS.RXFLVL       )
+
+        handleCanReadDEV   ();    /** 0x04 RxFIFO non-empty */
       if ( INTS.INCOMPISOOUT ) handleIsoOUTcopmISR();    /** 0x15 Incomplete isochronous OUT transfer(Device mode) */
       if ( INTS.SOF          )                           /** 0x03 Start of frame */
       { handleSofDevISR( STM32F4.USB.HOST.HFNUM.FRNUM );

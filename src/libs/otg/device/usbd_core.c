@@ -293,7 +293,7 @@ void USBDepTimer( byte epAddr
 
 
 dword USBDepOpen( byte epAddr
-                , word ep_mps
+                , word epMps
                 , byte epType
                 , void (*doIt)( word what ) )
 { USB_OTG_EP * ep= EPNUM( epAddr );
@@ -301,7 +301,7 @@ dword USBDepOpen( byte epAddr
   ep->num= epAddr & 0x7F;
 
   ep->is_in= ( 0x80 & epAddr ) != 0;
-  ep->maxpacket= ep_mps;
+  ep->maxpacket= epMps;
   ep->type= epType;
 
   if ( ep->is_in )
@@ -314,7 +314,7 @@ dword USBDepOpen( byte epAddr
 
   USBDepAction( epAddr, doIt );
 
-  USB_OTG_EPActivate( epAddr, epType, ep_mps  );
+  USB_OTG_EPActivate( epAddr, epType, epMps  );
   return( 0 );
 }
 
@@ -361,14 +361,14 @@ schar USBDdeInit( void ) /* Software Init */
 }
 
 
-/**
- * @brief  DCDinit
- *         Initialize Device
- * @param  None
- * @retval status
- */
-void DCDinit1234()
-{
+///**
+// * @brief  DCDinit
+// *         Initialize Device
+// * @param  None
+// * @retval status
+// */
+//void DCDinit1234()
+//{
 //#if defined (STM 32 F446xx) || defined (STM 32 F469_479xx)
 //  OTGsetCurrentMode( DEVICE_MODE );  /* Force Device Mode*/
 //  USBcoreInit();                 /* Init the Core (common init.) */
@@ -378,7 +378,7 @@ void DCDinit1234()
 //#endif
 
  // OTGcoreInitDev();              /* Init Device */
-}
+//}
 
 /**
  * @brief  called when an EP is disabled

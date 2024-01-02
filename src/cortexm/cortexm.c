@@ -486,27 +486,43 @@ volatile static  word  uSecs;
 
 
 /* ------------------------------------------------------------------------- */
-   dword uDelay( word usecs )  // 24 bit usec delay
+   int udelayGet( volatile int ticks )  // 24 bit usec delay
 /* ------------------------------------------------------------------------- */
-{ int ticks  = ( STK.LOAD + 1 ); /* Calc number of pits */
-      ticks *= usecs;
-      ticks /= uSecs;
-      ticks= STK.VALUE - ticks;
+{ if ( ticks > 0 )                /* Not rolling over */
+  { return( STK.VALUE > ticks );
+  }
+  else
+  { ticks= STK.LOAD + ticks;
+    return( STK.VALUE < ticks );
+} }
 
-  if ( ticks > 0 )      /* Not rolling over */
+/* ------------------------------------------------------------------------- */
+   int udelayTop( const int usecs )  // 24 bit usec delay
+/* ------------------------------------------------------------------------- */
+{ dword ticks  = ( STK.LOAD + 1 ); /* Calc number of pits */
+        ticks *= usecs;
+        ticks /= uSecs;
+        ticks= STK.VALUE - ticks;  /* this is counter destination  */
+
+  return( ticks );
+}
+
+/* ------------------------------------------------------------------------- */
+   void uDelay( word usecs )  // 24 bit usec delay
+/* ------------------------------------------------------------------------- */
+{ int ticks= udelayTop( usecs );
+
+  if ( ticks > 0 )               /* Not rolling over */
   { while( STK.VALUE > ticks );
   }
   else                           /* Rolling over */
   { ticks= STK.LOAD + ticks;
     while( STK.VALUE < ticks );
-  }
-
-  return( 0 );
-}
+} }
 
 
 /* ------------------------------------------------------------------------- */
-   dword mDelay( dword msecs )
+   void mDelay( dword msecs )
 /* ------------------------------------------------------------------------- */
 { msecs *= 1000;
   msecs /= uSecs; /* Convert to cycles */
@@ -514,15 +530,13 @@ volatile static  word  uSecs;
   while( msecs )
   { if ( STK.CTRL.CBIT )  // Returns 1 if timer counted to 0 since last time this was read.
     { msecs--;
-  } }
+} } }
 
 //  while( msecs-- )
 //  { while( STK.VALUE > ( STK.LOAD >> 1 ));       /* Wait for a tournement */
 //    while( STK.VALUE < ( STK.LOAD >> 1 ));       /* Wait for a tournement */
 //  }
 
-  return( 0 );
-}
 
 /* ------------------------------------------------------------------------- */
    INTERRUPT void SysTickHnd( void )

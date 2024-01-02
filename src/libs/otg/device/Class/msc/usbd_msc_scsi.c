@@ -423,18 +423,14 @@ static schar SCSI_Write10( byte lun , byte * params )
 /* case 8 : Hi <> Do
  */
     if (( MSC_BOT_cbw.bmFlags & 0x80) == 0x80 )
-    { SCSI_SenseCode( MSC_BOT_cbw.bLUN
-                    , ILLEGAL_REQUEST
-                    , INVALID_CDB );
+    { SCSI_SenseCode( MSC_BOT_cbw.bLUN                    , ILLEGAL_REQUEST                    , INVALID_CDB );
       return( -1 );
     }
 
 /* Check whether Media is ready
  */
     if ( USBD_STORAGE_fops->IsReady( lun ))
-    { SCSI_SenseCode( lun
-                    , NOT_READY
-                    , MEDIUM_NOT_PRESENT );
+    { SCSI_SenseCode( lun                    , NOT_READY                    , MEDIUM_NOT_PRESENT );
       return( -1 );
     }
 
@@ -534,23 +530,21 @@ schar SCSI_ProcessCmd( byte lun
     case SCSI_VERIFY10:              break; // return( SCSI_Verify10(       lun, params ));
 
     default:
-      SCSI_SenseCode( lun
-                    , ILLEGAL_REQUEST
-                    , INVALID_CDB );
+      SCSI_SenseCode( lun, ILLEGAL_REQUEST, INVALID_CDB );
     return( -1 );
   }
 
   switch ( params[0] )
-  { case SCSI_TEST_UNIT_READY:         return( SCSI_TestUnitReady(  lun, params ));
-    case SCSI_REQUEST_SENSE:           return( SCSI_RequestSense (  lun, params ));
-    case SCSI_START_STOP_UNIT:        return( SCSI_StartStopUnit(  lun, params ));
-    case SCSI_ALLOW_REMOVAL:  return( SCSI_StartStopUnit(  lun, params ));
-    case SCSI_MODE_SENSE6:            return( SCSI_ModeSense6 (    lun, params ));
-    case SCSI_MODE_SENSE10:           return( SCSI_ModeSense10 (   lun, params ));
-    case SCSI_READ_FMT_CAP: return( SCSIreadFmtCapacity( lun, params ));
-    case SCSI_READ_CAPACITY10:        return( SCSI_ReadCapacity10( lun, params ));
-    case SCSI_WRITE10:                return( SCSI_Write10(        lun, params ));
-    case SCSI_VERIFY10:               return( SCSI_Verify10(       lun, params ));
+  { case SCSI_TEST_UNIT_READY:  return( SCSI_TestUnitReady(  lun, params ));
+    case SCSI_REQUEST_SENSE:    return( SCSI_RequestSense (  lun, params ));
+    case SCSI_START_STOP_UNIT:  return( SCSI_StartStopUnit(  lun, params ));
+    case SCSI_ALLOW_REMOVAL:    return( SCSI_StartStopUnit(  lun, params ));
+    case SCSI_MODE_SENSE6:      return( SCSI_ModeSense6 (    lun, params ));
+    case SCSI_MODE_SENSE10:     return( SCSI_ModeSense10 (   lun, params ));
+    case SCSI_READ_FMT_CAP:     return( SCSIreadFmtCapacity( lun, params ));
+    case SCSI_READ_CAPACITY10:  return( SCSI_ReadCapacity10( lun, params ));
+    case SCSI_WRITE10:          return( SCSI_Write10(        lun, params ));
+    case SCSI_VERIFY10:         return( SCSI_Verify10(       lun, params ));
   }
 
   return( 0 );

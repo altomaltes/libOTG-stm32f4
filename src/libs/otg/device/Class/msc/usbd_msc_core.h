@@ -21,7 +21,7 @@
 #define MSC_IN_EP      0x81
 #define MSC_OUT_EP     0x02
 
-#define MSC_MAX_PACKET 512
+#define MSC_MAX_PACKET   512
 #define MSC_MEDIA_PACKET MSC_MAX_PACKET
 
 #include "usbd_core.h"
@@ -29,8 +29,8 @@
 
 #define USB_MSC_CONFIG_DESC_SIZ  32
 
-#define MSC_EPIN_SIZE  64
-#define MSC_EPOUT_SIZE 64
+//#define MSC_EPIN_SIZE  64
+//#define MSC_EPOUT_SIZE 64
 
 
 extern USBDclassDefREC USBD_MSC_cb;

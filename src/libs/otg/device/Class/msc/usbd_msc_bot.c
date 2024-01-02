@@ -79,10 +79,11 @@ void MSC_BOT_DeInit ()
  */
 static void  MSC_BOT_SendData( byte* buf
                              , word len )
-{ len = MIN (MSC_BOT_cbw.dDataLength, len);
+{ len= MIN (MSC_BOT_cbw.dDataLength, len);
+
   MSC_BOT_csw.dDataResidue -= len;
-  MSC_BOT_csw.bStatus = CSW_CMD_PASSED;
-  MSC_BOT_State = BOT_SEND_DATA;
+  MSC_BOT_csw.bStatus       = CSW_CMD_PASSED;
+  MSC_BOT_State             = BOT_SEND_DATA;
 
   USBDepTx( MSC_IN_EP, buf, len );
 }

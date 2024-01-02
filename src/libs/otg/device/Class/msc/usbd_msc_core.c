@@ -189,7 +189,7 @@ static schar USBD_MSC_Setup( USB_SETUP_REQ * req )
 }
 
 /**
- * @brief  USBD_MSC_Init
+ * @brief  USBD_MSC_Crtl
  *         Initialize  the mass storage configuration
  * @param  cfgidx: configuration index
  * @retval status

@@ -64,8 +64,8 @@
 #define RX_FIFO_FS_SIZE 128
 #define RX_FIFO_HS_SIZE 512
 
-#define TX0_FIFO_FS_SIZE    64
-#define TX0_FIFO_HS_SIZE    256
+#define TX0_FIFO_FS_SIZE   64
+#define TX0_FIFO_HS_SIZE  256
 
 #define TXN_FIFO_FS_SIZE   128
 #define TXN_FIFO_HS_SIZE   128

@@ -117,7 +117,7 @@ extern SCSI_Sense_TypeDef  SCSI_Sense[ SENSE_LIST_DEEPTH ];
 extern byte   SCSI_Sense_Head;
 extern byte   SCSI_Sense_Tail;
 
-int8_t SCSI_ProcessCmd( byte   lun
+schar SCSI_ProcessCmd( byte   lun
                      , byte * cmd );
 
 void   SCSI_SenseCode( byte lun

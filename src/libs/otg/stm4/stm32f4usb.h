@@ -284,11 +284,10 @@ union STM32_USB_DEVICE$DOIEPCTL
 
 union STM32_USB_DEVICE$DIEPTSIZ
 { volatile struct
-  { dword     XFRSIZ :  19; /** 0x00 Transfer size ( 7 used )*/
-    dword     PKTCNT :   2; /** 0x13 Packet count  */
-    dword            :   8; /** 0x15               */
-    dword      MC_NW :   2; /** 0x13 Packet count  */
-    dword            :   1; /**                    */
+  { dword   XFRSIZ:  19; /** 0x00 Transfer size ( 7 used )*/
+    dword   PKTCNT:  10; /** 0x13 Packet count  */
+    dword MULTICNT:   2; /** 0x29 ISO multicout  */
+    dword         :   1; /**                    */
   };
 
   volatile dword atomic;            /** atomic access */

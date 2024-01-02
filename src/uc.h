@@ -292,8 +292,11 @@ dword uart6Recv( void *, dword idx, dword data );
 
 /* RTOS related
  */
-dword        mDelay( const dword msecs  ); // Delay in miliseconds
-dword        uDelay( const word  usecs   );  // 24 bit usec delay
+void   mDelay( const dword msecs  );  // Delay in miliseconds
+void   uDelay( const  word usecs  );  // 24 bit usec delay
+int udelayGet( );                     // 24 bit usec delay
+int udelayTop( const int usecs );          // 24 bit usec delay
+
 void      osSysTick( const dword upTime ); // OS scheduler
 void  sysTickConfig( const dword ticks  ); // RTOS initializer
 void  setupHardware( void               );

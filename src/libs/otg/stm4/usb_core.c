@@ -161,7 +161,6 @@ void * USB_OTG_ReadPacket( void * buff
 schar OTGselectCore( dword flags )
 { USB_OTG_Core.vbusPin  = flags;
   USB_OTG_Core.dmaEnable= 0;
-  USB_OTG_Core.mps      = 64; // çççç USB_OTG_FS_MAX_PACKET_SIZE;
 
   /* initialize device cfg following its address */
   switch( (dword)&STM32F4.USB )
@@ -380,13 +379,18 @@ void USBenableCommonInt( byte mode )        /* Give OTG a chance */
     return;
   }
 
+/** 0x1C Connector ID status change mask, keep this one in OTG mode
+ */
+  INTS.CIDSCHG= ( STM32F4.USB.GLOBAL.GUSBCFG.FDMOD
+                | STM32F4.USB.GLOBAL.GUSBCFG.FHMOD )
+               ? 0 : 1 ;
+               INTS.CIDSCHG=0;
   INTS.SOF=
- // INTS.CIDSCHG=         /** 0x1C Connector ID status change mask, keep this one */
   INTS.INCOMPISOIN=
   INTS.INCOMPISOOUT= 1;  /** 0x14 Incomplete isochronous IN transfer */
 
-INTS.SRQINT= 0;
-  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFF; /* disable all previous */
+  INTS.SRQINT= 0; /** 0x1E Session request/new session detected interrupt, dual role ? */
+  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFF; /* disable all previous */
   STM32F4.USB.GLOBAL.GINTMSK= INTS;
 }
 
