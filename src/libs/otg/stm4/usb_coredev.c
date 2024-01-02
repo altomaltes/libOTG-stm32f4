@@ -686,11 +686,11 @@ dword USBDepFlush( byte epnum )
 /* ------------------------------------------------------- INT --------------------- */
 
 /**
- * @brief  DCD_WriteEmptyTxFifo
+ * @brief  DCDwriteEmptyTxFifo
  *         check FIFO for the next packet to be loaded
  * @retval status
  */
-static short DCD_WriteEmptyTxFifo( byte epNum )
+static short DCDwriteEmptyTxFifo( byte epNum )
 { word chLen= USBDwritePacket( epNum, 0 );
 
   if ( chLen )               /* Bytes to send */
@@ -736,7 +736,7 @@ dword USBD_OTG_EP1IN_ISR_Handler(  )
     STM32F4.USB.DEVICE.DIEPEMPMSK.atomic &= ~fifoemptymsk;
     STM32F4.USB.DEVICE.DIEP[ 1 ].INT.XFRC= 1;  /* TX COMPLETE */
 
-    USBD_DataInStage( 1 );
+    USBDdataInStage( 1 );
   }
 
   if ( diepint.AHBERR_NW ) { STM32F4.USB.DEVICE.DIEP[ 1 ].INT.AHBERR_NW= 1; }
@@ -745,7 +745,7 @@ dword USBD_OTG_EP1IN_ISR_Handler(  )
   if ( diepint.ITTXFE    ) { STM32F4.USB.DEVICE.DIEP[ 1 ].INT.ITTXFE   = 1; }
   if ( diepint.INEPNM    ) { STM32F4.USB.DEVICE.DIEP[ 1 ].INT.INEPNM   = 1; }
   if ( diepint.INEPNE    ) { STM32F4.USB.DEVICE.DIEP[ 1 ].INT.INEPNE   = 1; }
-  if ( diepint.TXFE      ) { DCD_WriteEmptyTxFifo( 1 );
+  if ( diepint.TXFE      ) { DCDwriteEmptyTxFifo( 1 );
                              STM32F4.USB.DEVICE.DIEP[ 1 ].INT.TXFE     = 1; }
   return( 1 );
 }
@@ -814,7 +814,7 @@ void handleUsbResetISR(  )
   USB_OTG_EP0_OutStart();                /* setup EP0 to receive SETUP packets */
   STM32F4.USB.GLOBAL.GINTSTS.USBRST= 1;  /* Clear interrupt */
 
-  USBD_Reset();                           /*Reset internal state machine */
+  USBDreset();                           /*Reset internal state machine */
 }
 
 
@@ -855,7 +855,7 @@ void handleEnumDoneISR(  )
  * @retval status
  */
 void handleIsoOUTcopmISR()
-{ USBD_IsoOUTIncomplete ();
+{ USBDisoOUTIncomplete ();
 }
 
 /**
@@ -864,7 +864,7 @@ void handleIsoOUTcopmISR()
  * @retval status
  */
 void handleIsoINcompISR()
-{ USBD_IsoINIncomplete (  );
+{ USBDisoINIncomplete (  );
 }
 
 
@@ -895,7 +895,7 @@ void handleOutEpISR()  /** 0x13 OUT endpoint interrupt */
   //        USB_DEV.outEp[ epnum ].xferCount= USB_DEV.outEp[ epnum ].maxpacket - deptsiz.XFRSIZ;
     // çç    }
 
-        USBD_DataOutStage( epnum ); /* Inform upper layer: data ready */ /* RX COMPLETE */
+        USBDdataOutStage( epnum ); /* Inform upper layer: data ready */ /* RX COMPLETE */
 
 //        if ( USB_OTG_Core.dmaEnable == 1 )
   //      { if (( epnum == 0 ) && (USB_DEV.deviceState == USB_OTG_EP0_STATUS_OUT))
@@ -907,7 +907,7 @@ void handleOutEpISR()  /** 0x13 OUT endpoint interrupt */
       if ( DOEPINT.EPDISD    ) { STM32F4.USB.DEVICE.DOEP[ epnum ].INT.EPDISD= 1   ; } /* Endpoint disable  *//* Clear the bit in DOEPINTn for this interrupt */
       if ( DOEPINT.AHBERR_NW ) { STM32F4.USB.DEVICE.DOEP[ epnum ].INT.AHBERR_NW= 1; } /* AHB Error */
       if ( DOEPINT.STUP )                                                 /* Setup Phase Done (control EPs) */
-      { USBD_SetupStage();                                                /* inform the upper layer that a setup packet is available */
+      { USBDsetupStage();                                                /* inform the upper layer that a setup packet is available */
         STM32F4.USB.DEVICE.DOEP[ epnum ].INT.STUP= 1;  /* SETUP COMPLETE */
     } }
 
@@ -926,18 +926,17 @@ void handleInEpISR()                            /** 0x12 IN endpoint interrupt *
 
       if ( DIEPINT.TXFE  )                      /* Token received */
       { STM32F4.USB.DEVICE.DIEP[ epnum ].INT.TXFE= 1;
-        DCD_WriteEmptyTxFifo( epnum );
+        DCDwriteEmptyTxFifo( epnum );
       }
       else
       { epnum += 1;
         epnum -= 1;
-
       }
 
       if ( DIEPINT.XFRC ) /** 0x00 Transfer completed */
       { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &= ~(0x1 << epnum);
         STM32F4.USB.DEVICE.DIEP[ epnum ].INT.XFRC= 1;
-        USBD_DataInStage( epnum );           /* TX COMPLETE */
+        USBDdataInStage( epnum );           /* TX COMPLETE */
 
    //     if ( USB_OTG_Core.dmaEnable == 1 )
      //   { if (( epnum == 0 )
@@ -1002,7 +1001,7 @@ void handleCanReadDEV()  /** 0x04 RxFIFO non-empty */
 //    { USB_DEV.outEp[ 1 ].xferCount= USB_DEV.outEp[ 1 ].maxpacket
  //                                   - STM32F4.USB.DEVICE.DOEP[ 1 ].TSIZ.XFRSIZ;
  //   }
- //   USBD_DataOutStage( 1 );
+ //   USBDdataOutStage( 1 );
  // }
 //
  // if ( DOEPINT.EPDISD )              /* Endpoint disable  */

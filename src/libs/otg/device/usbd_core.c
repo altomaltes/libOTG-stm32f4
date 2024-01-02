@@ -42,11 +42,11 @@ dword  USBDepStall( byte epAddr )
 }
 
 /**
- * @brief  USBD_SetupStage
+ * @brief  USBDsetupStage
  *         Handle the setup stage
  * @retval status
  */
-schar USBD_SetupStage()
+schar USBDsetupStage()
 { USB_SETUP_REQ req;
 
   USBDparseSetupRequest( &req );
@@ -74,12 +74,12 @@ static schar  USBD_RunTestMode(  )
 }
 
 /**
- * @brief  USBD_DataOutStage
+ * @brief  USBDdataOutStage
  *         Handle data out stage
  * @param  epnum: endpoint index
  * @retval status
  */
-schar USBD_DataOutStage( byte epnum )
+schar USBDdataOutStage( byte epnum )
 { USB_OTG_EP * ep;
 
   if ( epnum == 0 )
@@ -117,12 +117,12 @@ schar USBD_DataOutStage( byte epnum )
 }
 
 /**
-* @brief  USBD_DataInStage
+* @brief  USBDdataInStage
 *         Handle data in stage
 * @param  epnum: endpoint index
 * @retval status
 */
-schar USBD_DataInStage( byte epnum )
+schar USBDdataInStage( byte epnum )
 { USB_OTG_EP * ep;
 
   if ( epnum == 0 )
@@ -174,11 +174,11 @@ schar USBD_DataInStage( byte epnum )
 
 
 /**
- * @brief  USBD_Reset
+ * @brief  USBDreset
  *         Handle Reset event
  * @retval status
  */
-schar USBD_Reset()
+schar USBDreset()
 { USBDepOpen( 0x00, USB_OTG_MAX_EP0_SIZE, EPTYPE_CONTROL, NULL ); /* Open EP0 OUT */
   USBDepOpen( 0x80, USB_OTG_MAX_EP0_SIZE, EPTYPE_CONTROL, NULL ); /* Open EP0 IN */
 
@@ -216,20 +216,20 @@ schar USBDclrCfg( byte cfgidx )
 }
 
 /**
- * @brief  USBD_IsoINIncomplete
+ * @brief  USBDisoINIncomplete
  *         Handle iso in incomplete event
  * @retval status
  */
-schar USBD_IsoINIncomplete()
+schar USBDisoINIncomplete()
 { return( USBdeviceDesc.driver->Ctrl( ACTION_ISO_INICOM, 0 ));
 }
 
 /**
- * @brief  USBD_IsoOUTIncomplete
+ * @brief  USBDisoOUTIncomplete
  *         Handle iso out incomplete event
  * @retval status
  */
-schar USBD_IsoOUTIncomplete()
+schar USBDisoOUTIncomplete()
 { USBdeviceDesc.driver->Ctrl( ACTION_ISO_OUTICOM, 0 );
 
   return( 0 );

@@ -91,7 +91,7 @@ USBD_DEVICE USBdeviceDesc=
 ,{ "\0x4\0x9"              // 0 USBD_LANGID_STRING
  ,  "STMicroelectronics"   // 1 USBD_MANUFACTURER_STRING
  ,  "Kinetik disk"         // 2 USBD_CONFIGURATION_FS_STRING
- ,  "D0000000012E"         // 3 USBD_PRODUCT_FS_STRING
+ ,  "D0000000013E"         // 3 USBD_PRODUCT_FS_STRING
  ,  "Mass Config"          // 4
  ,  "Mass Interface" }     // 5 USBD_INTERFACE_FS_STRING
  , &USBD_MSC_cb };

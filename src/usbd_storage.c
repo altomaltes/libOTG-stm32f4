@@ -67,8 +67,8 @@ schar STORAGE_Inquirydata[] =   /* 36 */
   0x00,
   0x00,
   0x00,
-  'k', 'y', '.', 'C', 'h', 'u', ' ', ' ', /* Manufacturer: 8 bytes  */
-  'V', 'e', 'h', 'i', 'c', 'l', 'e', ' ', /* Product     : 16 Bytes */
+  'K', 'Y', 'C', 'H', 'U', ' ', ' ', ' ', /* Manufacturer: 8 bytes  */
+  'M', 'B', 'D', 'i', 'c', 'l', 'e', ' ', /* Product     : 16 Bytes */
   'U', 'p', 'g', 'r', 'a', 'd', 'e', 'r',
   '0', '.', '8','8',                      /* Version     : 4 Bytes  */
 };

@@ -49,8 +49,9 @@
 #define BOOT_TABLE_OFFSET              (0)
 #define BOOT_TABLE_USED_SIZE           (62)
 static unsigned char BOOT_TABLE[62] = { /* MSWIN4.1 */
-0xEB, 0x3C, 0x90,  'K',  'M',  'B',  'D',  'u',  '^',  '_',  '^'
-, __LOBYTE(SECTOR_SIZE), __HIBYTE(SECTOR_SIZE)
+0xEB, 0x3C, 0x90,  'k',  'y',  'C',  'h',  'u',  '^',  '_',  '^'
+, __LOBYTE( SECTOR_SIZE )
+, __HIBYTE( SECTOR_SIZE )
 , 0x01, 0x01, 0x00, 0x02, 0x20, 0x00, __LOBYTE(TOTAL_SECTORS)
 , __HIBYTE(TOTAL_SECTORS), 0xF0, 0x03, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, RESERVED_BYTE, 0x29, 0x00, 0x00, 0x00, 0x00,  'k',  'y',  '.',  'C',  'h',

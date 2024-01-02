@@ -79,10 +79,8 @@
 					<Add option="-Wall" />
 					<Add option="-fdata-sections" />
 					<Add option="-ffunction-sections" />
-					<Add option="-O2" />
 					<Add option="-O0" />
 					<Add option="-g2" />
-					<Add option="-Os" />
 					<Add symbol="DEBUG_TARGET" />
 				</Compiler>
 				<Cpp>
@@ -170,7 +168,6 @@
 					<Add option="-ffunction-sections" />
 					<Add option="-O0" />
 					<Add option="-g2" />
-					<Add option="-Os" />
 					<Add symbol="DEBUG_TARGET" />
 				</Compiler>
 				<Cpp>
@@ -259,10 +256,8 @@
 					<Add option="-Wall" />
 					<Add option="-fdata-sections" />
 					<Add option="-ffunction-sections" />
-					<Add option="-O2" />
 					<Add option="-O0" />
 					<Add option="-g2" />
-					<Add option="-Os" />
 					<Add symbol="DEBUG_TARGET" />
 				</Compiler>
 				<Cpp>

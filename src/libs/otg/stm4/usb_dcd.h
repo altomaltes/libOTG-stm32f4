@@ -28,24 +28,25 @@ void  USBDepAction     ( byte epNum, schar (*doIt)( byte ep ) );
 void  USBDepTimer      ( byte epAddr, word interval );
 dword DCD_Handle_ISR   ();
 
-/* --------------- INT ---------------------- */
-word handleSofDevISR( word frame );  /** 0x03 Start of frame */
-word USBdevGotSuspended( byte status );
-void USBdevGotResumed ( void );
-word handleSofDevISR( word frNum );  /** 0x03 Start of frame */
+/* --------------- INT ----------------------
+ */
+word  handleSofDevISR   ( word frame );  /** 0x03 Start of frame */
+word  USBdevGotSuspended( byte status );
+void  USBdevGotResumed  ( void );
+word  handleSofDevISR   ( word frNum );  /** 0x03 Start of frame */
 
-schar USBD_DataOutStage    (  byte epnum );
-schar USBD_DataInStage     (  byte epnum );
-schar USBD_SetupStage      ( );
+schar USBDdataOutStage    ( byte epnum );
+schar USBDdataInStage     ( byte epnum );
+schar USBDsetupStage      ( );
 
-schar USBD_Reset           ( );
-schar USBD_Suspend         ( );
-schar USBD_Resume          ( );
-schar USBD_IsoINIncomplete ( );
-schar USBD_IsoOUTIncomplete( );
+schar USBDreset           ( );
+schar USBDsuspend         ( );
+schar USBDresume          ( );
+schar USBDisoINIncomplete ( );
+schar USBDisoOUTIncomplete( );
 
-schar USBD_DevConnected    ( );
-schar USBD_DevDisconnected ( );
+schar USBD_DevConnected   ( );
+schar USBD_DevDisconnected( );
 
 dword USBD_OTG_EP1OUT_ISR_Handler();
 dword USBD_OTG_EP1IN_ISR_Handler ();
