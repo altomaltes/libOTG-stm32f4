@@ -883,7 +883,7 @@ void hndIncompPerXferISR(  )
 INTERRUPT void USBIrqHandlerHOST( /* dword core */)
 { union STM32_USB_GLOBAL$GINTSTS INTS= STM32F4.USB.GLOBAL.GINTSTS; /* Read atomically */
 
-  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFF; /* Clear stored interrupts, allow new ones */
+  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* Clear stored interrupts, allow new ones */
 
   if (( INTS.atomic &= STM32F4.USB.GLOBAL.GINTMSK.atomic ))
   {

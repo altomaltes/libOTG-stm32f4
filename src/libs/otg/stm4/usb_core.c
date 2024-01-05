@@ -179,8 +179,8 @@ schar OTGselectCore( dword flags )
 
       PIN_MODE( PORTPIN( PORTA, 11 ), GPIO_OUT | GPIO_FAIR   | GPIO_CRUI | AF_OTG_FS );   /* FS_DM   */
       PIN_MODE( PORTPIN( PORTA, 12 ), GPIO_OUT | GPIO_FAIR   | GPIO_CRUI | AF_OTG_FS );   /* FS_DP  */
-      DEVICE_RESET(  RCC_OTG_FS  );
       DEVICE_ENABLE( RCC_OTG_FS  );
+      DEVICE_RESET(  RCC_OTG_FS  );
 
     /*! 42, < USB OTG FS Wakeup through EXTI line interrupt  */
 
@@ -225,8 +225,8 @@ schar OTGselectCore( dword flags )
         PIN_MODE( PORTPIN( PORTB, 15 ), GPIO_OUT | GPIO_FAIR | GPIO_HIGH | AF_OTG_HS );
       }
 
-      DEVICE_RESET(  RCC_OTG_FS );
       DEVICE_ENABLE( RCC_OTG_HS );
+      DEVICE_RESET(  RCC_OTG_HS );
 
      /*! 74 < USB OTG HS End Point 1 Out global interrupt */
      /*! 75 < USB OTG HS End Point 1 In global interrupt  */
@@ -339,6 +339,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
   if ( !USB_OTG_Core.dmaEnable )
   { INTS.RXFLVL= 1;
   }
+  INTS.SOF= 1;
 
 /* Enable interrupts matching to the Device mode ONLY
  */
@@ -366,7 +367,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
     break;
 
     case DISABLE_MODE:
-      STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFF; /* Enable the interrupts in the INTMSK */
+      STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* Enable the interrupts in the INTMSK */
       STM32F4.USB.GLOBAL.GINTMSK.atomic= 0;
     return;
 
@@ -376,21 +377,22 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
  // INTS.OTGINTM=     /** 0x02 OTG interrupt mask */
       INTS.atomic= 0xBFFFFFFF; INTS.CIDSCHG= 0; STM32F4.USB.GLOBAL.GINTSTS= INTS; /* disable previous */
       INTS.atomic= 0x00000000; INTS.CIDSCHG= 1; STM32F4.USB.GLOBAL.GINTMSK= INTS; /** 0x1C Connector ID status change mask */
+//      STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* disable all previous, avoid CMOD */
+  //    STM32F4.USB.GLOBAL.GINTMSK= INTS;
     return;
   }
 
 /** 0x1C Connector ID status change mask, keep this one in OTG mode
  */
-  INTS.CIDSCHG= ( STM32F4.USB.GLOBAL.GUSBCFG.FDMOD
-                | STM32F4.USB.GLOBAL.GUSBCFG.FHMOD )
-               ? 0 : 1 ;
+//  INTS.CIDSCHG= ( STM32F4.USB.GLOBAL.GUSBCFG.FDMOD
+  //              | STM32F4.USB.GLOBAL.GUSBCFG.FHMOD )
+    //           ? 0 : 1 ;
 //               INTS.CIDSCHG=0;
-  INTS.SOF=
   INTS.INCOMPISOIN=
   INTS.INCOMPISOOUT= 1;  /** 0x14 Incomplete isochronous IN transfer */
 
   INTS.SRQINT= 0; /** 0x1E Session request/new session detected interrupt, dual role ? */
-  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFF; /* disable all previous */
+  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* disable all previous, avoid CMOD */
   STM32F4.USB.GLOBAL.GINTMSK= INTS;
 }
 

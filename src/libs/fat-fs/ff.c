@@ -835,12 +835,12 @@ DWORD get_fat ( /* 0xFFFFFFFF:Disk error, 1:Internal error, Else:Cluster status 
     return (clst & 1) ? (wc >> 4) : (wc & 0xFFF);
 
     case FS_FAT16 :
-      if (moveWindow(fs, fs->fatbase + (clst / (SS(fs) / 2)))) break;
+      if ( moveWindow(fs, fs->fatbase + (clst / (SS(fs) / 2)))) break;
       p = &fs->win[clst * 2 % SS(fs)];
     return LD_WORD(p);
 
     case FS_FAT32 :
-      if (moveWindow(fs, fs->fatbase + (clst / (SS(fs) / 4)))) break;
+      if ( moveWindow(fs, fs->fatbase + (clst / (SS(fs) / 4)))) break;
       p = &fs->win[clst * 4 % SS(fs)];
     return LD_DWORD(p) & 0x0FFFFFFF;
   }
@@ -2215,10 +2215,10 @@ static FRESULT chkMounted( const TCHAR **path    /* Pointer to pointer to the pa
     szbfat = fs->n_fatent * 4;            /* (Required FAT size) */
   }
   else
-  { if (!fs->n_rootdir) return FR_NO_FILESYSTEM;  /* (BPB_RootEntCnt must not be 0) */
-    fs->dirbase = fs->fatbase + fasize;       /* Root directory start sector */
-    szbfat = (fmt == FS_FAT16) ?          /* (Required FAT size) */
-             fs->n_fatent * 2 : fs->n_fatent * 3 / 2 + (fs->n_fatent & 1);
+  { if (!fs->n_rootdir) return FR_NO_FILESYSTEM;       /* (BPB_RootEntCnt must not be 0) */
+    fs->dirbase = fs->fatbase + fasize;               /* Root directory start sector */
+    szbfat = (fmt == FS_FAT16) ? fs->n_fatent * 2     /* (Required FAT size) */
+                               : fs->n_fatent * 3 / 2 + (fs->n_fatent & 1);
   }
 
   if (fs->fsize < (szbfat + (SS(fs) - 1)) / SS(fs)) /* (BPB_FATSz must not be less than required) */

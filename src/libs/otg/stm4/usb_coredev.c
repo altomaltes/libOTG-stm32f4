@@ -1058,7 +1058,7 @@ INTERRUPT void USBIrqHandlerDEV( /* dword core */ )
 
   if ( INTS.atomic= ( STM32F4.USB.GLOBAL.GINTSTS.atomic
                     & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
-  { STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFF; /* Clear stored interrupts */
+  { STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xBFFFFFFE; /* Clear stored interrupts */
   /* Device events
    */
     if ( INTS.MMIS        ) { handleMmisISR      (); } /** 0x01 Mode mismatch interrupt */

@@ -482,7 +482,7 @@ union STM32_USB_GLOBAL$GINTSTS
     dword     OTGINT  :   1; /** 0x02 OTG interrupt */
     dword        SOF  :   1; /** 0x03 Start of frame */
     dword     RXFLVL  :   1; /** 0x04 RxFIFO non-empty */
-    dword     NPTXFE  :   1; /** 0x05 Non-periodic TxFIFO empty */
+    dword     NPTXFE  :   1; /** 0x05 Non-periodic TxFIFO empty            */
     dword   GINAKEFF  :   1; /** 0x06 Global IN non-periodic NAK effective */
     dword GOUTNAKEFF  :   1; /** 0x07 Global OUT NAK effective */
     dword             :   2; /** 0x08 */
@@ -493,10 +493,10 @@ union STM32_USB_GLOBAL$GINTSTS
     dword    ISOODRP  :   1; /** 0x0E Isochronous OUT packet dropped interrupt */
     dword       EOPF  :   1; /** 0x0F End of periodic frame interrupt */
     dword             :   2; /** 0x10 */
-    dword      IEPINT :  1; /** 0x12 IN endpoint interrupt */
-    dword      OEPINT :  1; /** 0x13 OUT endpoint interrupt */
-    dword INCOMPISOIN :  1; /** 0x14 Incomplete isochronous IN transfer */
-    dword INCOMPISOOUT:  1; /** 0x15 Incomplete periodic transfer(Host mode)/Incomplete isochronous OUT transfer(Device mode) */
+    dword      IEPINT :  1;  /** 0x12 IN endpoint interrupt */
+    dword      OEPINT :  1;  /** 0x13 OUT endpoint interrupt */
+    dword INCOMPISOIN :  1;  /** 0x14 Incomplete isochronous IN transfer */
+    dword INCOMPISOOUT:  1;  /** 0x15 Incomplete periodic transfer(Host mode)/Incomplete isochronous OUT transfer(Device mode) */
     dword             :   2; /** 0x16 */
     dword    HPRTINT  :   1; /** 0x18 Host port interrupt */
     dword      HCINT  :   1; /** 0x19 Host channels interrupt */

@@ -154,9 +154,9 @@ int main( void )
  */
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
-//  USBinitDEV( ULPI );
-  USBinitHOST( ULPI | USB_ID_PIN | USB_VBUS_INT ); // PORTJ 12
-//  USBinitOTG( PORTPIN( PORTD, 5 ) | USB_VBUS_INT | USB_ID_PIN | ULPI );
+  USBinitDEV( ULPI );
+//  USBinitHOST( ULPI | USB_ID_PIN | USB_VBUS_INT ); // PORTJ 12
+ // !!!  USBinitOTG(  ULPI | USB_ID_PIN | USB_VBUS_INT ); OTG not working. CIDSCHG is only externalli cleared
 
   while( 1 )
   { testForEvents( LED1, LED1 );
@@ -170,8 +170,8 @@ int main( void )
   * @param
   * @retval
   */
-ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
-//ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
+//ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
+ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
 ABSOLUTE(   RAM_SIZE, 0x00010000 );
 ABSOLUTE( FLASH_SIZE, 0x00100000 );
 

@@ -270,25 +270,26 @@ void handleConIDStChgISR()
  * @retval status
  */
 INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
-{ union STM32_USB_GLOBAL$GINTSTS INTS;
+{ union STM32_USB_GLOBAL$GINTSTS INTS= STM32F4.USB.GLOBAL.GINTSTS; /* Read atomically */
 
-  if (( INTS.atomic= STM32F4.USB.GLOBAL.GINTSTS.atomic
-                   & STM32F4.USB.GLOBAL.GINTMSK.atomic ))
-  { STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFF; /* Clear stored interrupts */
+  STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* Clear stored interrupts, allow new ones */
 
+  if (( INTS.atomic &= STM32F4.USB.GLOBAL.GINTMSK.atomic ))
+  {
     if ( INTS.CIDSCHG )            /* Less probable, but void any other */
-    { handleConIDStChgISR();   /** 0x1C Connector ID status change */
+    { handleConIDStChgISR();                   /** 0x1C Connector ID status change */
+      STM32F4.USB.GLOBAL.GINTSTS.CIDSCHG= 0;
+      STM32F4.USB.GLOBAL.GINTMSK.CIDSCHG= 1;
       return;
     }
 
   /* Host events
    */
+    if ( INTS.DISCINT ) { handleDisconnectISR(); } /** 0x1D Disconnect detected interrupt */
     if ( INTS.NPTXFE  ) { handleNptxfemptyISR(); } /** 0x05 Non-periodic TxFIFO empty     */
     if ( INTS.PTXFE   ) { handlePtxfemptyISR (); } /** 0x1A Periodic TxFIFO empty         */
     if ( INTS.HPRTINT ) { handlePortISR      (); } /** 0x18 Host port interrupt           */
     if ( INTS.HCINT   ) { handleChannelISR   (); } /** 0x19 Host channels interrupt       */
-    if ( INTS.DISCINT )
-     { handleDisconnectISR(); } /** 0x1D Disconnect detected interrupt */
 
   /* Device events
    */
@@ -315,9 +316,7 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
     } }
 
     else                                               /* Device mode */
-    { if ( INTS.RXFLVL       )
-
-        handleCanReadDEV   ();    /** 0x04 RxFIFO non-empty */
+    { if ( INTS.RXFLVL       ) handleCanReadDEV   ();    /** 0x04 RxFIFO non-empty */
       if ( INTS.INCOMPISOOUT ) handleIsoOUTcopmISR();    /** 0x15 Incomplete isochronous OUT transfer(Device mode) */
       if ( INTS.SOF          )                           /** 0x03 Start of frame */
       { handleSofDevISR( STM32F4.USB.HOST.HFNUM.FRNUM );
@@ -326,8 +325,7 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
 
 /* OTG events, less probable
  */
-    if ( INTS.OTGINT  )
-     { handleOtgISR       (); } /** 0x02 OTG interrupt */
+    if ( INTS.OTGINT  ) { handleOtgISR       (); } /** 0x02 OTG interrupt */
     if ( INTS.SRQINT  ) { handleSessnReqISR  (); } /** 0x1E Session request/new session detected interrupt */
 } }
 

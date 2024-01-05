@@ -447,9 +447,7 @@ void usbHostSetXferDest( schar ( *handleXferPkg )( byte epNum ) )       /* HostL
  * @retval status
  */
 schar USBHdeInit( void ) /* Software Init */
-{ // usbHOSTdriveVbus( 0 );        /* Not a good idea */
-
-  USB_Host.EnumState       = ENUM_IDLE;
+{ USB_Host.EnumState       = ENUM_IDLE;
   USB_Host.Control.state   = CTRL_SETUP;
   USB_Host.Control.ep0size = USB_OTG_MAX_EP0_SIZE;
   USB_Host.deviceProp.speed= HPRT0_PRTSPD_FULL_SPEED;
@@ -459,7 +457,6 @@ schar USBHdeInit( void ) /* Software Init */
       ;     i < OTGgetHostChannels()
       ;     i ++ )
   { USBHfreeChannel( i );
-   // USB_HOST.XferCnt[ i   ]= 0;
     USB_HOST.URB_State[ i ]= URB_STATE_VOID;
   }
 
