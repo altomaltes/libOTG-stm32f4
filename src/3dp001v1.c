@@ -111,7 +111,7 @@ void usbHostGotDisconnected( byte devAddr )
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 84000000, 25000000 );
+{ SET_SYSCLK_HZ( 42000000, 25000000 );
   sysTickConfig( 8000 );
  // SYSCLK_HZ( USBDEV_HZ );
 
