@@ -1,96 +1,63 @@
 /**
- *     AUTHOR: Jose Angel Caso Sanchez, 2023 ( altomaltes@yahoo.es )
- *                                           ( altomaltes@gmail.com )
- *
- *     Copyright (C) 2004, 2024 JACS
- *
- *   Heavily scrapped code. See original note below
- *
- * This software component was licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at: <http://www.st.com/SLA0044>
- *
- * @file usbd_msc_data.c
- *
- * original draft from MCD Application Team
- */
+  ******************************************************************************
+  * @file    usbd_msc_data.c
+  * @author  MCD Application Team
+  * @version V2.4.2
+  * @date    11-December-2015
+  * @brief   This file provides all the vital inquiry pages and sense data.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
 
-
-#include "usbd_msc_core.h"
+#include "usbd_msc.h"
 #include "usbd_msc_data.h"
-
-typedef struct
-{ byte data_len;
-  byte medium_type;
-  byte reserved : 7; byte write_protected : 1;
-  byte block_descriptor_len;
-} scsi_mode_sense6_resp_t;
-
-typedef struct PACKED
-{ byte peripheral_device_type     : 5;
-  byte peripheral_qualifier       : 3; // 0
-
-  byte                            : 7; // 1
-  byte is_removable               : 1;
-
-  byte version;                         // 2
-
-  byte response_data_format       : 4;  // 3
-  byte hierarchical_support       : 1;
-  byte normal_aca                 : 1;
-  byte                            : 2;
-
-  byte additional_length;               // 4
-
-  byte protect                    : 1;  // 5
-  byte                            : 2;
-  byte third_party_copy           : 1;
-  byte target_port_group_support  : 2;
-  byte access_control_coordinator : 1;
-  byte scc_support                : 1;
-
-  byte addr16                     : 1; // 6
-  byte                            : 3;
-  byte multi_port                 : 1;
-  byte                            : 1; // vendor specific
-  byte enclosure_service          : 1;
-  byte                            : 1;
-
-  byte                            : 1; // 7 vendor specific
-  byte cmd_que                    : 1;
-  byte                            : 2;
-  byte sync                       : 1;
-  byte wbus16                     : 1;
-  byte                            : 2;
-
-  byte vendor_id[  8  ]; ///< 8 bytes of ASCII data identifying the vendor of the product.
-  byte product_id[ 16 ]; ///< 16 bytes of ASCII data defined by the vendor.
-  byte product_rev[ 4 ]; ///< 4 bytes of ASCII data defined by the vendor.
-} scsi_inquiry_resp_t;
 
 
 /* USB Mass storage Page 0 Inquiry Data
  */
-const byte  MSCpage00inquirydata[]=  //7
-{ 0x00  /* Qualifier 3, device type 5 */
-, 0x01                        /* Is removable RMB 1, reserverd 6*/
-,	0x00                        /* AERC, obsolete,NORM ACA, HISUP, Response format */
-,	(LENGTH_INQUIRY_PAGE00 - 4) /* Aditional length - 4 */
-,	0x00                         /* SCCS, reserved */
-,	0x80    /* BQE.ENCSERV,VS,MULTIP,*/
-,	0x83    /* RELADR ,,, CMDQE VS */
+const unsigned char  MSC_Page00_Inquiry_Data[] =  //7
+{ 0x00, 0x00,	0x00,	(LENGTH_INQUIRY_PAGE00 - 4)
+,	0x00,	0x80,	0x83
 };
 
-/* USB Mass storage sense 6  Data
- */
-const byte  MSCmodeSense6Data[] = /* From USB stick */
-{ 0x0B
-,	0x00
-,	0x00    /* 0x80 -> write protect */
-,	0x08
+
+const unsigned char  MSC_Mode_Sense6_data[] =  /* USB Mass storage sense 6  Data */
+{ 0x00, 0x00
+, 0x00, 0x00
+, 0x00, 0x00
+, 0x00, 0x00
+
+
+// 	0x0B,	0x00
+//,	0x00,	0x08
+//,	0x00,	0x00
+//,	0x00,	0x00
+
+//, 0, 0, 2
 };
 
-/* USB Mass storage sense 10  Data
-*/
-const byte  MSCmodeSense10Data[] =
-{ 0x00,	0x06,	0x00,	0x00,	0x00,	0x00,	0x00,	0x00 };
+
+const unsigned char  MSC_Mode_Sense10_data[] =  /* USB Mass storage sense 10  Data */
+{	0x00,	0x06
+,	0x00,	0x00
+,	0x00,	0x00
+,	0x00,	0x00
+};
+
+

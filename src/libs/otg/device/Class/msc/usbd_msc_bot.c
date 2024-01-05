@@ -1,33 +1,37 @@
 /**
- *     AUTHOR: Jose Angel Caso Sanchez, 2023 ( altomaltes@yahoo.es )
- *                                           ( altomaltes@gmail.com )
- *
- *     Copyright (C) 2004, 2024 JACS
- *
- *   Heavily scrapped code. See original note below
- *
- * This software component was licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at: <http://www.st.com/SLA0044>
- *
- * @file usbd_msc_bot.c
- *
- * original draft from MCD Application Team
- */
+  ******************************************************************************
+  * @file    usbd_msc_bot.c
+  * @author  MCD Application Team
+  * @version V2.4.2
+  * @date    11-December-2015
+  * @brief   This file provides all the BOT protocol core functions.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
 
-#include "usb_dcd.h"
-#include "usbd_msc_core.h"
-#include "usbd_msc_bot.h"
-#include "usbd_msc_scsi.h"
-#include "usbd_msc_mem.h"
+/* Includes ------------------------------------------------------------------*/
+#include "./usbd_msc_bot.h"
+#include "./usbd_msc.h"
+#include "./usbd_msc_scsi.h"
 
-word MSC_BOT_DataLen;
-byte MSC_BOT_State;
-byte MSC_BOT_Status;
 
-ALIGN_THIS( byte MSC_BOT_Data[MSC_MEDIA_PACKET] );
-ALIGN_THIS( MSC_BOT_CBW_TypeDef MSC_BOT_cbw     );
-ALIGN_THIS( MSC_BOT_CSW_TypeDef MSC_BOT_csw     );
+USBD_MSC_BOT_HandleTypeDef hmsc;
 
 /**
  * @brief  MSC_BOT_Init
@@ -35,16 +39,22 @@ ALIGN_THIS( MSC_BOT_CSW_TypeDef MSC_BOT_csw     );
  * @retval None
  */
 void MSC_BOT_Init()
-{ MSC_BOT_State = BOT_IDLE;
-  MSC_BOT_Status= BOT_STATE_NORMAL;
-  USBD_STORAGE_fops->Init( 0 );
+{ hmsc.bot_state  = USBD_BOT_IDLE;
+  hmsc.bot_status = USBD_BOT_STATUS_NORMAL;
 
-  USBDepFlush( MSC_OUT_EP );
-  USBDepFlush( MSC_IN_EP  );
+  hmsc.scsi_sense_tail = 0;
+  hmsc.scsi_sense_head = 0;
 
-  USBDepPrepareRx( MSC_OUT_EP            /* Prapare EP to Receive First BOT Cmd */
-                  , (byte *)&MSC_BOT_cbw
-                  , BOT_CBW_LENGTH );
+//  ((USBD_StorageTypeDef *)pdev->pUserData)->Init(0);  çççç
+
+  USBDepFlush( MSC_EPOUT_ADDR );
+  USBDepFlush( MSC_EPIN_ADDR  );
+
+/* Prapare EP to Receive First BOT Cmd
+ */
+  USBDepPrepareRx( MSC_EPOUT_ADDR            /* Prapare EP to Receive First BOT Cmd */
+                , (byte *)&hmsc.cbw
+                , USBD_BOT_CBW_LENGTH );
 }
 
 /**
@@ -52,22 +62,22 @@ void MSC_BOT_Init()
  *         Reset the BOT Machine
  * @retval  None
  */
-void MSC_BOT_Reset( )
-{ MSC_BOT_State = BOT_IDLE;
-  MSC_BOT_Status= BOT_STATE_RECOVERY;
+void MSC_BOT_Reset ()
+{ hmsc.bot_state  = USBD_BOT_IDLE;
+  hmsc.bot_status = USBD_BOT_STATUS_RECOVERY;
 
-  USBDepPrepareRx( MSC_OUT_EP   /* Prapare EP to Receive First BOT Cmd */
-                  , (byte *)&MSC_BOT_cbw
-                  , BOT_CBW_LENGTH );
+  USBDepPrepareRx( MSC_EPOUT_ADDR            /* Prapare EP to Receive First BOT Cmd */
+                , (byte *)&hmsc.cbw
+                , USBD_BOT_CBW_LENGTH );
 }
 
 /**
  * @brief  MSC_BOT_DeInit
- *         Uninitialize the BOT Machine
+ *         Deinitialize the BOT Machine
  * @retval None
  */
 void MSC_BOT_DeInit ()
-{ MSC_BOT_State= BOT_IDLE;
+{ hmsc.bot_state= USBD_BOT_IDLE;
 }
 
 /**
@@ -77,15 +87,14 @@ void MSC_BOT_DeInit ()
  * @param  len: Data Length
  * @retval None
  */
-static void  MSC_BOT_SendData( byte* buf
-                             , word len )
-{ len= MIN (MSC_BOT_cbw.dDataLength, len);
+static void  MSC_BOT_SendData( byte * buf
+                             , word   len )
+{ len = MIN( hmsc.cbw.dDataLength, len );
+  hmsc.csw.dDataResidue -= len;
+  hmsc.csw.bStatus       = USBD_CSW_CMD_PASSED;
+  hmsc.bot_state         = USBD_BOT_SEND_DATA;
 
-  MSC_BOT_csw.dDataResidue -= len;
-  MSC_BOT_csw.bStatus       = CSW_CMD_PASSED;
-  MSC_BOT_State             = BOT_SEND_DATA;
-
-  USBDepTx( MSC_IN_EP, buf, len );
+  USBDepTx( MSC_EPIN_ADDR, buf, len );
 }
 
 /**
@@ -94,102 +103,64 @@ static void  MSC_BOT_SendData( byte* buf
  * @retval status
  */
 static void  MSC_BOT_Abort()
-{
-  if (( MSC_BOT_cbw.bmFlags == 0)
-  &&  ( MSC_BOT_cbw.dDataLength != 0)
-  &&  ( MSC_BOT_Status == BOT_STATE_NORMAL ))
-  { USBDepStall( MSC_OUT_EP );
+{ if ((hmsc.cbw.bmFlags == 0)
+  &&  (hmsc.cbw.dDataLength != 0)
+  &&  (hmsc.bot_status == USBD_BOT_STATUS_NORMAL) )
+  { USBDepStall( MSC_EPOUT_ADDR );
   }
-  USBDepStall( MSC_IN_EP);
+  USBDepStall( MSC_EPIN_ADDR);
 
-  if( MSC_BOT_Status == BOT_STATE_ERROR )
-  { USBDepPrepareRx( MSC_OUT_EP
-                    , (byte *)&MSC_BOT_cbw
-                    ,  BOT_CBW_LENGTH);
-} }
+  if ( hmsc.bot_status == USBD_BOT_STATUS_ERROR )
+  { USBDepPrepareRx( MSC_EPOUT_ADDR            /* Prapare EP to Receive First BOT Cmd */
+                  , (byte *)&hmsc.cbw
+                  , USBD_BOT_CBW_LENGTH );
+ } }
 
 /**
  * @brief  MSC_BOT_CBW_Decode
- *         Decode the CBW command and set the BOT state machine accordingtly
+ *         Decode the CBW command and set the BOT state machine accordingly
  * @retval None
  */
 static void  MSC_BOT_CBW_Decode()
-{
-  MSC_BOT_csw.dTag = MSC_BOT_cbw.dTag;
-  MSC_BOT_csw.dDataResidue = MSC_BOT_cbw.dDataLength;
+{ hmsc.csw.dTag        = hmsc.cbw.dTag;
+  hmsc.csw.dDataResidue= hmsc.cbw.dDataLength;
 
-  if (( USBDgetRxCount( MSC_OUT_EP ) != BOT_CBW_LENGTH )
-  ||  ( MSC_BOT_cbw.dSignature != BOT_CBW_SIGNATURE )
-  ||  ( MSC_BOT_cbw.bLUN      > 1 )
-  ||  ( MSC_BOT_cbw.bCBLength < 1 )
-  ||  ( MSC_BOT_cbw.bCBLength > 16 ))
-  { SCSI_SenseCode( MSC_BOT_cbw.bLUN
-                  , ILLEGAL_REQUEST
-                  , INVALID_CDB );
-    MSC_BOT_Status = BOT_STATE_ERROR;
+  if  (( USBDgetRxCount( MSC_EPOUT_ADDR) != USBD_BOT_CBW_LENGTH )
+    || ( hmsc.cbw.dSignature != USBD_BOT_CBW_SIGNATURE )
+    || ( hmsc.cbw.bLUN      > 1  )
+    || ( hmsc.cbw.bCBLength < 1  )
+    || ( hmsc.cbw.bCBLength > 16 ))
+  { SCSI_SenseCode( hmsc.cbw.bLUN, ILLEGAL_REQUEST, INVALID_CDB );
+
+    hmsc.bot_status = USBD_BOT_STATUS_ERROR;
     MSC_BOT_Abort();
   }
   else
-  { if ( SCSI_ProcessCmd( MSC_BOT_cbw.bLUN
-                        , MSC_BOT_cbw.CB ) < 0 )
-    { MSC_BOT_Abort();
+  { if ( SCSI_ProcessCmd( hmsc.cbw.bLUN
+                        , hmsc.cbw.CB ) < 0 )
+    { if ( hmsc.bot_state == USBD_BOT_NO_DATA )
+      { MSC_BOT_SendCSW( USBD_CSW_CMD_FAILED );
+      }
+      else
+      { MSC_BOT_Abort();
+      }
+      return;
     }
 
-    else if (( MSC_BOT_State != BOT_DATA_IN      )
-         &&  ( MSC_BOT_State != BOT_DATA_OUT     )
-         &&  ( MSC_BOT_State != BOT_LAST_DATA_IN )) /*Burst xfer handled internally*/
-    { if ( MSC_BOT_DataLen > 0 )
-      { MSC_BOT_SendData( MSC_BOT_Data
-                        , MSC_BOT_DataLen );
-      }
-      else if (MSC_BOT_DataLen == 0)
-      { MSC_BOT_SendCSW( CSW_CMD_PASSED );
-} } } }
+    switch( hmsc.bot_state )
+    { case USBD_BOT_DATA_OUT:
+      case USBD_BOT_DATA_IN:
+      case USBD_BOT_LAST_DATA_IN:   /* Burst xfer handled internally  */
+      return;
+    }
 
-/**
- * @brief  MSC_BOT_DataIn
- *         Handle BOT IN data stage
- * @param  epnum: endpoint index
- * @retval None
- */
-schar MSC_BOT_DataIn( byte epnum )
-{ switch ( MSC_BOT_State )
-  { case BOT_DATA_IN:
-      if ( SCSI_ProcessCmd( MSC_BOT_cbw.bLUN
-                          , MSC_BOT_cbw.CB ) < 0 )
-      { MSC_BOT_SendCSW ( CSW_CMD_FAILED);
-      }
-    break;
-
-    case BOT_SEND_DATA:
-    case BOT_LAST_DATA_IN:
-      MSC_BOT_SendCSW( CSW_CMD_PASSED );
-    break;
-  }
-  return( 0 );
-}
-
-/**
- * @brief  MSC_BOT_DataOut
- *         Proccess MSC OUT data
- * @param  epnum: endpoint index
- * @retval None
- */
-schar MSC_BOT_DataOut( byte epnum )
-{ switch( MSC_BOT_State )
-  { case BOT_IDLE:
-      MSC_BOT_CBW_Decode();
-    break;
-
-    case BOT_DATA_OUT:
-      if ( SCSI_ProcessCmd( MSC_BOT_cbw.bLUN
-                          , MSC_BOT_cbw.CB ) < 0 )
-      { MSC_BOT_SendCSW ( CSW_CMD_FAILED);
-      }
-    break;
-  }
-  return( 0 );
-}
+    if ( hmsc.bot_data_length > 0 )             /* Send response */
+    { MSC_BOT_SendData( hmsc.bot_data
+                      , hmsc.bot_data_length );
+    }
+    else
+    { MSC_BOT_SendCSW( USBD_CSW_CMD_PASSED );    /* Give ACK */
+} } }
 
 /**
  * @brief  MSC_BOT_SendCSW
@@ -198,20 +169,66 @@ schar MSC_BOT_DataOut( byte epnum )
  * @retval None
  */
 void  MSC_BOT_SendCSW( byte CSW_Status )
-{ MSC_BOT_csw.dSignature = BOT_CSW_SIGNATURE;
-  MSC_BOT_csw.bStatus = CSW_Status;
-  MSC_BOT_State = BOT_IDLE;
+{ hmsc.csw.dSignature= USBD_BOT_CSW_SIGNATURE;
+  hmsc.csw.bStatus   = CSW_Status;
+  hmsc.bot_state     = USBD_BOT_IDLE;
 
-  USBDepTx( MSC_IN_EP
-           , (byte *)&MSC_BOT_csw
-           , BOT_CSW_LENGTH );
+  USBDepTx( MSC_EPIN_ADDR
+          , (byte *)&hmsc.csw
+          , USBD_BOT_CSW_LENGTH );
 
-  /* Prepare EP to Receive next Cmd */
-  USBDepPrepareRx( MSC_OUT_EP
-                  , (byte *)&MSC_BOT_cbw
-                  , BOT_CBW_LENGTH );
-
+  USBDepPrepareRx( MSC_EPOUT_ADDR           /* Prepare EP to Receive next Cmd */
+                 , (byte *)&hmsc.cbw
+                 , USBD_BOT_CBW_LENGTH );
 }
+
+/**
+ * @brief  MSC_BOT_DataOut
+ *         Process MSC OUT data
+ * @param  epnum: endpoint index
+ * @retval None
+ */
+void MSC_BOT_DataOut( byte epnum )
+{ switch( hmsc.bot_state )
+  { case USBD_BOT_IDLE:
+      MSC_BOT_CBW_Decode();
+    break;
+
+    case USBD_BOT_DATA_OUT:
+      if ( SCSI_ProcessCmd( hmsc.cbw.bLUN
+                          , hmsc.cbw.CB ) < 0 )
+      { MSC_BOT_SendCSW( USBD_CSW_CMD_FAILED );
+      }
+    break;
+
+    default:
+    break;
+} }
+
+/**
+ * @brief  MSC_BOT_DataIn
+ *         Handle BOT IN data stage
+ * @param  epnum: endpoint index
+ * @retval None
+ */
+void MSC_BOT_DataIn( byte epnum )
+{ switch( hmsc.bot_state )
+  { case USBD_BOT_DATA_IN:
+      if ( SCSI_ProcessCmd( hmsc.cbw.bLUN
+                          , hmsc.cbw.CB ) < 0 )
+      { MSC_BOT_SendCSW( USBD_CSW_CMD_FAILED );
+      }
+    break;
+
+    case USBD_BOT_LAST_DATA_IN:
+      epnum++;
+    case USBD_BOT_SEND_DATA:
+      MSC_BOT_SendCSW( USBD_CSW_CMD_PASSED );
+    break;
+
+    default:
+    break;
+} }
 
 /**
  * @brief  MSC_BOT_CplClrFeature
@@ -219,14 +236,15 @@ void  MSC_BOT_SendCSW( byte CSW_Status )
  * @param  epnum: endpoint index
  * @retval None
  */
-
-void  MSC_BOT_CplClrFeature ( byte epnum )
-{ if ( MSC_BOT_Status == BOT_STATE_ERROR )/* Bad CBW Signature */
-  { USBDepStall( MSC_IN_EP);
-    MSC_BOT_Status = BOT_STATE_NORMAL;
+void  MSC_BOT_CplClrFeature( byte epnum)
+{ if ( hmsc.bot_status == USBD_BOT_STATUS_ERROR )/* Bad CBW Signature */
+  { USBDepStall( MSC_EPIN_ADDR );
+    hmsc.bot_status = USBD_BOT_STATUS_NORMAL;
   }
 
-  else if(((epnum & 0x80) == 0x80)
-       && ( MSC_BOT_Status != BOT_STATE_RECOVERY))
-  { MSC_BOT_SendCSW ( CSW_CMD_FAILED);
+  else if (( epnum & 0x80 )
+       && ( hmsc.bot_status != USBD_BOT_STATUS_RECOVERY ))
+  { MSC_BOT_SendCSW ( USBD_CSW_CMD_FAILED);
 } }
+
+

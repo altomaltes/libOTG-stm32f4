@@ -1,34 +1,48 @@
 /**
- *     AUTHOR: Jose Angel Caso Sanchez, 2023 ( altomaltes@yahoo.es )
- *                                           ( altomaltes@gmail.com )
- *
- *     Copyright (C) 2004, 2024 JACS
- *
- *   Heavily scrapped code. See original note below
- *
- * This software component was licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at: <http://www.st.com/SLA0044>
- *
- * @file usbd_msc_data.h
- *
- * original draft from MCD Application Team
- */
+  ******************************************************************************
+  * @file    usbd_msc_data.h
+  * @author  MCD Application Team
+  * @version V2.4.2
+  * @date    11-December-2015
+  * @brief   Header for the usbd_msc_data.c file
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
 
-#ifndef _USBD_MSC_DATA_H_
-#define _USBD_MSC_DATA_H_
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __USBD_MSC_DATA_H
+#define __USBD_MSC_DATA_H
 
-#include "uc.h" // ççç
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 
-#define MODE_SENSE6_LEN		       	 8
-#define MODE_SENSE10_LEN       		 8
+#define MODE_SENSE6_LEN			        8
+#define MODE_SENSE10_LEN		        8
 #define LENGTH_INQUIRY_PAGE00		   7
 #define LENGTH_FORMAT_CAPACITIES	20
 
-extern const byte MSCpage00inquirydata[];
-extern const byte MSCmodeSense6Data[];
-extern const byte MSCmodeSense10Data[] ;
+extern const byte MSC_Page00_Inquiry_Data[];
+extern const byte MSC_Mode_Sense6_data[];
+extern const byte MSC_Mode_Sense10_data[] ;
 
-#endif
+
+#endif /* __USBD_MSC_DATA_H */
 

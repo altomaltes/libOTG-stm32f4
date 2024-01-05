@@ -517,26 +517,27 @@
 			<Option target="429-DISCO-LIB" />
 			<Option target="F746G-DISCO" />
 		</Unit>
-		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc.h" />
-		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_bot.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_bot.h" />
-		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_data.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_data.h" />
-		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_scsi.c">
+		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_scsi.h" />
+		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\libs\otg\device\Class\MSC.1\usbd_msc_scsi.h" />
+		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc.h" />
+		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_bot.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_bot.h" />
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_core.h" />
+		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_data.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_data.h" />
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_mem.h" />
+		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_scsi.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\libs\otg\device\Class\msc\usbd_msc_scsi.h" />
 		<Unit filename="src\libs\otg\device\usbd_core.c">
 			<Option compilerVar="CC" />
@@ -758,6 +759,7 @@
 		<Unit filename="src\libs\otg\usbser.inf">
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="src\stm32.ld" />
 		<Unit filename="src\uc.h" />
 		<Unit filename="src\usbd_desc.c">
 			<Option compilerVar="CC" />
@@ -783,25 +785,25 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="407-DISCO-LIB">
-					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
-				</target_debugging_settings>
-				<target_debugging_settings target="3DP001V1-LIB">
-					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
-				</target_debugging_settings>
-				<target_debugging_settings target="F429-DISCO">
+				<target_debugging_settings target="Release">
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
 				<target_debugging_settings target="F407-DISCO">
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
-				<target_debugging_settings target="STEVAL-3DP001V1">
+				<target_debugging_settings target="F429-DISCO">
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
 				<target_debugging_settings target="libf4otg">
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
-				<target_debugging_settings target="Release">
+				<target_debugging_settings target="STEVAL-3DP001V1">
+					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
+				</target_debugging_settings>
+				<target_debugging_settings target="407-DISCO-LIB">
+					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
+				</target_debugging_settings>
+				<target_debugging_settings target="3DP001V1-LIB">
 					<debug_interface description="STM32F303.svd" options="2" reg_filter="10" probe="stlink" device="stm32-auto" speed="" bus_address="" serial="" defines="" scripts="" flash_size="" ram_size="" vcc_voltage="" verbose="4" unwind="2" rstType="0" use_jtag="false" disable_cache="false" enable_semi="true" close_eblink="false" gdb_reset="" gdb_reset_remote="reset" gdb_before_conn="" gdb_after_conn="" use_remote="false" ip_address="" ip_port="" path="" executable="" start_server="false" arguments="" flash_verify="false" flash_run="false" />
 				</target_debugging_settings>
 				<target_debugging_settings target="429-DISCO-LIB">
