@@ -92,7 +92,7 @@ typedef struct
 } USBD_DEVICE;
 
 
-void * USBinitDEV( word flags );
+void * USBinitDEV( dword flags );
 
 schar USBDclrCfg( byte cfgidx );
 schar USBD_SetCfg( byte cfgidx );

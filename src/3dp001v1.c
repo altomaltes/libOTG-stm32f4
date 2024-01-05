@@ -73,6 +73,23 @@ void usbHIDkeyArrived( byte * report )
 } }
 
 
+void usbHIDmouseArrived( byte * report )
+{ if ( report[ 2 ] )
+  { PIN_SET( EXTR1HEAT );
+  }
+  else
+  { PIN_RST( EXTR1HEAT );
+} }
+
+void usbHIDrawArrived( byte * report )
+{ if ( report[ 6 ] )
+  { PIN_SET( EXTR2HEAT );
+  }
+  else
+  { PIN_RST( EXTR2HEAT );
+} }
+
+
 /**
   * @brief  usbHostGotDisconnected.
   * @param  None

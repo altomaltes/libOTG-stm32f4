@@ -19,7 +19,7 @@
 #ifndef __USB_HID_CORE_H_
 #define __USB_HID_CORE_H_
 
-#include "usb_hid.h"
+#include "usbd_core.h"
 
 #define USB_HID_CONFIG_DESC_SIZ     34
 #define USB_HID_DESC_SIZ             9

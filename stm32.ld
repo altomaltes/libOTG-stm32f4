@@ -91,9 +91,16 @@ ENTRY( resetHandler ) /* Entry Point */
 /* JACS, sophisticated "weak". Chooses handler based on initializer, so dead code can be removed, extendable to two cores
  */
 
-OTG_HSirqHnd = USBIrqHandlerDEV;
+OTG_HSirqHnd = USBinitOTG ? USBIrqHandlerOTG
+             : USBinitDEV   ? USBIrqHandlerDEV
+             : USBinitHOST   ? USBIrqHandlerHOST
+             : irqHnd ;
 
-OTG_FSirqHnd = USBIrqHandlerDEV;
+OTG_FSirqHnd = USBinitOTG ? USBIrqHandlerOTG
+             : USBinitDEV   ? USBIrqHandlerDEV
+             : USBinitHOST   ? USBIrqHandlerHOST
+             : irqHnd ;
+
 
 
 HEAP_GAP  = DEFINED(  __HEAP_SIZE ) ? __HEAP_SIZE  : 0x0200;      /* required amount of heap  */

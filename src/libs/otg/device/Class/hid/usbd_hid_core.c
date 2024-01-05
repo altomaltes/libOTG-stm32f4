@@ -32,6 +32,7 @@
 
 #include "usbd_core.h"
 #include "usbd_hid_core.h"
+#include "usb_hid.h"
 
 ALIGN_THIS( static dword  USBD_HID_AltSet    )= 0;
 ALIGN_THIS( static dword  USBD_HID_Protocol  )= 0;

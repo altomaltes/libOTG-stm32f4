@@ -148,14 +148,14 @@ int main( void )
 { SET_SYSCLK_HZ( 42000000, 25000000 );  // 25 Mhz xtal
   sysTickConfig( 8000 );                // OS scheduler
 
- // dword ULPI= ( &STM32F4 == 0x40040000 ) ? USB_ULPI_PHY : PORTPIN( PORTD, 5 ); // This board has a microchip ULPI on high speed
+ dword ULPI= ( &STM32F4 == 0x40040000 ) ? USB_ULPI_PHY : PORTPIN( PORTD, 5 ); // This board has a microchip ULPI on high speed
 
 /* Demo pins ( carrousel leds )
  */
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
-  USBinitDEV( USB_ULPI_PHY );
-//  USBinitHOST( ULPI ); // PORTJ 12
+//  USBinitDEV( ULPI );
+  USBinitHOST( ULPI | USB_ID_PIN | USB_VBUS_INT ); // PORTJ 12
 //  USBinitOTG( PORTPIN( PORTD, 5 ) | USB_VBUS_INT | USB_ID_PIN | ULPI );
 
   while( 1 )
@@ -170,8 +170,8 @@ int main( void )
   * @param
   * @retval
   */
-//ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
-ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
+ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
+//ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
 ABSOLUTE(   RAM_SIZE, 0x00010000 );
 ABSOLUTE( FLASH_SIZE, 0x00100000 );
 

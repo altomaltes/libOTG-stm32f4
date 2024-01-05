@@ -259,7 +259,7 @@ schar USBD_DevDisconnected()
  *         Initializes the device stack and load the class driver
  * @retval None
  */
-void * USBinitDEV( word flags )
+void * USBinitDEV( dword flags )
 { OTGselectCore( flags );
   OTGsetCurrentMode( DEVICE_MODE );
   OTGcoreInitDev();             /* set USB OTG core params */

@@ -106,15 +106,15 @@ union STM32_USB_DEVICE$DCFG
 
 union STM32_USB_DEVICE$DCTL
 { volatile struct
-  { dword     RWUSIG :   1; /** 0x00 Remote wakeup signaling */
-    dword       SDIS :   1; /** 0x01 Soft disconnect */
-    dword     GINSTS :   1; /** 0x02 Global IN NAK status */
-    dword     GONSTS :   1; /** 0x03 Global OUT NAK status */
-    dword       TCTL :   3; /** 0x04 Test control */
-    dword     SGINAK :   1; /** 0x07 Set global IN NAK */
-    dword     CGINAK :   1; /** 0x08 Clear global IN NAK */
-    dword     SGONAK :   1; /** 0x09 Set global OUT NAK */
-    dword     CGONAK :   1; /** 0x0A Clear global OUT NAK */
+  { dword     RWUSIG :   1; /** 0x00 Remote wakeup signaling   */
+    dword       SDIS :   1; /** 0x01 Soft disconnect           */
+    dword     GINSTS :   1; /** 0x02 Global IN NAK status      */
+    dword     GONSTS :   1; /** 0x03 Global OUT NAK status     */
+    dword       TCTL :   3; /** 0x04 Test control              */
+    dword     SGINAK :   1; /** 0x07 Set global IN NAK         */
+    dword     CGINAK :   1; /** 0x08 Clear global IN NAK       */
+    dword     SGONAK :   1; /** 0x09 Set global OUT NAK        */
+    dword     CGONAK :   1; /** 0x0A Clear global OUT NAK      */
     dword   POPRGDNE :   1; /** 0x0B Power-on programming done */
     dword            :  20; /** 0x0C */
   };
