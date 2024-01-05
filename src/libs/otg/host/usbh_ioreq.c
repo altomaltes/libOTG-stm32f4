@@ -201,7 +201,6 @@ short USBHreadPacket( byte chNum, word size )
                       , size );
     USB_HOST.hc[ chNum ].xferBuff += size;         /* manage multiple Xfer */
     USB_HOST.hc[ chNum ].xferCount+= size;
-    USB_HOST.XferCnt[ chNum ]= USB_HOST.hc[ chNum ].xferCount;
   }
 
   return( size );
@@ -215,7 +214,7 @@ short USBHreadPacket( byte chNum, word size )
  */
 short USBHwritePacket( byte chNum, word size )
 { if ( size )
-  { USB_OTG_WritePacket( USB_HOST.hc[ chNum ].xferBuff
+  { usbOTGwritePacket( USB_HOST.hc[ chNum ].xferBuff
                        , chNum
                        , size );
     USB_HOST.hc[ chNum ].xferBuff  += size;

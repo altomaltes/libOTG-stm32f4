@@ -154,7 +154,7 @@ void usbHostGotDisconnected( byte devAddr )
   */
 int main( void )
 { SET_SYSCLK_HZ( 42000000, 8000000 );  // 8 Mhz xtal
-  sysTickConfig( 8000 );               // OS scheduler
+  sysTickConfig( 2000 );               // OS scheduler
 
 /* Demo pins ( carrousel leds )
  */
@@ -164,9 +164,9 @@ int main( void )
   PIN_MODE( LED4, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
-//USBinitD( USB_VBUS_INT );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
- USBinitH( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
-//  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
+//USBinitDEV( USB_VBUS_INT );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
+// USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
+  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
   { testForEvents( LED1, LED2 );

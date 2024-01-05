@@ -138,7 +138,7 @@ typedef struct
 extern union USBclassBM USBHclassSignaler;
 
 void   usbHostSetXferDest( schar( *handleXferPkg )( byte epNum ) );       /* HostLibInitialized */
-void * USBinitH( dword vbusPin );
+void * USBinitHOST( dword vbusPin );
 schar  USBHdeInit( void );
 byte   USBH_HandleEnum( byte ep );
 
@@ -197,7 +197,7 @@ typedef struct USB_OTG_hc
 USB_OTG_HC;
 
 typedef struct
-{ dword       XferCnt[ USB_OTG_MAX_TX_FIFOS ];
+{// dword       XferCnt[ USB_OTG_MAX_TX_FIFOS ];
   URB_STATE URB_State[ USB_OTG_MAX_TX_FIFOS ];
   USB_OTG_HC       hc[ USB_OTG_MAX_TX_FIFOS ];
   byte  devAddr      [ 8 ];                    /* free device address list ( 127 max ) */

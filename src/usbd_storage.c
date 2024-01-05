@@ -45,7 +45,6 @@
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
 #include "usbd_storage.h"
 #include "FAT_TAB.h"
 #include "uc.h"
@@ -123,7 +122,10 @@ schar STORAGE_IsWriteProtected(byte lun)
   * @param  blk_len: Blocks number
   * @retval Status (0: OK / -1: Error)
   */
-schar STORAGE_Read(byte lun, byte *buf, dword blk_addr, word blk_len)
+schar STORAGE_Read( byte lun
+                  , byte *buf
+                  , dword blk_addr
+                  , word blk_len )
 { dword blk_addr_offset = 0;
   dword blk_copy_number = 0;
   if ( lun == 0 )
@@ -191,53 +193,57 @@ schar STORAGE_Read(byte lun, byte *buf, dword blk_addr, word blk_len)
   * @param  blk_len: Blocks number
   * @retval Status (0 : OK / -1 : Error)
   */
-schar STORAGE_Write(byte lun, byte *buf, dword blk_addr, word blk_len)
+schar STORAGE_Write( byte lun
+                   , byte *buf
+                   , dword blk_addr
+                   , word blk_len )
 { dword blk_addr_offset = 0;
   dword blk_wrte_number = 0;
-  if(lun == 0)
+  if ( lun == 0 )
   { do
     { if(blk_addr == BOOT_TABLE_SECTOR_IDX)
       { blk_wrte_number = 1;
         memcpy(BOOT_TABLE, buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), BOOT_TABLE_USED_SIZE);
       }
-      else
-        if(blk_addr < FAT2_TABLE_SECTOR_IDX)
-        { blk_wrte_number = (FAT2_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : FAT2_TABLE_SECTOR_IDX - blk_addr;
-          memcpy(FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
-        }
-        else
-          if(blk_addr < ROOT_TABLE_SECTOR_IDX)
-          { blk_wrte_number = (ROOT_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : ROOT_TABLE_SECTOR_IDX - blk_addr;
-//        memcpy(FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
-          }
 
-          else if(blk_addr < FATFS_TOTAL_SECTORS)
-            { blk_wrte_number = (FATFS_TOTAL_SECTORS - blk_addr > blk_len) ? blk_len : FATFS_TOTAL_SECTORS - blk_addr;
-              memcpy(ROOT_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - ROOT_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
-            }
-            else
-            { /* README.TXT */
-              if(blk_addr < README_SECT_IDX + README_SECT_NUM)
-              { if(blk_addr == README_SECT_IDX + README_SECT_NUM - 1)  /* END OF FILE */
-                { blk_wrte_number = 1;
-                  memcpy(README_DATA + SECTORS_CONV_BYTES(README_SECT_NUM - 1), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), README_TAIL_LEN);
-                }
-                else
-                { blk_wrte_number = (README_SECT_IDX + README_SECT_NUM - blk_addr - 1 > blk_len) ? blk_len : README_SECT_IDX + README_SECT_NUM - blk_addr - 1;
-                  memcpy(README_DATA + SECTOR_IDX_TO_ADDR(blk_addr - README_SECT_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
-                }
-              }
-              else
-              { /* DATA IN FLASH */
-                if(blk_addr == README_SECT_IDX + README_SECT_NUM)
-                { blk_wrte_number = 1;
-                  memcpy(TestBuffer, buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
-                }
-                else
-                { blk_wrte_number = blk_len;
-                }
-              }
-            }
+      else if ( blk_addr < FAT2_TABLE_SECTOR_IDX )
+      { blk_wrte_number = (FAT2_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : FAT2_TABLE_SECTOR_IDX - blk_addr;
+        memcpy(FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
+      }
+
+      else if(blk_addr < ROOT_TABLE_SECTOR_IDX)
+      { blk_wrte_number = (ROOT_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : ROOT_TABLE_SECTOR_IDX - blk_addr;
+//        memcpy(FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
+      }
+
+      else if ( blk_addr < FATFS_TOTAL_SECTORS )
+      { blk_wrte_number = (FATFS_TOTAL_SECTORS - blk_addr > blk_len) ? blk_len : FATFS_TOTAL_SECTORS - blk_addr;
+        memcpy(ROOT_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - ROOT_TABLE_SECTOR_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
+      }
+      else
+      { if ( blk_addr < README_SECT_IDX + README_SECT_NUM) /* README.TXT */
+        { if( blk_addr == README_SECT_IDX + README_SECT_NUM - 1)  /* END OF FILE */
+          { blk_wrte_number = 1;
+            memcpy( README_DATA + SECTORS_CONV_BYTES(README_SECT_NUM - 1)
+                  , buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+                  , README_TAIL_LEN);
+           }
+           else
+           { blk_wrte_number= (README_SECT_IDX + README_SECT_NUM - blk_addr - 1 > blk_len)
+                            ? blk_len : README_SECT_IDX + README_SECT_NUM - blk_addr - 1;
+             memcpy( README_DATA + SECTOR_IDX_TO_ADDR(blk_addr - README_SECT_IDX), buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), SECTORS_CONV_BYTES(blk_wrte_number));
+          } }
+          else
+          { if ( blk_addr == README_SECT_IDX + README_SECT_NUM ) /* DATA IN FLASH */
+            { blk_wrte_number = 1;
+              memcpy( TestBuffer
+                    , buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+                    , SECTORS_CONV_BYTES(blk_wrte_number));
+             }
+             else
+             { blk_wrte_number = blk_len;
+         } } }
+
       blk_len -= blk_wrte_number;
       blk_addr += blk_wrte_number;
       blk_addr_offset += blk_wrte_number;
@@ -260,11 +266,10 @@ schar STORAGE_GetMaxLun(void)
 
 USBD_StorageTypeDef stor =
 { STORAGE_Init
-  , STORAGE_GetCapacity
-  , STORAGE_IsReady
-  , STORAGE_IsWriteProtected
-  , STORAGE_Read
-  , STORAGE_Write
-  , STORAGE_GetMaxLun
-  , STORAGE_Inquirydata
-};
+, STORAGE_GetCapacity
+, STORAGE_IsReady
+, STORAGE_IsWriteProtected
+, STORAGE_Read
+, STORAGE_Write
+, STORAGE_GetMaxLun
+, STORAGE_Inquirydata };

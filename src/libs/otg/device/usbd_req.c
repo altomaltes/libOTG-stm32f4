@@ -174,14 +174,16 @@ schar  USBDstdEPReq( USB_SETUP_REQ * req )
   return( 0 );
 }
 
+extern byte USBD_DeviceQualifierDesc[];
+
 /**
- * @brief  USBD_GetDescriptor
+ * @brief  usbDEVgetDescriptor
  *         Handle Get Descriptor requests
  *
  * @param  req: usb request
  * @retval status
  */
-static void USBD_GetDescriptor( USB_SETUP_REQ *req )
+static void usbDEVgetDescriptor( USB_SETUP_REQ *req )
 { word len;
   byte * pbuf;
   len = req->wLength ;
@@ -198,9 +200,6 @@ static void USBD_GetDescriptor( USB_SETUP_REQ *req )
     case DTYPE_CONFIGURATION:
       pbuf= USBdeviceDesc.driver->configDescriptor;
       len= pbuf[ 2 ];
-//      pbuf= (byte *)USBdeviceDesc.driver->GetConfigDescriptor( USB_OTG_Core.speed, &len );
-//      pbuf[ 1 ]= DTYPE_CONFIGURATION;
-   //    pbuf;
     break;
 
     case DTYPE_DEVICE:
@@ -213,42 +212,25 @@ static void USBD_GetDescriptor( USB_SETUP_REQ *req )
     break;
 
     case DTYPE_QUALIFIER:
-#ifdef USB_OTG_HS_CORE
-      if ( pdev->cfg.speed == USB_OTG_SPEED_HIGH  )
-      { pbuf= (byte *)pdev->dev.classCb->GetConfigDescriptor(pdev->cfg.speed, &len);
-
-        USBD_DeviceQualifierDesc[ 4 ]= pbuf[ 14 ];
-        USBD_DeviceQualifierDesc[ 5 ]= pbuf[ 15 ];
-        USBD_DeviceQualifierDesc[ 6 ]= pbuf[ 16 ];
-
-        pbuf= USBD_DeviceQualifierDesc;
-        len = USB_LEN_DEV_QUALIFIER_DESC;
-        break;
-      }
-      else
-      { USBDctlError( req );
-        return;
-      }
-#else
-      USBDctlError( req );
-      return;
-#endif
-
-    case DTYPE_OTHER: // Speed config
-#ifdef USB_OTG_HS_CORE
-      if ( pdev->cfg.speed == USB_OTG_SPEED_HIGH  )
-      { pbuf   = (byte *)pdev->dev.classCb->GetOtherConfigDescriptor(pdev->cfg.speed, &len);
-        pbuf[1] = DTYPE_OTHER;
-        break;
-      }
-      else
+   //   if ( HCDgetCurrentSpeed() != HPRT0_PRTSPD_HIGH_SPEED )
       { USBDctlError( req);
         return;
       }
-#else
-      USBDctlError( req);
-    return;
-#endif
+
+      pbuf= &USBD_DeviceQualifierDesc;
+      len= *pbuf;
+    break;
+
+    case DTYPE_OTHER: // Speed config
+     // if ( HCDgetCurrentSpeed() != HPRT0_PRTSPD_HIGH_SPEED )
+      { USBDctlError( req );
+        return;
+      }
+
+      pbuf= &USBD_DeviceQualifierDesc;
+      len= *pbuf;
+    break;
+
     default:
       USBDctlError( req);
     return;
@@ -504,7 +486,7 @@ byte * USBDgetString( const char * desc )
 schar  USBDstdDevReq( USB_SETUP_REQ  * req )
 { switch ( req->bRequest )
   { case USB_REQ_GET_STATUS:        USBD_GetStatus (    req ); break;
-    case USB_REQ_GET_DESCRIPTOR:    USBD_GetDescriptor( req ); break;
+    case USB_REQ_GET_DESCRIPTOR:    usbDEVgetDescriptor( req ); break;
     case USB_REQ_SET_ADDRESS:       USBD_SetAddress(    req ); break;
     case USB_REQ_SET_CONFIGURATION: USBD_SetConfig (    req ); break;
     case USB_REQ_GET_CONFIGURATION: USBD_GetConfig (    req ); break;

@@ -72,8 +72,8 @@ byte gotDevConnected()
   * @retval Status
   */
 void USBHsetControlChannelAddr( byte devAddr, byte ( *handle )( byte epNum ) )
-{ USBaddrHC( USB_Host.Control.hcNumIn , devAddr );
-  USBaddrHC( USB_Host.Control.hcNumOut, devAddr );
+{ usbHOSTaddrHC( USB_Host.Control.hcNumIn , devAddr );
+  usbHOSTaddrHC( USB_Host.Control.hcNumOut, devAddr );
   USB_Host.handleCtrlPkg= handle;
 }
 
@@ -181,7 +181,7 @@ void USBHxferOutControl( dword channel )
             USB_Host.Control.state= CTRL_STATUS_IN;
         } }
 
-        USB_Host.Control.timer= HCDgetCurrentFrame( 0 ); /* Set the delay timer to enable timeout for data stage completion */
+        USB_Host.Control.timer= usbOTGgetCurrentFrame( 0 ); /* Set the delay timer to enable timeout for data stage completion */
       }
 
       else if ( URB_Status == URB_STATE_ERROR )
@@ -260,7 +260,7 @@ void USBHxferOutControl( dword channel )
 
 
 
-void * USBHgetBuffer()
+void * usbHOSTgetBuffer()
 { return( USB_HOST.rxBuffer );
 }
 
@@ -281,10 +281,10 @@ byte USBH_HandleEnum( byte ep )
 
       USB_Host.Control.ep0size= USB_Host.deviceProp.Dev_Desc.bMaxPacketSize;
 
-      USBpacketHC( USB_Host.Control.hcNumOut /* modify control channels configuration for MaxPacket size */
+      usbHOSTpacketHC( USB_Host.Control.hcNumOut /* modify control channels configuration for MaxPacket size */
                  , USB_Host.Control.ep0size );
 
-      USBpacketHC( USB_Host.Control.hcNumIn
+      usbHOSTpacketHC( USB_Host.Control.hcNumIn
                  , USB_Host.Control.ep0size );
 
       USBH_Get_DevDesc( 0, USB_DEVICE_DESC_SIZE );
@@ -307,8 +307,8 @@ byte USBH_HandleEnum( byte ep )
 
     /* modify control channels to update device address
      */
-      USBaddrHC( USB_Host.Control.hcNumIn,  USB_Host.deviceProp.devAddr );
-      USBaddrHC( USB_Host.Control.hcNumOut, USB_Host.deviceProp.devAddr );
+      usbHOSTaddrHC( USB_Host.Control.hcNumIn,  USB_Host.deviceProp.devAddr );
+      usbHOSTaddrHC( USB_Host.Control.hcNumOut, USB_Host.deviceProp.devAddr );
 
       USBHGetCfgDesc( USB_CONFIGURATION_DESC_SIZE );
       USB_Host.EnumState= ENUM_GET_CFG_DESC;
@@ -447,7 +447,7 @@ void usbHostSetXferDest( schar ( *handleXferPkg )( byte epNum ) )       /* HostL
  * @retval status
  */
 schar USBHdeInit( void ) /* Software Init */
-{ // USBdriveVbus( 0 );        /* Not a good idea */
+{ // usbHOSTdriveVbus( 0 );        /* Not a good idea */
 
   USB_Host.EnumState       = ENUM_IDLE;
   USB_Host.Control.state   = CTRL_SETUP;
@@ -459,36 +459,36 @@ schar USBHdeInit( void ) /* Software Init */
       ;     i < OTGgetHostChannels()
       ;     i ++ )
   { USBHfreeChannel( i );
-    USB_HOST.XferCnt[ i   ]= 0;
+   // USB_HOST.XferCnt[ i   ]= 0;
     USB_HOST.URB_State[ i ]= URB_STATE_VOID;
   }
 
 /* Make sure the FIFOs are flushed.
  */
-  USB_OTG_FlushTxFifo( 0x10 );         /* all Tx FIFOs */
-  USB_OTG_FlushRxFifo();
+  usbOTGflushTxFifo( 0x10 );         /* all Tx FIFOs */
+  usbOTGflushRxFifo();
 
   return( 0 );
 }
 
 
 /**
- * @brief  USBinitH
+ * @brief  USBinitHOST
  *         Host hardware and stack initializations
  * @retval None
  */
-void * USBinitH( dword vbusPin )
+void * USBinitHOST( dword vbusPin )
 { OTGselectCore( vbusPin );
-  USBcoreInitHost();              /* Start the USB OTG core  */
   OTGsetCurrentMode( HOST_MODE ); /* No OTG, force Host Mode */
+  usbHOSTcoreInit();              /* Start the USB OTG core  */
 
   return( &USBIrqHandlerHOST );   /* Be sure is linked */
 }
 
 /**
- * @brief  USBHsetUrbState
+ * @brief  usbHOSTsetUrbState
  */
-byte USBHsetUrbState( byte num, byte state )
+byte usbHOSTsetUrbState( byte num, byte state )
 { if ( state & URB_TOGGLE_OUT )
   { USB_HOST.hc[ num ].toggleOut ^= 1;
   }

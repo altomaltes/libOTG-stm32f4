@@ -104,8 +104,8 @@ int main( void )
   PIN_MODE( EXTR2HEAT, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
   PIN_MODE( EXTR3HEAT, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
-//  USBinitD( 0 );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
- USBinitH( 0 );
+//  USBinitDEV( 0 );    /* Activate 1ms per packet callback ( handleSofDevISR ) */
+ USBinitHOST( 0 );
 
   while( 1 )
   { mDelay( 100 );

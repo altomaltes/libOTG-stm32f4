@@ -69,7 +69,7 @@ void USB_OTG_BSP_Suspend()
   */
 word handleOtgISR()
 { if ( STM32F4.USB.GLOBAL.GOTGINT.SEDET )  /** 0x02 Session end detected */
-  { if ( USB_OTG_GetMode() == HOST_MODE )
+  { if ( usbOTGgetMode() == HOST_MODE )
     {
     }
     else
@@ -83,21 +83,21 @@ word handleOtgISR()
  */
   if ( STM32F4.USB.GLOBAL.GOTGINT.SRSSCHG ) /** 0x08 Session request success status change */
   { if ( STM32F4.USB.GLOBAL.GOTGCTL.SRQSCS ) /** 0x00 Session request success */
-    { if ( USB_OTG_GetMode() != HOST_MODE )
+    { if ( usbOTGgetMode() != HOST_MODE )
       {
       }
 
       STM32F4.USB.GLOBAL.GOTGCTL.SRQ= 1; /** 0x01 Session request */
     }
     else /* Session request failure                                          */
-    { if ( USB_OTG_GetMode() != HOST_MODE )
+    { if ( usbOTGgetMode() != HOST_MODE )
       {
   } } }
 
   /* ----> HNP SUCCESS or FAILURE INTERRUPT <---- */
   if ( STM32F4.USB.GLOBAL.GOTGINT.HNSSCHG )     /** 0x09 Host negotiation success status change */
   { if ( STM32F4.USB.GLOBAL.GOTGCTL.HNGSCS ) /** 0x08 Host negotiation success */
-    { if ( USB_OTG_GetMode() == HOST_MODE )             /* The core AUTOMATICALLY sets the Host mode                        */
+    { if ( usbOTGgetMode() == HOST_MODE )             /* The core AUTOMATICALLY sets the Host mode                        */
       {
     } }
 
@@ -111,7 +111,7 @@ word handleOtgISR()
 /* ----> HOST NEGOTIATION DETECTED INTERRUPT <----
  */
   if ( STM32F4.USB.GLOBAL.GOTGINT.HNGDET ) /** 0x11 Host negotiation detected */
-  { if ( USB_OTG_GetMode() == HOST_MODE  )    /* The core AUTOMATICALLY sets the Host mode   */
+  { if ( usbOTGgetMode() == HOST_MODE  )    /* The core AUTOMATICALLY sets the Host mode   */
     {
     }
     else
@@ -125,7 +125,7 @@ word handleOtgISR()
   }
 
   if ( STM32F4.USB.GLOBAL.GOTGINT.DBCDNE ) /** 0x13 Debounce done */
-  {// USB_OTG_ResetPort();
+  {// usbHOSTresetPort();
     STM32F4.USB.GLOBAL.GOTGINT.DBCDNE= 1;   /* Clear OTG INT */
   }
 
@@ -141,7 +141,7 @@ word handleOtgISR()
   */
 static word handleSessnReqISR()
 {
-  if  (( USB_OTG_GetMode() != HOST_MODE  )
+  if  (( usbOTGgetMode() != HOST_MODE  )
    && ( STM32F4.USB.GLOBAL.GOTGCTL.BSVLD ))   /** 0x13 B-session valid */
   {
   }
@@ -240,7 +240,7 @@ void * USBinitOTG( dword vbusPin )
   OTGsetCurrentMode( OTG_MODE );
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Enable interrupts ( global ) */
-  USBenableCommonInt( OTG_MODE );
+  usbOTGenableCommonInt( OTG_MODE );
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
 
   return( &USBIrqHandlerOTG );     /* Be sure is linked */
@@ -256,11 +256,11 @@ void * USBinitOTG( dword vbusPin )
  */
 void handleConIDStChgISR()
 { if ( STM32F4.USB.GLOBAL.GOTGCTL.CIDSTS ) /** 0x10 Connector ID status */
-  { USBdriveVbus( 0 );   /* Only has sense over OTG */
+  { usbHOSTdriveVbus( 0 );   /* Only has sense over OTG */
     OTGcoreInitDev();    /* B-Device connector (Device Mode) */
   }
   else
-  { USBcoreInitHost();
+  { usbHOSTcoreInit();
 } }
 
 

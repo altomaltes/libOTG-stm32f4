@@ -566,7 +566,7 @@ void USBH_ParseStringDesc( byte * psrc
 * @param  ptr: data pointer inside the cfg descriptor
 * @retval next header
 */
-USBH_DescHeader_t *USBH_GetNextDesc( byte * pbuf, word * ptr )
+USBH_DescHeader_t   * USBH_GetNextDesc( byte * pbuf, word * ptr )
 { USBH_DescHeader_t * hdr= (USBH_DescHeader_t *)pbuf;
 
  *ptr+= hdr->bLength;

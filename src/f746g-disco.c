@@ -136,6 +136,8 @@ void usbHostGotDisconnected( byte devAddr )
       PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 60 );
 } } */}
 
+extern dword STM32F4;
+
 
 /**
   * @brief  Main program.
@@ -143,38 +145,21 @@ void usbHostGotDisconnected( byte devAddr )
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 42000000, 25000000 );  // 8 Mhz xtal
+{ SET_SYSCLK_HZ( 42000000, 25000000 );  // 25 Mhz xtal
   sysTickConfig( 8000 );                // OS scheduler
+
+ // dword ULPI= ( &STM32F4 == 0x40040000 ) ? USB_ULPI_PHY : PORTPIN( PORTD, 5 ); // This board has a microchip ULPI on high speed
 
 /* Demo pins ( carrousel leds )
  */
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
+  USBinitDEV( USB_ULPI_PHY );
+//  USBinitHOST( ULPI ); // PORTJ 12
+//  USBinitOTG( PORTPIN( PORTD, 5 ) | USB_VBUS_INT | USB_ID_PIN | ULPI );
 
-//  USBinitD( USB_ULPI_PHY );
-//  USBinitH( PORTPIN( PORTJ, 12 ) |  USB_ID_PIN  | USB_ULPI_PHY );
-//    USBinitH( USB_ID_PIN  | USB_ULPI_PHY );
-//  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
-   USBinitOTG( USB_ID_PIN  | USB_ULPI_PHY | USB_VBUS_INT | USB_ID_PIN  );
-volatile int step;
   while( 1 )
   { testForEvents( LED1, LED1 );
-
-/*    int top= udelayTop( 100 );
-
-    for( int loop = 0; loop < 5000; loop ++ )
-    {
-
-     again:
-      if ( step= udelayGet( top ) )
-      { step++; goto again;
-      }
-      else
-      { step--;
-      }
-      //uDelay( 100 );
-    }
-    PIN_TGL( LED1 );*/
     mDelay(10);
   }
   return( 0 );

@@ -227,9 +227,9 @@ signed char USBH_MSC_Read10( byte * dataBuffer
                            , dword  address
                            , dword  nbOfbytes )
 { switch( USBH_MSC_BOTXferParam.MSCState )  /* Allow sync and no sync access */
-  { case USBH_MSC_IDLE   : break;                    /* Free to read */
-    case USBH_MSC_READ10 : return( -2 );  // Previous read              return( USBH_MSC_IDLE );  /* Progressing  */
-    default              : return( -1 );  /* Dead engine  */
+  { case USBH_MSC_IDLE   : break;           /* Free to read */
+    case USBH_MSC_READ10 : return( -2 );   // Previous read   return( USBH_MSC_IDLE );  /* Progressing  */
+    default              : return( -1 );    /* Dead engine  */
   }
 
   USBH_MSC_CBWData.field.CBWTransferLength= nbOfbytes;
@@ -245,7 +245,7 @@ signed char USBH_MSC_Read10( byte * dataBuffer
   }
   USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_READ10;
 
-/*logical block address
+/* logical block address
  */
   USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]);
   USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
@@ -254,7 +254,7 @@ signed char USBH_MSC_Read10( byte * dataBuffer
 
   word nbOfPages= nbOfbytes / USBH_MSC_PAGE_LENGTH;   /*USBH_MSC_PAGE_LENGTH = 512*/
 
-/*Transfer length
+/* Transfer length
  */
   USBH_MSC_CBWData.field.CBWCB[ 7 ]= (((byte *)&nbOfPages)[1]) ;
   USBH_MSC_CBWData.field.CBWCB[ 8 ]= (((byte *)&nbOfPages)[0]) ;

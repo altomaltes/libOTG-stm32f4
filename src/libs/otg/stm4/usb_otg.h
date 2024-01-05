@@ -18,8 +18,6 @@
 #ifndef __USB_OTG__
 #define __USB_OTG__
 
-
-
 //void USB_OTG_InitiateSRP(void);
 //void USB_OTG_InitiateHNP(uint8_t state , uint8_t mode);
 //void USB_OTG_Switchback (USB_OTG_CORE_DEVICE *pdev);

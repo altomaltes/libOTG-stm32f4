@@ -26,8 +26,8 @@ USB_OTG_CORE_HANDLE USB_OTG_Core;
  */
 static schar USB_OTG_CoreReset(  )
 { dword count = 0; do    /* Wait for AHB master IDLE state. */
-  { uDelay( 100 );
-    if ( ++count > 400000 )
+  { // uDelay( 100 );
+    if ( ++count > 1800000 )
     { return( 0 );
   } }
   while( !STM32F4.USB.GLOBAL.GRSTCTL.AHBIDL ); /** 0x1F AHB master idle */
@@ -35,8 +35,8 @@ static schar USB_OTG_CoreReset(  )
   mDelay( 20 );  // Must wait 10ms
 
   count = 0; do  /* Core Soft Reset */
-  { uDelay( 100 );
-    if ( ++count > 400000 )
+  { // uDelay( 100 );
+    if ( ++count > 1800000 )
     { break;
   } }
   while( STM32F4.USB.GLOBAL.GRSTCTL.CSRST );
@@ -54,7 +54,7 @@ static schar USB_OTG_CoreReset(  )
  * @param  bytes : No. of bytes
  * @retval schar : status
  */
-schar USB_OTG_WritePacket( void * buff
+schar usbOTGwritePacket( void * buff
                          , byte   ch_ep_num
                          , word   len )
 { if ( !USB_OTG_Core.dmaEnable )
@@ -170,7 +170,7 @@ schar OTGselectCore( dword flags )
       USB_OTG_Core.hostChannels= 8;
 
       if ( flags & USB_VBUS_INT )
-      { PIN_MODE( PORTPIN( PORTA,  9 ), GPIO_IN  | GPIO_FLOAT  );  /* Vbus, left as default */
+      { PIN_MODE( PORTPIN( PORTA, 9 ), GPIO_IN  | GPIO_FLOAT  );  /* Vbus, left as default */
       }
 
       if ( USB_OTG_Core.vbusPin & USB_ID_PIN )
@@ -245,42 +245,42 @@ schar OTGselectCore( dword flags )
 }
 
 /**
- * @brief  USB_OTG_FlushTxFifo : Flush a Tx FIFO
+ * @brief  usbOTGflushTxFifo : Flush a Tx FIFO
  * @param  num : FO num
  * @retval schar : status
  */
-schar USB_OTG_FlushTxFifo( dword num )
+schar usbOTGflushTxFifo( dword num )
 { dword count    = 0;
   STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH = 1;
   STM32F4.USB.GLOBAL.GRSTCTL.TXFNUM  = num;
 
   do
-  { if ( ++count > 400000 )
+  { if ( ++count > 1400000 )
     { break;
   } }
   while ( STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH == 1);
 
-  uDelay( 3 ); /* Wait for 3 PHY Clocks*/
+  mDelay( 3 ); /* Wait for 3 PHY Clocks*/
 
   return( 0 );
 }
 
 /**
- * @brief  USB_OTG_FlushRxFifo : Flush a Rx FIFO
+ * @brief  usbOTGflushRxFifo : Flush a Rx FIFO
  * @retval schar : status
  */
-schar USB_OTG_FlushRxFifo(  )
+schar usbOTGflushRxFifo(  )
 { dword count = 0;
 
-  STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH = 1;
+  STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH= 1;
 
   do
-  { if (++count > 400000)
+  { if ( ++count > 1400000 )
     { break;
   } }
-  while ( STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH == 1);
+  while ( STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH == 1 );
 
-  uDelay( 3 );   /* Wait for 3 PHY Clocks*/
+  mDelay( 3 );   /* Wait for 3 PHY Clocks*/
   return( 0 );
 }
 
@@ -310,10 +310,10 @@ schar OTGsetCurrentMode( byte mode )
 }
 
 /**
- * @brief  USB_OTG_GetMode : Get current mode
+ * @brief  usbOTGgetMode : Get current mode
  * @retval current mode
  */
-dword USB_OTG_GetMode()
+dword usbOTGgetMode()
 { return( STM32F4.USB.GLOBAL.GINTSTS.CMOD );
 }
 
@@ -329,11 +329,11 @@ void handleMmisISR()
 
 
 /**
- * @brief  USBenableCommonInt
+ * @brief  usbOTGenableCommonInt
  *         Initializes the commmon interrupts, used in both device and modes
  * @retval None
  */
-void USBenableCommonInt( byte mode )        /* Give OTG a chance */
+void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
 { union STM32_USB_GLOBAL$GINTSTS INTS; INTS.atomic= 0;
 
   if ( !USB_OTG_Core.dmaEnable )
@@ -384,7 +384,7 @@ void USBenableCommonInt( byte mode )        /* Give OTG a chance */
   INTS.CIDSCHG= ( STM32F4.USB.GLOBAL.GUSBCFG.FDMOD
                 | STM32F4.USB.GLOBAL.GUSBCFG.FHMOD )
                ? 0 : 1 ;
-               INTS.CIDSCHG=0;
+//               INTS.CIDSCHG=0;
   INTS.SOF=
   INTS.INCOMPISOIN=
   INTS.INCOMPISOOUT= 1;  /** 0x14 Incomplete isochronous IN transfer */
@@ -395,12 +395,12 @@ void USBenableCommonInt( byte mode )        /* Give OTG a chance */
 }
 
 /**
-  * @brief  HCDgetCurrentFrame
+  * @brief  usbOTGgetCurrentFrame
   *         This function returns the future frame number for sof packet
   * @retval Frame number
   *
   */
-dword HCDgetCurrentFrame( word delta )
+dword usbOTGgetCurrentFrame( word delta )
 { return( ( STM32F4.USB.HOST.HFNUM.FRNUM + delta ) & 0x3FFF ); /** 0x00 Frame number */
 }
 

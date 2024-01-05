@@ -67,36 +67,33 @@ extern USB_OTG_CORE_HANDLE USB_OTG_Core;
 /* JACS
  */
 
-void usbDevGotReset       ( byte speed  );
-void usbDevGotSuspended   ( byte status );
+void usbDEVgotReset       ( byte speed  );
+void usbDEVgotSuspended   ( byte status );
 void usbDevGotConfigured  ( void );
 void usbDevGotResumed     ( void );
 void usbDevGotConnected   ( void );
 void usbDevGotDisconnected( void );
 
+schar  usbOTGflushTxFifo( dword num);
+schar  usbOTGflushRxFifo( );
 
-schar  USB_OTG_FlushTxFifo( dword num);
-schar  USB_OTG_FlushRxFifo( );
-
-dword        USB_OTG_GetMode  ();
+dword  usbOTGgetMode  ();
 
 
-dword     USB_OTG_ReadDevAllInEPItr();
-enum USB_OTG_SPEED USB_OTG_GetDeviceSpeed();
+dword     usbDEVreadAllInEPItr();
+enum USB_OTG_SPEED usbDEVgetDeviceSpeed();
 
-schar  USB_OTG_EP0Activate ( );
+schar usbDEVep0Activate ( );
+schar usbDEVepStartRevc ( byte epAddr );
 
-schar USB_OTG_EPStartRevc ( byte epAddr );
-
-dword USB_OTG_ReadDevOutEP_itr    ( byte epnum);
-dword USB_OTG_ReadDevAllInEPItr   (  );
-void  USB_OTG_InitDevSpeed        ( byte speed );
-void  USB_OTG_ActiveRemoteWakeup  ();
-void  USB_OTG_UngateClock         ();
-
-void  USB_OTG_SetEPStatus( byte epAddr, dword Status);
-
-dword     USB_OTG_GetEPStatus( byte epAddr );
+dword usbDEVreadOutEPitr      ( byte epnum);
+dword usbDEVreadAllInEPItr    ( );
+void  usbDEVinitSpeed         ( byte speed );
+void  usbDEVactiveRemoteWakeup();
+void  usbDEVungateClock       ();
+void  usbDEVsetEPStatus       ( byte epAddr, dword Status);
+dword usbDEVgetEPStatus       ( byte epAddr );
+schar usbDEVdeInit            ( void ); /* Software Init */
 
 
 void handleCanReadHOST  ();  /** 0x04 RxFIFO non-empty */
@@ -118,14 +115,10 @@ void handleConIDStChgISR();  /** 0x1C Connector ID status change */
 void handleSofFrameISR  ();  /** 0x03 Start of frame */
 
 
-void USBenableCommonInt( byte mode );
-void USB_OTG_BSP_DriveVBUS( byte state );
+void   usbOTGenableCommonInt( byte mode );
+byte   usbHOSTsetUrbState( byte channel, byte state );
+void * usbHOSTgetBuffer();
 
-byte   USBHsetUrbState( byte channel, byte state );
-void * USBHgetBuffer();
-
-
-schar USBDdeInit( void ); /* Software Init */
 
 
 #endif  /* __USB_CORE_H__ */

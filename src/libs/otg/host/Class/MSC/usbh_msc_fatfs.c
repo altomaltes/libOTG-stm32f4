@@ -56,8 +56,8 @@ DRESULT diskRead( BYTE   pdrv			  /* Physical drive number (0) */
       { return( RES_ERROR );                /* IO error */
       }
 
-      word end= HCDgetCurrentFrame( 5 );       /* Allow 5 ms to read */
-      while( end != HCDgetCurrentFrame( 0 ))
+      word end= usbOTGgetCurrentFrame( 5 );       /* Allow 5 ms to read */
+      while( end != usbOTGgetCurrentFrame( 0 ))
       { if ( USBH_MSC_BOTXferParam.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
         { return( RES_OK );   /* read achieved */
     } } }
@@ -89,8 +89,8 @@ DRESULT diskWrite( BYTE pdrv			      /* Physical drive number (0) */
  */
 //    word maxTry= 5;        /* Allow 5 tries     */
 //    while( maxTry-- )
-//    { word end= HCDgetCurrentFrame( 5 );                        /* Allow 5 ms to read */
-//      while( end != HCDgetCurrentFrame( 0 ))                    /* Timer not reached */
+//    { word end= usbOTGgetCurrentFrame( 5 );                        /* Allow 5 ms to read */
+//      while( end != usbOTGgetCurrentFrame( 0 ))                    /* Timer not reached */
 //      { if ( USBH_MSC_BOTXferParam.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
 //        { if ( USBH_MSC_Write10( NULL                           /* Write previous  */
 //                               , sector

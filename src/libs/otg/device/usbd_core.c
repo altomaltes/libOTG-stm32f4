@@ -140,7 +140,7 @@ schar USBDdataInStage( byte epnum )
         USBDepPrepareRx( 0, NULL, 0 );
       }
 
-      else /* last packet is MPS multiple, so send ZLP packet */
+      else                                  /* last packet is MPS multiple, so send ZLP packet */
       { if (( ep->totalDataLen %  ep->maxpacket == 0 )
         &&  ( ep->totalDataLen >= ep->maxpacket )
         &&  ( ep->totalDataLen <  ep->ctl_data_len ))
@@ -255,14 +255,15 @@ schar USBD_DevDisconnected()
 
 
 /**
- * @brief  USBinitD
+ * @brief  USBinitDEV
  *         Initializes the device stack and load the class driver
  * @retval None
  */
-void * USBinitD( word flags )
+void * USBinitDEV( word flags )
 { OTGselectCore( flags );
   OTGsetCurrentMode( DEVICE_MODE );
-  OTGcoreInitDev();    /* set USB OTG core params */
+  OTGcoreInitDev();             /* set USB OTG core params */
+  OTGsetCurrentMode( DEVICE_MODE );
 
   return( &USBIrqHandlerDEV );  /* Be sure is linked */
 }
@@ -320,12 +321,12 @@ dword USBDepOpen( byte epAddr
 
 
 /**
-  * @brief  USBDdeInit
+  * @brief  usbDEVdeInit
   *         Re-Initialize Device
   * @param  None
   * @retval status
   */
-schar USBDdeInit( void ) /* Software Init */
+schar usbDEVdeInit( void ) /* Software Init */
 { USB_DEV.deviceStatus= USB_OTG_DEFAULT;
 
 /* Init ep structure

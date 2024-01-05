@@ -24,7 +24,6 @@
  *             - The Mouse and Keyboard protocols
  *
  */
-
 #include "usbh_hid_core.h"
 #include "usbh_hid_mouse.h"
 #include "usbh_hid_keybd.h"
@@ -37,160 +36,43 @@ ALIGN_THIS( HID_Machine_TypeDef  HID_Machine );
 
 volatile byte start_toggle = 0;
 
-typedef struct
-{ byte report_id;
-  byte usage;
-  byte usage_page[ 32 ];
-} hidReportInfoRec;
+//typedef struct
+//{ byte report_id;
+//  byte usage;
+//  byte usage_page[ 32 ];
+//} hidReportInfoRec;
 
 
 /**
+ * @brief  USBH_ParseHIDDesc
  * @brief  hidParseReportDescriptor
  * @param  None
  * @retval None
  */
-byte hidParseReportDescriptor( hidReportInfoRec * report_info_arr
-                             , byte arr_count
-                             , word desc_len )
-{ byte const * desc_report= (byte*)USBHgetBuffer();
+byte hidParseReportDescriptor( usbHidDescriptor * desc, void * io )
+{ USBH_DescHeader_t * pdesc= (USBH_DescHeader_t *)io;
 
+  word CfgDescLen = LE16( (byte *)pdesc + 2 );
 
-  union PACKED // Report Item 6.2.2.2 USB HID 1.11
-  { byte byte8;
-
-    struct PACKED
-    { byte size : 2;
-      byte type : 2;
-      byte tag  : 4;
-    };
-  } header;
-
-//  tu_memclr( report_info_arr, arr_count*sizeof(tuh_hid_report_info_t));
-
-  byte report_num = 0;
-  hidReportInfoRec * info= report_info_arr;
-
-  // current parsed report count & size from descriptor
-//  byte ri_report_count = 0;
-//  byte ri_report_size = 0;
-
-  byte ri_collection_depth = 0;
-
-  while( desc_len && report_num < arr_count)
+  if ( CfgDescLen > USB_CONFIGURATION_DESC_SIZE )
   {
-    header.byte8 = *desc_report++;
-    desc_len--;
+    word ptr= USB_CONFIGURATION_DESC_SIZE;
 
-    byte const tag  = header.tag;
-    byte const type = header.type;
-    byte const size = header.size;
+    while ( ptr < CfgDescLen )
+    { pdesc= USBH_GetNextDesc((byte *)pdesc, &ptr);
+      byte * buff= ( byte *)io;
 
-    byte const data8 = desc_report[ 0 ];
-
- /*   TU_LOG(3, "tag = %d, type = %d, size = %d, data = ", tag, type, size);
-   for( word i = 0
-       ;      i < size
-       ;      i++ )
-    { TU_LOG(3, "%02X ", desc_report[i]);
-    }
-
-    TU_LOG(3, "\r\n");
-*/
-
-    switch( type )
-    { case HID_RI_TYPE_MAIN: switch( tag )
-      { case HID_RI_MAIN_INPUT:   break;
-        case HID_RI_MAIN_OUTPUT:  break;
-        case HID_RI_MAIN_FEATURE: break;
-
-        case HID_RI_MAIN_COLLECTION:
-          ri_collection_depth++;
+      if ( pdesc->bDescriptorType == HID_DTYPE_HID )
+      { desc->bLength           = buff[ 0 ];
+        desc->bType             = buff[ 1 ];
+        desc->bcdHID            = LE16( buff + 2 );
+        desc->bCountryCode      = buff[ 4 ];
+        desc->bNumDescriptors   = buff[ 5 ];
+        desc->bType0            = buff[ 6 ];
+        desc->wDescriptorLength0= LE16( buff + 7 );
         break;
+} } } }
 
-        case HID_RI_MAIN_ECOLLEC:
-          ri_collection_depth--;
-
-          if (ri_collection_depth == 0)
-          { info++;
-            report_num++;
-          }
-          break;
-
-        default: break;
-      }
-      break;
-
-      case HID_RI_TYPE_GLOBAL: switch(tag)
-      { case HID_RI_GLOBAL_USAGE_PAGE:
-            // only take in account the "usage page" before REPORT ID
-          if ( ri_collection_depth == 0 )
-          { memcpy( &info->usage_page, desc_report, size);
-          }
-        break;
-
-        case HID_RI_GLOBAL_LOGICAL_MINIMUM   : break;
-        case HID_RI_GLOBAL_LOGICAL_MAXIMUM   : break;
-        case HID_RI_GLOBAL_PHYSICAL_MINIMUM  : break;
-        case HID_RI_GLOBAL_PHYSICAL_MAXIMUM  : break;
-
-        case HID_RI_GLOBAL_REPORT_ID:
-          info->report_id= data8;
-        break;
-
-        case HID_RI_GLOBAL_REPORT_SIZE:
-//            ri_report_size = data8;
-        break;
-
-        case HID_RI_GLOBAL_REPORT_COUNT:
-//            ri_report_count = data8;
-        break;
-
-        case HID_RI_GLOBAL_UNIT_EXPONENT : break;
-        case HID_RI_GLOBAL_UNIT          : break;
-        case HID_RI_GLOBAL_PUSH          : break;
-        case HID_RI_GLOBAL_POP           : break;
-
-        default: break;
-      }
-      break;
-
-      case HID_RI_TYPE_LOCAL: switch(tag)
-      { case HID_RI_LOCAL_USAGE:
-          // only take in account the "usage" before starting REPORT ID
-          if ( ri_collection_depth == 0 )
-          { info->usage = data8;
-          }
-        break;
-
-        case HID_RI_LOCAL_USAGE_MINIMUM: break;
-        case HID_RI_LOCAL_USAGE_MAXIMUM: break;
-        case HID_RI_LOCAL_DESIGR_INDEX : break;
-        case HID_RI_LOCAL_DESIGR_MIN   : break;
-        case HID_RI_LOCAL_DESIGR_MAX   : break;
-        case HID_RI_LOCAL_STR_INDEX    : break;
-        case HID_RI_LOCAL_STR_MINIMUM  : break;
-        case HID_RI_LOCAL_STR_MAXIMUM  : break;
-        case HID_RI_LOCAL_DELIMITER    : break;
-        default: break;
-      }
-    break;
-
-    default: break;   // error
-  }
-
-  desc_report += size;
-  desc_len    -= size;
-  }
-/*
-  for( byte i = 0
-     ;      i < report_num
-     ; i++ )
-  { info = report_info_arr+i;
-    TU_LOG_DRV("%u: id = %u, usage_page = %u, usage = %u\r\n", i, info->report_id, info->usage_page, info->usage);
-  }
-*/
-  return( report_num );
-}
 
 /**
  * @brief  USBH_MSC_HandleBOTXfer
@@ -242,25 +124,6 @@ byte classReqStatus;
 
 
 /**
- * @brief  USBH_ParseHIDDesc
- *         This function Parse the HID descriptor
- * @param  buf: Buffer where the source descriptor is available
- * @retval None
- */
-static void  USBH_ParseHIDDesc( usbHidDescriptor * desc )
-{ byte * buf= (byte*)USBHgetBuffer();
-
-  desc->bLength           = buf[ 0 ];
-  desc->bType             = buf[ 1 ];
-  desc->bcdHID            = LE16( buf + 2 );
-  desc->bCountryCode      = buf[ 4 ];
-  desc->bNumDescriptors   = buf[ 5 ];
-  desc->bType0            = buf[ 6 ];
-  desc->wDescriptorLength0= LE16( buf + 7 );
-}
-
-
-/**
  * @brief  USBH_HID_Handle
  *         The function is responsible for handling HID Class requests
  *         for HID class.
@@ -276,19 +139,16 @@ static schar USBH_HID_Handle( byte ep )
       HID_Machine.ctl_state= HID_REQ_GET_REPORT_DESC;
   break;
 
-  case HID_REQ_GET_REPORT_DESC:     /* Get Report Desc */
-    USBH_ParseHIDDesc( &HID_Desc );
+  case HID_REQ_GET_REPORT_DESC:     /* Get Report Desc, not used at this moment */
+    hidParseReportDescriptor( &HID_Desc, usbHOSTgetBuffer() );
     USBH_GetDescriptor( USB_REQ_RECIPIENT_INTERFACE | USB_REQ_TYPE_STANDARD
                       , HID_DTYPE_REPORT << 8
                       , HID_Desc.wDescriptorLength0 );
     HID_Machine.ctl_state= HID_REQ_SET_IDLE;
   break;
 
-    case HID_REQ_SET_IDLE:     /* set Idle */
-    { hidReportInfoRec info[ 2 ];
-    //  hidParseReportDescriptor( info, 2
-      //                        , HID_Desc.wDescriptorLength0 );
-      USBHsetInterface( HID_SETIDLE, 0,  0 );  // (duration << 8 ) | reportId
+    case HID_REQ_SET_IDLE:     /* set Idle, place to decode above ask for */
+    { USBHsetInterface( HID_SETIDLE, 0, 0 );  // (duration << 8 ) | reportId
       HID_Machine.ctl_state= HID_REQ_SET_PROTOCOL;
     }
     break;
@@ -301,19 +161,6 @@ static schar USBH_HID_Handle( byte ep )
       HID_Machine.ctl_state= HID_REQ_FIREUP;
     break;
 
-//    case HID_REQ_CLEAR:                       /* set protocol */
-//      USBH_ClrFeature( HID_Machine.HIDIntInEp     /* Issue Clear Feature on interrupt IN endpoint */
-//                     , HID_Machine.hcNumIn );
-//    { //static byte leds= 0x03;
-//
-  //    USBHsendInterface( HID_SETREPORT
-    //                   , 0  // word index
-      //                 , 20 // USB_HID_REPORT_OUT << 8  // word value
-        //               , &leds, 1 );
-//    }
-  //    HID_Machine.ctl_state= HID_REQ_FIREUP;
-  //  break;
-
     case HID_REQ_FIREUP:                       /* set protocol */
       USBHclassSignaler.classHid= 1;
       usbHostGotUserApplication( USBHclassSignaler );  /* | 0x80 << MSC_Machine.hcNumIn | 0x80 << MSC_Machine.hcNumOut  );*/
@@ -322,7 +169,6 @@ static schar USBH_HID_Handle( byte ep )
       HID_Machine.ctl_state= HID_REQ_IDLE;
       HID_Machine.state= HID_GET_DATA;         /* Change state to issue next IN token */
     break;
-
 
     default: break;
   }

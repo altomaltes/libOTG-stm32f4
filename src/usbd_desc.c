@@ -22,8 +22,13 @@
 #include "usbd_hid_core.h"
 //#include "usbd_cdc_core.h"
 
-#define USBD_VID  0x0483
-#define USBD_PID  0x3752
+//#define USBD_VID  0x0483
+//#define USBD_PID  0x3752
+
+#define USBD_VID                      0x0483
+#define USBD_PID                      0x5720
+
+#define MSC_MAX_FS_PACKET 64
 
 /* USB Standard Device Descriptor
  */
@@ -31,8 +36,10 @@ ALIGN_THIS( byte USBD_DeviceQualifierDesc[ USB_LEN_DEV_QUALIFIER_DESC ] ) =
 { USB_LEN_DEV_QUALIFIER_DESC
 , DTYPE_QUALIFIER
 , 0x00, 0x02, 0x00, 0x00
-, 0x00, 0x40, 0x01, 0x00
+, 0x00
+, MSC_MAX_FS_PACKET, 0x01, 0x00
 };
+
 
 /* USB Standard Device Descriptor
  */
@@ -43,11 +50,11 @@ ALIGN_THIS( static const char USBD_DeviceDesc[ USB_SIZ_DEVICE_DESC ] ) =
 
 //, USB_CLASS_PER_INTERFACE   /* Defined on interface level */
 //, USB_CLASS_CDC // 0x00                                    /* bDeviceClass    */
-, USB_CLASS_MASS_STOR
+, 0//USB_CLASS_MASS_STOR
+, 0//USB_SUBCLASS_NONE
+, 0x00
 
-, USB_SUBCLASS_NONE
-
-, 0x00                                    /* bDeviceProtocol */
+                                 /* bDeviceProtocol */
 , USB_OTG_MAX_EP0_SIZE                    /* bMaxPacketSize   */
 , LOBYTE( USBD_VID ), HIBYTE( USBD_VID )  /* idVendor         */
 , LOBYTE( USBD_PID ), HIBYTE( USBD_PID )  /* idVendor*/
@@ -58,18 +65,11 @@ ALIGN_THIS( static const char USBD_DeviceDesc[ USB_SIZ_DEVICE_DESC ] ) =
 , 1  // USBD_CFG_MAX_NUM                        /* bNumConfigurations*/
 }; /* USB_DeviceDescriptor */
 
-/*
-//USBD_DEVICE USBdeviceDescHid=
-USBD_DEVICE USBdeviceDesc=
-{ USBD_DeviceDesc
-,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
- ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
- ,  "Kinetik Joystck"    // 2 USBD_CONFIGURATION_FS_STRING
- ,  "B000000011E"        // 3 USBD_PRODUCT_FS_STRING
- ,  "HID Config"          // 4
- ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
- , &USBD_HID_cb };
 
+extern USBDclassDefREC USBD_MSC_cb;
+
+
+/*
 
 USBD_DEVICE USBdeviceDescCdc=
 //USBD_DEVICE USBdeviceDesc=
@@ -82,19 +82,27 @@ USBD_DEVICE USBdeviceDescCdc=
  ,  "Serial CDC Interface" }    // 5 USBD_INTERFACE_FS_STRING
  , &USBD_CDC_cb };
 
-USBD_DEVICE USBdeviceMsc=
+USBD_DEVICE USBdeviceDesc=
+{ USBD_DeviceDesc
+, { "\0x4\0x9"              // 0 USBD_LANGID_STRING
+  ,  "STMicroelectronics"   // 1 USBD_MANUFACTURER_STRING
+  ,  "Kinetik disk"         // 2 USBD_CONFIGURATION_FS_STRING
+  ,  "DEF0A000013E"         // 3 USBD_PRODUCT_FS_STRING
+  ,  "Mass Config"          // 4
+  ,  "Mass Interface" }     // 5 USBD_INTERFACE_FS_STRING
+, &USBD_MSC_cb };
+
+
 */
-extern USBDclassDefREC USBD_MSC_cb;
+
 
 USBD_DEVICE USBdeviceDesc=
 { USBD_DeviceDesc
-,{ "\0x4\0x9"              // 0 USBD_LANGID_STRING
- ,  "STMicroelectronics"   // 1 USBD_MANUFACTURER_STRING
- ,  "Kinetik disk"         // 2 USBD_CONFIGURATION_FS_STRING
- ,  "D0000000013E"         // 3 USBD_PRODUCT_FS_STRING
- ,  "Mass Config"          // 4
- ,  "Mass Interface" }     // 5 USBD_INTERFACE_FS_STRING
- , &USBD_MSC_cb };
-
-
+,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
+ ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
+ ,  "Kinetik Joystck"    // 2 USBD_CONFIGURATION_FS_STRING
+ ,  "B000000011E"        // 3 USBD_PUSBdeviceDescRODUCT_FS_STRING
+ ,  "HID Config"          // 4
+ ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
+ , &USBD_HID_cb };
 

@@ -19,11 +19,11 @@
 
 
 /**
- * @brief  USB_OTG_InitDevSpeed :Initializes the DevSpd field of DCFG register
+ * @brief  usbDEVinitSpeed :Initializes the DevSpd field of DCFG register
  *         depending the PHY type and the enumeration speed of the device.
  * @retval : None
  */
-void USB_OTG_InitDevSpeed( byte speed )
+void usbDEVinitSpeed( byte speed )
 { STM32F4.USB.DEVICE.DCFG.DSPD= speed;
 }
 
@@ -35,7 +35,7 @@ void USB_OTG_InitDevSpeed( byte speed )
 schar OTGcoreInitDev()
 { schar top;
 
-  USBDdeInit();
+  usbDEVdeInit();
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
   DCD_DevDisconnect();
@@ -48,12 +48,12 @@ schar OTGcoreInitDev()
   STM32F4.USB.DEVICE.DCFG.PFIVL= DCFG_FRAME_INTERVAL_80; /* Device configuration register */
 
   if      ((dword)&STM32F4.USB == 0x50000000 )           /* Full spped */
-  { USB_OTG_InitDevSpeed( USB_OTG_SPEED_PARAM_FULL );    /* Set Full speed phy */
+  { usbDEVinitSpeed( USB_OTG_SPEED_PARAM_FULL );        /* Set Full speed phy */
     size.TXFD= RX_FIFO_FS_SIZE; top= 3;
   }
 
   else if ((dword)&STM32F4.USB == 0x40040000 )           /* High spped */
-  { USB_OTG_InitDevSpeed( USB_OTG_SPEED_PARAM_HIGH );    /* Set High speed phy */
+  { usbDEVinitSpeed( USB_OTG_SPEED_PARAM_HIGH );        /* Set High speed phy */
     size.TXFD= RX_FIFO_HS_SIZE; top= 5;
   }
 
@@ -76,8 +76,8 @@ schar OTGcoreInitDev()
 
 /* Flush the FIFOs
  */
-  USB_OTG_FlushTxFifo( 0x10 );  /* all Tx FIFOs */
-  USB_OTG_FlushRxFifo(      );
+  usbOTGflushTxFifo( 0x10 );  /* all Tx FIFOs */
+  usbOTGflushRxFifo(      );
 
 /* Clear all pending Device Interrupts
  */
@@ -124,7 +124,7 @@ schar OTGcoreInitDev()
     STM32F4.USB.DEVICE.DTHRCTL_NW.RXLEN_NW= 64;
   }
 
-  USBenableCommonInt( DEVICE_MODE );  /* Enable the common interrupts */
+  usbOTGenableCommonInt( DEVICE_MODE );  /* Enable the common interrupts */
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
   DCD_DevConnect(); /** 0x01 Soft disconnect. This tell the host device ON */
 
@@ -132,12 +132,12 @@ schar OTGcoreInitDev()
 }
 
 /**
- * @brief  USB_OTG_GetDeviceSpeed
+ * @brief  usbDEVgetDeviceSpeed
  *         Get the device speed from the device status register
  * @param  None
  * @retval status
  */
-enum USB_OTG_SPEED USB_OTG_GetDeviceSpeed ()
+enum USB_OTG_SPEED usbDEVgetDeviceSpeed ()
 { switch ( STM32F4.USB.DEVICE.DSTS.ENUMSPD )
   { case DSTS_ENUMSPD_HS_PHY_30MHZ_OR_60MHZ: return( USB_SPEED_HIGH        );
     case DSTS_ENUMSPD_FS_PHY_30MHZ_OR_60MHZ:
@@ -154,7 +154,7 @@ enum USB_OTG_SPEED USB_OTG_GetDeviceSpeed ()
  * @param  None
  * @retval schar : status
  */
-schar USB_OTG_EP0Activate( )
+schar usbDEVep0Activate( )
 { switch ( STM32F4.USB.DEVICE.DSTS.ENUMSPD )   /* Set the MPS of the IN EP based on the enumeration speed */
   { case DSTS_ENUMSPD_HS_PHY_30MHZ_OR_60MHZ:
     case DSTS_ENUMSPD_FS_PHY_30MHZ_OR_60MHZ:
@@ -277,7 +277,7 @@ schar USB_OTG_EPStartXmit( byte epAddr
   else
   { if ( epType != USB_EP_TYPE_ISOC )
     { if ( xferLen > 0 ) /* Enable the Tx FIFO Empty Interrupt for this EP */
-      { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM= 1 << epAddr;
+      { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM |= 1 << epAddr;
   } } }
 
 
@@ -296,9 +296,9 @@ schar USB_OTG_EPStartXmit( byte epAddr
   STM32F4.USB.DEVICE.DIEP[ epAddr ].CTL.EPENA= 1;
 
   if ( epType == USB_EP_TYPE_ISOC )
-  { USB_OTG_WritePacket( xferBuff
-                       , epAddr
-                       , xferLen );
+  { usbOTGwritePacket( xferBuff
+                     , epAddr
+                     , xferLen );
   }
 
   return( 0 );
@@ -437,20 +437,20 @@ schar USB_OTG_EPClearStall( byte epAddr )
 }
 
 /**
- * @brief  USB_OTG_ReadDevOutEP_itr : returns Device OUT EP Interrupt register
+ * @brief  usbDEVreadOutEPitr : returns Device OUT EP Interrupt register
  * @param  ep : end point number
  * @retval Device OUT EP Interrupt register
  */
-dword USB_OTG_ReadDevOutEP_itr( byte epnum )
+dword usbDEVreadOutEPitr( byte epnum )
 { return( STM32F4.USB.DEVICE.DOEP[ epnum ].INT.atomic
         & STM32F4.USB.DEVICE.DOEPMSK.atomic );
 }
 
 /**
- * @brief  USB_OTG_ReadDevAllInEPItr : Get int status register
+ * @brief  usbDEVreadAllInEPItr : Get int status register
  * @retval int status register
  */
-dword USB_OTG_ReadDevAllInEPItr(  )
+dword usbDEVreadAllInEPItr(  )
 { return( STM32F4.USB.DEVICE.DAINT.IEPINT
         & STM32F4.USB.DEVICE.DAINTMSK.IEPINT );
 }
@@ -476,7 +476,7 @@ void USB_OTG_EP0_OutStart(  )
 } }
 
 /**
- * @brief  USB_OTG_UngateClock : active USB Core clock
+ * @brief  usbDEVungateClock : active USB Core clock
  * @param  None
  * @retval : None
  */
@@ -486,7 +486,7 @@ void USB_OTG_EP0_OutStart(  )
 //    SCB->SCR |= (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk);  /* Request to enter Sleep mode after exit from current ISR */
  // }
 
-void USB_OTG_UngateClock(  )
+void usbDEVungateClock(  )
 { if ( STM32F4.USB.DEVICE.DSTS.SUSPSTS == 1 ) /* un-gate USB Core clock */
   { STM32F4.USB.PWRCLK.FS_PCGCCTL.GATEHCLK = 0;
     STM32F4.USB.PWRCLK.FS_PCGCCTL.STPPCLK = 0;
@@ -510,7 +510,7 @@ void USBlowPower( int act )  /* un-gate USB Core clock */
 * @param  None
 * @retval : None
 */
-void USB_OTG_ActiveRemoteWakeup(  )
+void usbDEVactiveRemoteWakeup(  )
 { // if ( USB_DEV.DevRemoteWakeup )   çç
   { if ( STM32F4.USB.DEVICE.DSTS.SUSPSTS == 1 )
     { STM32F4.USB.DEVICE.DCTL.RWUSIG= 1; /* active Remote wakeup signaling */
@@ -538,8 +538,8 @@ void USB_OTG_StopDevice(  )
 
 /* Flush the FIFO
  */
-  USB_OTG_FlushRxFifo(      );
-  USB_OTG_FlushTxFifo( 0x10 );
+  usbOTGflushRxFifo(      );
+  usbOTGflushTxFifo( 0x10 );
 }
 
 /**
@@ -547,7 +547,7 @@ void USB_OTG_StopDevice(  )
  *         ep : endpoint structure
  * @retval : EP status
  */
-dword USB_OTG_GetEPStatus( byte epAddr )
+dword usbDEVgetEPStatus( byte epAddr )
 { byte isIN= epAddr & 0x80; epAddr &= 0x7F;                       // is IN
 
   if ( isIN )
@@ -567,7 +567,7 @@ dword USB_OTG_GetEPStatus( byte epAddr )
  *         ep : EP structure
  * @retval : None
  */
-void USB_OTG_SetEPStatus( byte epAddr
+void usbDEVsetEPStatus( byte epAddr
                         , dword Status )
 { byte isIN=  epAddr & 0x80;
   byte epNum= epAddr & 0x7F;
@@ -673,10 +673,10 @@ void  DCD_DevDisconnect ( )
  */
 dword USBDepFlush( byte epnum )
 { if ( epnum & 0x80 )  /* is IN */
-  { USB_OTG_FlushTxFifo( epnum & 0x7F);
+  { usbOTGflushTxFifo( epnum & 0x7F);
   }
   else
-  { USB_OTG_FlushRxFifo();
+  { usbOTGflushRxFifo();
   }
 
   return( 0 );
@@ -691,24 +691,20 @@ dword USBDepFlush( byte epnum )
  * @retval status
  */
 static short DCDwriteEmptyTxFifo( byte epNum )
-{ word chLen= USBDwritePacket( epNum, 0 );
+{ short chLen= USBDwritePacket( epNum, 0 ); /* Ask for bytes to send */
 
-  if ( chLen )               /* Bytes to send */
+  if ( chLen )
   { word lenWords= ( chLen + 3 ) / 4;
 
     while( STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV > lenWords && chLen )
-    { word len= STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV * 4;
-
-  //    if ( len > chLen ) /* Last packet */
-  //    { len= chLen;
-  //      STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &=  ~( 0x1 << epNum );  /**TxFIFO empty mask */
-  //    }
+    { word len= STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV * 4; /* Space available on FIFO */
 
       lenWords= ( chLen + 3 ) / 4;
       chLen= USBDwritePacket( epNum, len );
-    }
+  } }
 
-    STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &=  ~( 0x1 << epNum );  /**TxFIFO empty mask */
+  if ( chLen <= 0 )   /* All bytes sent */
+  { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &=  ~( 0x1 << epNum );  /**TxFIFO empty mask */
   }
 
   return( 1 );
@@ -777,7 +773,7 @@ void handleUsbResetISR(  )
 
  // STM32F4.USB.DEVICE.DCTL.RWUSIG= 1; /* Clear the Remote Wake-up Signaling !!! why anulate this */
 
-  USB_OTG_FlushTxFifo( 0 );  /* Flush the Tx FIFO */
+  usbOTGflushTxFifo( 0 );  /* Flush the Tx FIFO */
 
   for ( i = 0
       ; i < USB_OTG_Core.devEndpoints
@@ -825,11 +821,11 @@ void handleUsbResetISR(  )
  *  Set USB turn-around time based on device speed and PHY interface.
  */
 void handleEnumDoneISR(  )
-{ USB_OTG_EP0Activate(  );
+{ usbDEVep0Activate(  );
 
   dword hclk= 16000000; //  hclk= RCC_Clocks.HCLK_Frequency;
 
-  if ( USB_OTG_GetDeviceSpeed() == USB_SPEED_HIGH )   /* Full or High speed */
+  if ( usbDEVgetDeviceSpeed() == USB_SPEED_HIGH )   /* Full or High speed */
   { USB_OTG_Core.speed= USB_OTG_SPEED_HIGH;
     STM32F4.USB.GLOBAL.GUSBCFG.TRDT= 9;
   }
@@ -879,7 +875,7 @@ void handleOutEpISR()  /** 0x13 OUT endpoint interrupt */
 
   while ( ep_intr )
   { if ( ep_intr & 0x1 )
-    { DOEPINT.atomic= USB_OTG_ReadDevOutEP_itr( epnum );
+    { DOEPINT.atomic= usbDEVreadOutEPitr( epnum );
 
       if ( epnum & 0x7 )
       { if ( DOEPINT.atomic )
@@ -917,14 +913,14 @@ void handleOutEpISR()  /** 0x13 OUT endpoint interrupt */
 void handleInEpISR()                            /** 0x12 IN endpoint interrupt */
 { union STM32_USB_DEVICE$DIEPINT DIEPINT;
 
-  dword ep_intr= USB_OTG_ReadDevAllInEPItr();
+  dword ep_intr= usbDEVreadAllInEPItr();
   volatile dword epnum= 0;
 
   while ( ep_intr )
   { if ( ep_intr & 0x1 ) /* In ITR */
     { DIEPINT.atomic= DCD_ReadDevInEP( epnum ); /* Get In ITR status */
 
-      if ( DIEPINT.TXFE  )                      /* Token received */
+      if ( DIEPINT.TXFE  )                      /* Token received, start transaction  */
       { STM32F4.USB.DEVICE.DIEP[ epnum ].INT.TXFE= 1;
         DCDwriteEmptyTxFifo( epnum );
       }
@@ -934,7 +930,7 @@ void handleInEpISR()                            /** 0x12 IN endpoint interrupt *
       }
 
       if ( DIEPINT.XFRC ) /** 0x00 Transfer completed */
-      { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &= ~(0x1 << epnum);
+      { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &= ~( 0x1 << epnum );
         STM32F4.USB.DEVICE.DIEP[ epnum ].INT.XFRC= 1;
         USBDdataInStage( epnum );           /* TX COMPLETE */
 

@@ -330,8 +330,8 @@ struct STM32_USB_DEVICE_ST                               /** 0x50000800 USB on t
   volatile union STM32_USB_DEVICE$DTHRCTL    DTHRCTL_NW;  /** 0x30 Unused register -> i2c control */
   volatile union STM32_USB_DEVICE$DIEPEMPMSK DIEPEMPMSK;  /** 0x34 RST: 0x00000000 OTG_FS device IN endpoint FIFO empty interrupt mask register */
 
-  volatile union STM32_USB_DEVICE$DAINT      DEACHINT_NW; /** 0x38 RST: 0x00000000 OTG_FS device all endpoints interrupt register (OTG_DAINT) */
-  volatile union STM32_USB_DEVICE$DAINT      DEACHMSK_NW; /** 0x3C RST: 0x00000000 OTG_FS device all endpoints interrupt register (OTG_DAINT) */
+  volatile union STM32_USB_DEVICE$DAINT      DEACHINT_NW; /** 0x38 RST: 0x00000000 Dedicated endpoint  */
+  volatile union STM32_USB_DEVICE$DAINT      DEACHMSK_NW; /** 0x3C RST: 0x00000000 Dedicated endpoint mask  */
 
    dword Reserved40[ 1 ];                                  /** 0x40       */
    volatile union STM32_USB_DEVICE$DAINT DINEP1MSK_NW;  /** 0x44       */

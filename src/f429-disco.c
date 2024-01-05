@@ -100,18 +100,16 @@ void usbHIDrawArrived( byte * report )
   */
 int main( void )
 { SET_SYSCLK_HZ( 42000000, 8000000 );
-  sysTickConfig( 8000 );
+  sysTickConfig( 2000 );
 
 /* Demo pins  ( carrousel leds )
  */
   PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
   PIN_MODE( LED2, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
-
- //USBinitD( USB_VBUS_INT );      /* Activate 1ms per packet callback ( handleSofDevISR ) */
-  USBinitH(   PORTPIN( PORTC, 4 ) | USB_ID_PIN  );
- // USBinitOTG( PORTPIN( PORTC, 4 ) | USB_VBUS_INT | USB_ID_PIN  );
-
+ //USBinitDEV( USB_VBUS_INT );      /* Activate 1ms per packet callback ( handleSofDevISR ) */
+  USBinitHOST(  PORTPIN( PORTC, 4 ) | USB_ID_PIN  );
+//  USBinitOTG( PORTPIN( PORTD, 5 ) | USB_VBUS_INT | USB_ID_PIN  );
 
    while( 1 )
    { testForEvents( LED1, LED2 );

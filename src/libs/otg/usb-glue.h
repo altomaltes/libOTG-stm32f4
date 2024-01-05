@@ -19,7 +19,6 @@
 #define USB_OTG_SPEED_HIGH  0
 #define USB_OTG_SPEED_FULL  1
 
-
 #define HPRT0_PRTSPD_HIGH_SPEED  0
 #define HPRT0_PRTSPD_FULL_SPEED  1
 #define HPRT0_PRTSPD_LOW_SPEED   2
@@ -74,7 +73,7 @@ schar  USB_OTG_EPStartXrecv( byte, word, word );
 schar  USB_OTG_EP0StartXmit( word xferLen   );
 schar  USB_OTG_EPStartXmit ( byte epAddr, void * xferBuff, word xferLen );
 void * USB_OTG_ReadPacket( void * dest, word len );
-schar  USB_OTG_WritePacket( void * src, byte ch_ep_num, word len );
+schar  usbOTGwritePacket( void * src, byte ch_ep_num, word len );
 
 
 

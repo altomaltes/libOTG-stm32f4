@@ -144,10 +144,10 @@
 #define DTYPE_OTHER             0x07    /** Descriptor is of other type. */
 #define DTYPE_INTERFACEPOWER    0x08    /** Interface power descriptor. */
 #define DTYPE_OTG               0x09    /** OTG descriptor.*/
-#define DTYPE_DEBUG             0x0A    /** Debug descriptor.*/
-#define DTYPE_INTERFASEASSOC    0x0B    /** Interface association descriptor.*/
+#define DTYPE_DEBUG             0x0A    /** Debug descriptor.                   */
+#define DTYPE_INTERFASEASSOC    0x0B    /** Interface association descriptor.   */
 #define DTYPE_CS_INTERFACE      0x24    /** Class specific interface descriptor.*/
-#define DTYPE_CS_ENDPOINT       0x25    /** Class specific endpoint descriptor.*/
+#define DTYPE_CS_ENDPOINT       0x25    /** Class specific endpoint descriptor. */
 
 
 /** USB Standard requests

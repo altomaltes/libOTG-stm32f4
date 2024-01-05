@@ -198,9 +198,9 @@ short USBDwritePacket( byte epNum, word size )
     { size= ep->maxpacket;
     }
 
-     USB_OTG_WritePacket( ep->xferBuffEp
-                        , epNum
-                        , size );
+     usbOTGwritePacket( ep->xferBuffEp
+                      , epNum
+                      , size );
      ep->xferBuffEp+= size;
      ep->xferCount += size;
   }

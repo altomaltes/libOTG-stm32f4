@@ -70,7 +70,7 @@ byte UHOSTopenChannel( byte epNum
     case HPRT0_PRTSPD_LOW_SPEED : epType |= LOW_SPEED_FLAG; break;
   }
 
-  USBinitHC( hcNum, epNum
+  usbHOSTinitC( hcNum, epNum
            , epType
            , USB_Host.deviceProp.devAddr, mps  );   /* Hardware init */
 
@@ -87,7 +87,7 @@ byte USBHfreeChannel( byte idx )
 { word rot= 1 << idx;
 
   USB_HOST.used &= ~rot;
-  //USBhaltHC( idx ); !!! NO
+  //usbHOSThaltHC( idx ); !!! NO
 
   return( 0 );
 }
@@ -106,8 +106,8 @@ void USBHfreeDeviceChannels( byte addr )
   { word rot= 1 << idx;
 
     if ( USB_HOST.used & rot )           /* Used channel */
-    { if ( USBgetHCdad( idx ) == addr )  /* Belongs to this one */
-     	{ USBhaltHCnum( idx );
+    { if ( usbHOSTgetHCdad( idx ) == addr )  /* Belongs to this one */
+     	{ usbHOSThaltHCnum( idx );
      	  USB_HOST.used &= ~rot;           /* Mark as free */
 } } } }
 
@@ -162,8 +162,10 @@ byte USBHdeallocAllChannel()
   *
   * @retval No. of data bytes transferred
   */
-dword HCDgetXferCnt( byte ch_num )
-{ return( USB_HOST.XferCnt[ ch_num ] );
+dword HCDgetXferCnt( byte chNum )
+{ return( USB_HOST.hc[ chNum ].xferCount );
+
+//  return( USB_HOST.XferCnt[ ch_num ] );
 }
 
 /**
@@ -178,8 +180,9 @@ dword HCDsubmitRequest( byte   hcNum
                       , word   len )
 { USB_HOST.URB_State[ hcNum ]= URB_STATE_IDLE;
   USB_HOST.hc[ hcNum ].xferBuff= buff;
+  USB_HOST.hc[ hcNum ].xferCount= 0;          /* start accounting */
 
-  return( USBstartXferHC( hcNum, pid, buff, len ));
+  return( usbHOSTstartXferHC( hcNum, pid, buff, len ));
 }
 
 
