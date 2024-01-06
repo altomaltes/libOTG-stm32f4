@@ -54,7 +54,7 @@ static schar USB_OTG_CoreReset(  )
  * @param  bytes : No. of bytes
  * @retval schar : status
  */
-schar usbOTGwritePacket( void * buff
+schar OTGwritePacket( void * buff
                          , byte   ch_ep_num
                          , word   len )
 { if ( !USB_OTG_Core.dmaEnable )
@@ -70,12 +70,12 @@ schar usbOTGwritePacket( void * buff
 
 
 /**
- * @brief  USB_OTG_ReadPacket : Reads a packet from the Rx FIFO
+ * @brief  OTGreadPacket : Reads a packet from the Rx FIFO
  * @param  dest : Destination Pointer
  * @param  bytes : No. of bytes
  * @retval None
  */
-void * USB_OTG_ReadPacket( void * buff
+void * OTGreadPacket( void * buff
                          , word len )
 { dword * dst= (dword *)buff;
   volatile dword * fifo= STM32F4.USB.FIFOMEM + 0;
@@ -128,7 +128,7 @@ void * USB_OTG_ReadPacket( void * buff
       STM32F4.USB.GLOBAL.GCCFG.VBUSASEN= 0; /** 0x12 Disable the VBUS sensing device */
       STM32F4.USB.GLOBAL.GCCFG.VBUSBSEN= 0; /** 0x12 Disable the VBUS sensing device */
 #endif
-      STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN=  0;
+      STM32F4.USB.GLOBAL.GCCFG.NOVBUSEN=  1;
 /* B-peripheral session valid override enable
  */
       STM32F4.USB.GLOBAL.GOTGCTL.BVALOEN=

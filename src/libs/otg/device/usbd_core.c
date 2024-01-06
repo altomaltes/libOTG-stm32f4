@@ -36,9 +36,9 @@ dword  USBDepStall( byte epAddr )
 
   ep->is_stall= 1;
   ep->num     =   epAddr & 0x7F;
-  ep->is_in   = ((epAddr & 0x80) == 0x80);
+//  ep->is_in   = ((epAddr & 0x80) == 0x80);
 
-  return( OTGEPsetStall( epAddr ));
+  return( USBDsetStall( epAddr ));
 }
 
 /**
@@ -262,7 +262,7 @@ schar USBD_DevDisconnected()
 void * USBinitDEV( dword flags )
 { OTGselectCore( flags );
   OTGsetCurrentMode( DEVICE_MODE );
-  OTGcoreInitDev();             /* set USB OTG core params */
+  USBDcoreInit();             /* set USB OTG core params */
   OTGsetCurrentMode( DEVICE_MODE );
 
   return( &USBIrqHandlerDEV );  /* Be sure is linked */
@@ -301,11 +301,11 @@ dword USBDepOpen( byte epAddr
 
   ep->num= epAddr & 0x7F;
 
-  ep->is_in= ( 0x80 & epAddr ) != 0;
+ // ep->is_in= ( epAddr & 0x80 ) != 0;
   ep->maxpacket= epMps;
   ep->type= epType;
 
-  if ( ep->is_in )
+  if ( epAddr & 0x80 )
   { ep->tx_fifo_num= ep->num; /* Assign a Tx FIFO */
   }
 
@@ -315,7 +315,7 @@ dword USBDepOpen( byte epAddr
 
   USBDepAction( epAddr, doIt );
 
-  USB_OTG_EPActivate( epAddr, epType, epMps  );
+  USBDepActivate( epAddr, epType, epMps  );
   return( 0 );
 }
 
@@ -336,7 +336,7 @@ schar usbDEVdeInit( void ) /* Software Init */
       ;     i ++ )
   { USB_OTG_EP * ep= USB_DEV.inEp + i;
     /* Init ep structure */
-    ep->is_in = 1;
+//    ep->is_in = 1;
     ep->num = i;
     ep->tx_fifo_num = i;
 
@@ -348,7 +348,7 @@ schar usbDEVdeInit( void ) /* Software Init */
 /* Init ep structure OUT
  */
     ep = &USB_DEV.outEp[ i ];
-    ep->is_in= 0;
+  //  ep->is_in= 0;
     ep->num  = i;
     ep->tx_fifo_num= i;
 
@@ -378,7 +378,7 @@ schar usbDEVdeInit( void ) /* Software Init */
 //  OTGsetCurrentMode( DEVICE_MODE );   /* Force Device Mode*/
 //#endif
 
- // OTGcoreInitDev();              /* Init Device */
+ // USBDcoreInit();              /* Init Device */
 //}
 
 /**
@@ -390,8 +390,8 @@ dword USBDepClose( byte epAddr )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
   ep->num   = epAddr & 0x7F;
-  ep->is_in = (0x80 & epAddr) != 0;
-  OTGEPdeactivate( epAddr );
+  //ep->is_in = (0x80 & epAddr) != 0;
+  USBDepDeactivate( epAddr );
 
   return( 0 );
 }
@@ -403,7 +403,7 @@ dword USBDepClose( byte epAddr )
  */
 void DCDdone()
 { USB_DEV.deviceStatus= 1;
-  USB_OTG_StopDevice();
+  USBDstopDevice();
 }
 
 /**
@@ -423,7 +423,7 @@ dword USBDepPrepareRx( byte   epAddr
   ep->xferBuffEp = pbuf;
   ep->xferLen  = buf_len;
   ep->xferCount= 0;
-  ep->is_in    = 0;
+ // ep->is_in    = 0;
   ep->num      = epAddr & 0x7F;
 
   if ( OTGgetDmaEnable() )
@@ -431,10 +431,10 @@ dword USBDepPrepareRx( byte   epAddr
   }
 
   if ( ep->num == 0 )
-  { USB_OTG_EP0StartRecv( ep->xferLen= ep->maxpacket );
+  { USBDep0StartRecv( ep->xferLen= ep->maxpacket );
   }
   else
-  { USB_OTG_EPStartXrecv( ep->num, ep->xferLen, ep->maxpacket );
+  { USBDepStartXrecv( ep->num, ep->xferLen, ep->maxpacket );
   }
   return 0;
 }
@@ -449,9 +449,9 @@ dword  USBDepClrStall( byte epAddr )
 
   ep->is_stall= 0;
   ep->num     = epAddr & 0x7F;
-  ep->is_in   = ((epAddr & 0x80) == 0x80);
+//  ep->is_in   = ((epAddr & 0x80) == 0x80);
 
-  USB_OTG_EPClearStall( epAddr );
+  USBDepClearStall( epAddr );
   return( 0 );
 }
 

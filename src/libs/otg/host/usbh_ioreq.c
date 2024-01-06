@@ -197,7 +197,7 @@ schar USBH_IsocSendData( byte * buff
  */
 short USBHreadPacket( byte chNum, word size )
 { if ( size )
-  { USB_OTG_ReadPacket( USB_HOST.hc[ chNum ].xferBuff
+  { OTGreadPacket( USB_HOST.hc[ chNum ].xferBuff
                       , size );
     USB_HOST.hc[ chNum ].xferBuff += size;         /* manage multiple Xfer */
     USB_HOST.hc[ chNum ].xferCount+= size;
@@ -214,7 +214,7 @@ short USBHreadPacket( byte chNum, word size )
  */
 short USBHwritePacket( byte chNum, word size )
 { if ( size )
-  { usbOTGwritePacket( USB_HOST.hc[ chNum ].xferBuff
+  { OTGwritePacket( USB_HOST.hc[ chNum ].xferBuff
                        , chNum
                        , size );
     USB_HOST.hc[ chNum ].xferBuff  += size;

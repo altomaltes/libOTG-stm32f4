@@ -448,7 +448,7 @@ void USBDparseSetupRequest( USB_SETUP_REQ * req )
 void USBDctlError( USB_SETUP_REQ * req )
 { USBDepStall( 0x80 );
   USBDepStall( 0x00 );
-  USB_OTG_EP0_OutStart();
+  USBDep0OutStart();
 }
 
 

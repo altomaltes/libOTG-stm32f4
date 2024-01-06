@@ -70,7 +70,7 @@ byte UHOSTopenChannel( byte epNum
     case HPRT0_PRTSPD_LOW_SPEED : epType |= LOW_SPEED_FLAG; break;
   }
 
-  usbHOSTinitC( hcNum, epNum
+  USBHinitC( hcNum, epNum
            , epType
            , USB_Host.deviceProp.devAddr, mps  );   /* Hardware init */
 
@@ -87,7 +87,7 @@ byte USBHfreeChannel( byte idx )
 { word rot= 1 << idx;
 
   USB_HOST.used &= ~rot;
-  //usbHOSThaltHC( idx ); !!! NO
+  //USBHhaltHC( idx ); !!! NO
 
   return( 0 );
 }
@@ -106,8 +106,8 @@ void USBHfreeDeviceChannels( byte addr )
   { word rot= 1 << idx;
 
     if ( USB_HOST.used & rot )           /* Used channel */
-    { if ( usbHOSTgetHCdad( idx ) == addr )  /* Belongs to this one */
-     	{ usbHOSThaltHCnum( idx );
+    { if ( USBHgetHCdad( idx ) == addr )  /* Belongs to this one */
+     	{ USBHhaltHCnum( idx );
      	  USB_HOST.used &= ~rot;           /* Mark as free */
 } } } }
 

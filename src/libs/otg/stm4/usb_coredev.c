@@ -28,11 +28,11 @@ void usbDEVinitSpeed( byte speed )
 }
 
 /**
- * @brief  OTGcoreInitDev : Initializes the USB_OTG controller registers
+ * @brief  USBDcoreInit : Initializes the USB_OTG controller registers
  *         for device mode
  * @retval schar : status
  */
-schar OTGcoreInitDev()
+schar USBDcoreInit()
 { schar top;
 
   usbDEVdeInit();
@@ -154,7 +154,7 @@ enum USB_OTG_SPEED usbDEVgetDeviceSpeed ()
  * @param  None
  * @retval schar : status
  */
-schar usbDEVep0Activate( )
+schar USBDep0Activate( )
 { switch ( STM32F4.USB.DEVICE.DSTS.ENUMSPD )   /* Set the MPS of the IN EP based on the enumeration speed */
   { case DSTS_ENUMSPD_HS_PHY_30MHZ_OR_60MHZ:
     case DSTS_ENUMSPD_FS_PHY_30MHZ_OR_60MHZ:
@@ -172,13 +172,11 @@ schar usbDEVep0Activate( )
   return( 0 );
 }
 
-// #define EPNUM1( ep ) ( ep -> is_in ? ep -> num : ep -> num + 16 ) /* Skip reserver space */
-
 /**
- * @brief  USB_OTG_EPActivate : Activates an EP
+ * @brief  USBDepActivate : Activates an EP
  * @retval schar : status
  */
-schar USB_OTG_EPActivate( byte epAddr, byte epType, word maxPacket )
+schar USBDepActivate( byte epAddr, byte epType, word maxPacket )
 { volatile union STM32_USB_DEVICE$DAINTMSK * daintmsk= &STM32F4.USB.DEVICE.DAINTMSK;
 
   byte isIN=  epAddr & 0x80; epAddr &= 0x7F;                       // is IN
@@ -213,10 +211,10 @@ schar USB_OTG_EPActivate( byte epAddr, byte epType, word maxPacket )
 }
 
 /**
- * @brief  OTGEPdeactivate : Deactivates an EP
+ * @brief  USBDepDeactivate : Deactivates an EP
  * @retval schar : status
  */
-schar OTGEPdeactivate( byte epAddr )
+schar USBDepDeactivate( byte epAddr )
 { volatile union STM32_USB_DEVICE$DAINTMSK * daintmsk= &STM32F4.USB.DEVICE.DAINTMSK;
 
   byte isIN=  epAddr & 0x80; epAddr &= 0x7F;                       // is IN
@@ -243,13 +241,13 @@ schar OTGEPdeactivate( byte epAddr )
 }
 
 /**
- * @brief  USB_OTG_EPStartXfer : Handle the setup for data xfer for an EP and
+ * @brief  USBDepStartXfer : Handle the setup for data xfer for an EP and
  *         starts the xfer
- * @retval schar : status if ( ep -> is_in == 1 )  IN endpoint
+ * @retval schar : status
  */
-schar USB_OTG_EPStartXmit( byte epAddr
-                               , void * xferBuff
-                               , word   xferLen )
+schar USBDepStartXmit( byte epAddr
+                     , void * xferBuff
+                     , word   xferLen )
 { epAddr &= 0x7F;                       // is IN, strip type info
 
   word maxpacket= STM32F4.USB.DEVICE.DIEP[ epAddr ].CTL.MPSIZ;
@@ -296,7 +294,7 @@ schar USB_OTG_EPStartXmit( byte epAddr
   STM32F4.USB.DEVICE.DIEP[ epAddr ].CTL.EPENA= 1;
 
   if ( epType == USB_EP_TYPE_ISOC )
-  { usbOTGwritePacket( xferBuff
+  { OTGwritePacket( xferBuff
                      , epAddr
                      , xferLen );
   }
@@ -308,7 +306,7 @@ schar USB_OTG_EPStartXmit( byte epAddr
  * pktcnt = N
  * xfersize = N * maxpacket
  */
-schar USB_OTG_EPStartXrecv( byte epNum, word xferLen, word maxPacket )
+schar USBDepStartXrecv( byte epNum, word xferLen, word maxPacket )
 { byte epType= STM32F4.USB.DEVICE.DIEP[ epNum & 0xFF ].CTL.EPTYP;
 
   if ( xferLen )
@@ -345,7 +343,7 @@ schar USB_OTG_EPStartXrecv( byte epNum, word xferLen, word maxPacket )
  *         starts the xfer
  * @retval schar : status ep -> is_in == 1
  */
-schar USB_OTG_EP0StartXmit( word xferLen )
+schar USBDep0StartXmit( word xferLen )
 { if ( xferLen == 0 )     /* Zero Length Packet? */
   { STM32F4.USB.DEVICE.DIEP[ 0 ].TSIZ.XFRSIZ= 0;
     STM32F4.USB.DEVICE.DIEP[ 0 ].TSIZ.PKTCNT= 1;
@@ -377,7 +375,7 @@ schar USB_OTG_EP0StartXmit( word xferLen )
  * pktcnt = N
  */
 
-schar USB_OTG_EP0StartRecv( word maxpacket ) //  else /* OUT endpoint */
+schar USBDep0StartRecv( word maxpacket ) //  else /* OUT endpoint */
 { //if ( ep -> xferLen  )  { ep -> xferLen= ep -> maxpacket;
 
   STM32F4.USB.DEVICE.DOEP[ 0 ].TSIZ.XFRSIZ= maxpacket;
@@ -395,10 +393,10 @@ schar USB_OTG_EP0StartRecv( word maxpacket ) //  else /* OUT endpoint */
 }
 
 /**
- * @brief  OTGEPsetStall : Set the EP STALL
+ * @brief  USBDsetStall : Set the EP STALL
  * @retval schar : status
  */
-schar OTGEPsetStall( byte epAddr )
+schar USBDsetStall( byte epAddr )
 { byte epNum= epAddr & 0x7F;               /* Extract the addr part */
 
   if ( epAddr & 0x80 )  // IS IN
@@ -418,7 +416,7 @@ schar OTGEPsetStall( byte epAddr )
  * @brief  Clear the EP STALL
  * @retval schar : status
  */
-schar USB_OTG_EPClearStall( byte epAddr )
+schar USBDepClearStall( byte epAddr )
 { int epNum= epAddr & 0x7F;
 
 //  if ( ep -> is_in != 1 )
@@ -460,7 +458,7 @@ dword usbDEVreadAllInEPItr(  )
  * @param  None
  * @retval : None
  */
-void USB_OTG_EP0_OutStart(  )
+void USBDep0OutStart(  )
 { STM32F4.USB.DEVICE.DOEP[ 0 ].TSIZ.STUPCNT= 3;
   STM32F4.USB.DEVICE.DOEP[ 0 ].TSIZ.PKTCNT = 1;
   STM32F4.USB.DEVICE.DOEP[ 0 ].TSIZ.XFRSIZ = 8 * 3;
@@ -476,7 +474,7 @@ void USB_OTG_EP0_OutStart(  )
 } }
 
 /**
- * @brief  usbDEVungateClock : active USB Core clock
+ * @brief  USBDEVungateClock : active USB Core clock
  * @param  None
  * @retval : None
  */
@@ -486,7 +484,7 @@ void USB_OTG_EP0_OutStart(  )
 //    SCB->SCR |= (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk);  /* Request to enter Sleep mode after exit from current ISR */
  // }
 
-void usbDEVungateClock(  )
+void USBDEVungateClock(  )
 { if ( STM32F4.USB.DEVICE.DSTS.SUSPSTS == 1 ) /* un-gate USB Core clock */
   { STM32F4.USB.PWRCLK.FS_PCGCCTL.GATEHCLK = 0;
     STM32F4.USB.PWRCLK.FS_PCGCCTL.STPPCLK = 0;
@@ -523,7 +521,7 @@ void usbDEVactiveRemoteWakeup(  )
  * @param  None
  * @retval : None
  */
-void USB_OTG_StopDevice(  )
+void USBDstopDevice(  )
 { for ( dword i = 0
       ;       i < USB_OTG_Core.devEndpoints
       ;       i ++ )
@@ -574,7 +572,7 @@ void usbDEVsetEPStatus( byte epAddr
 
   if ( isIN )                   /* Process for IN endpoint */
   { if ( Status == USB_OTG_EP_TX_STALL )
-    { OTGEPsetStall( epAddr );   // JACS
+    { USBDsetStall( epAddr );   // JACS
       return;
     }
 
@@ -584,7 +582,7 @@ void usbDEVsetEPStatus( byte epAddr
     else if ( Status == USB_OTG_EP_TX_VALID )
     { if ( STM32F4.USB.DEVICE.DIEP[ epNum ].CTL.STALL == 1 )
       { /// çç ep1->even_odd_frame= 0;
-        USB_OTG_EPClearStall( epAddr );
+        USBDepClearStall( epAddr );
         return;
       }
 
@@ -608,7 +606,7 @@ void usbDEVsetEPStatus( byte epAddr
     else if ( Status == USB_OTG_EP_RX_VALID )
     { if ( STM32F4.USB.DEVICE.DOEP[ epNum ].CTL.STALL == 1 )
       { // ç ep1->even_odd_frame = 0;
-        USB_OTG_EPClearStall( epAddr );
+        USBDepClearStall( epAddr );
         return;
       }
 
@@ -807,7 +805,7 @@ void handleUsbResetISR(  )
 
   STM32F4.USB.DEVICE.DCFG.DAD= 0;        /* Reset Device Address */
 
-  USB_OTG_EP0_OutStart();                /* setup EP0 to receive SETUP packets */
+  USBDep0OutStart();                /* setup EP0 to receive SETUP packets */
   STM32F4.USB.GLOBAL.GINTSTS.USBRST= 1;  /* Clear interrupt */
 
   USBDreset();                           /*Reset internal state machine */
@@ -821,7 +819,7 @@ void handleUsbResetISR(  )
  *  Set USB turn-around time based on device speed and PHY interface.
  */
 void handleEnumDoneISR(  )
-{ usbDEVep0Activate(  );
+{ USBDep0Activate(  );
 
   dword hclk= 16000000; //  hclk= RCC_Clocks.HCLK_Frequency;
 
@@ -895,7 +893,7 @@ void handleOutEpISR()  /** 0x13 OUT endpoint interrupt */
 
 //        if ( USB_OTG_Core.dmaEnable == 1 )
   //      { if (( epnum == 0 ) && (USB_DEV.deviceState == USB_OTG_EP0_STATUS_OUT))
-    //      { USB_OTG_EP0_OutStart(); /* prepare to rx more setup packets */
+    //      { USBDep0OutStart(); /* prepare to rx more setup packets */
       // çç } }
 
       }
@@ -937,7 +935,7 @@ void handleInEpISR()                            /** 0x12 IN endpoint interrupt *
    //     if ( USB_OTG_Core.dmaEnable == 1 )
      //   { if (( epnum == 0 )
        //   && ( USB_DEV.deviceState == USB_OTG_EP0_STATUS_IN ))
-         // { USB_OTG_EP0_OutStart();         /* prepare to rx more setup packets */
+         // { USBDep0OutStart();         /* prepare to rx more setup packets */
 //çç      } }
 
        }

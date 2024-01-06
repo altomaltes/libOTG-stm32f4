@@ -19,10 +19,10 @@
 #include "stm32f4.h"
 
 /**
- * @brief  usbHOSTcoreInit : Initializes USB_OTG controller for host mode
+ * @brief  USBHcoreInit : Initializes USB_OTG controller for host mode
  * @retval status
  */
-schar usbHOSTcoreInit( )
+schar USBHcoreInit( )
 { word vbusPin= USB_OTG_Core.vbusPin & 0x0FFF; /* Extract ID pin flags */
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
@@ -40,7 +40,7 @@ schar usbHOSTcoreInit( )
   usbHOSTinitFSLSPClkSel( HCFG_48_MHZ );  /* Initialize Host Configuration Register */
 
   USBHdeInit();                            /* Clear previous state */
-  usbHOSTresetPort();
+  USBHresetPort();
 
   STM32F4.USB.HOST.HCFG.FSLSS= 0;          /** 0x02 FS- and LS-only support */
 
@@ -87,7 +87,7 @@ schar usbHOSTcoreInit( )
     STM32F4.USB.HOST.HC[ i ].INTMSK.atomic= 0x00000000;
   }
 
-  usbHOSTdriveVbus( 1 );
+  USBHdriveVbus( 1 );
 
   usbOTGenableCommonInt( HOST_MODE );  /* Enable the common interrupts */
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
@@ -95,20 +95,20 @@ schar usbHOSTcoreInit( )
 }
 
 /**
- * @brief  usbHOSTisEvenFrame
+ * @brief  USBHisEvenFrame
  *         This function returns the frame number for sof packet
  * @retval Frame number
  */
-byte usbHOSTisEvenFrame( )
+byte USBHisEvenFrame( )
 { return( STM32F4.USB.HOST.HFNUM.FRNUM  & 0x1 );
 }
 
 /**
- * @brief  usbHOSTdriveVbus : set/reset vbus
+ * @brief  USBHdriveVbus : set/reset vbus
  * @param  state : VBUS state
  * @retval None
  */
-void usbHOSTdriveVbus( byte state )
+void USBHdriveVbus( byte state )
 { word vbusPin= USB_OTG_Core.vbusPin & 0x0FFF; /* Extract ID pin flags */
 
   if ( vbusPin )
@@ -150,12 +150,12 @@ void usbHOSTinitFSLSPClkSel( byte freq )
 
 
 /**
- * @brief  usbHOSTresetPort : Reset Host Port
+ * @brief  USBHresetPort : Reset Host Port
  * @retval status
  * @note : (1)The application must wait at least 10 ms (+ 10 ms security)
  *   before clearing the reset bit.
  */
-byte usbHOSTresetPort( )
+byte USBHresetPort( )
 { STM32F4.USB.HOST.HPRT.PENA   =    /** 0x02 Port enable                */
   STM32F4.USB.HOST.HPRT.PCDET  =    /** 0x01 Port connect detected      */
   STM32F4.USB.HOST.HPRT.PENCHNG=    /** 0x03 Port enable/disable change */
@@ -169,30 +169,30 @@ byte usbHOSTresetPort( )
 
 
 /**
- * @brief  usbHOSTgetHCdad:
+ * @brief  USBHgetHCdad:
  * @param  hcNum : channel number
  * @retval schar : status STM32F4.USB.HOST.HC[ hcNum ]
  */
-byte usbHOSTgetHCdad( byte hcNum )
+byte USBHgetHCdad( byte hcNum )
 { return( STM32F4.USB.HOST.HC[ hcNum ].CHAR.DAD );
 }
 
 
 /**
- * @brief  usbHOSTinitC : Prepares a host channel for transferring packets
+ * @brief  USBHinitC : Prepares a host channel for transferring packets
  * @param  hcNum : channel number
  * @retval schar : status STM32F4.USB.HOST.HC[ hcNum ]
  */
 
-byte usbHOSTaddrHC( byte hcNum, byte devAddr )
+byte USBHaddrHC( byte hcNum, byte devAddr )
 { return( STM32F4.USB.HOST.HC[ hcNum ].CHAR.DAD= devAddr );
 }
 
-byte usbHOSTpacketHC( byte hcNum, word maxPacket )
+byte USBHpacketHC( byte hcNum, word maxPacket )
 { return( STM32F4.USB.HOST.HC[ hcNum ].CHAR.MPSIZ= maxPacket );
 }
 
-schar usbHOSTinitC( byte hcNum
+schar USBHinitC( byte hcNum
                      , byte epAddr, byte epType
                      , byte devAddr, word maxPacket )
 { volatile struct HC_STRUCT * HC= STM32F4.USB.HOST.HC + hcNum;
@@ -322,7 +322,7 @@ schar usbHOSTstartXferHC( byte hcNum, byte pid
   }
 
   HCHAR= HC->CHAR;
-    HCHAR.ODDFRM= usbHOSTisEvenFrame(); /** 0x1D Odd frame       */
+    HCHAR.ODDFRM= USBHisEvenFrame(); /** 0x1D Odd frame       */
     HCHAR.CHENA= 1;                      /** 0x1F Channel enable  */  /* Set host channel enable */
     HCHAR.CHDIS= 0;                      /** 0x1E Channel disable */
   HC->CHAR= HCHAR;
@@ -344,9 +344,9 @@ schar usbHOSTstartXferHC( byte hcNum, byte pid
           break;
       } }
 
-      usbOTGwritePacket( xferBuff
-                       , hcNum
-                       , xferLen );
+      OTGwritePacket( xferBuff
+                    , hcNum
+                    , xferLen );
   } }
 
   return( 0 );
@@ -354,11 +354,11 @@ schar usbHOSTstartXferHC( byte hcNum, byte pid
 
 
 /**
- * @brief  usbHOSThaltHC : Halt channel
+ * @brief  USBHhaltHC : Halt channel
  * @param  hcNum : channel number
  * @retval schar : status
  */
-void usbHOSThaltHC( volatile struct HC_STRUCT * HC )
+void USBHhaltHC( volatile struct HC_STRUCT * HC )
 { HC->CHAR.CHDIS= 1;    /** 0x1E Channel disable */
 
 /* Check for space in the request queue to issue the halt.
@@ -376,8 +376,8 @@ void usbHOSThaltHC( volatile struct HC_STRUCT * HC )
   HC->CHAR.CHENA= 1;  /** 0x1F Channel enable */
 }
 
-void usbHOSThaltHCnum( byte hcNum )
-{ usbHOSThaltHC( STM32F4.USB.HOST.HC + hcNum );
+void USBHhaltHCnum( byte hcNum )
+{ USBHhaltHC( STM32F4.USB.HOST.HC + hcNum );
 }
 
 /**
@@ -385,7 +385,7 @@ void usbHOSThaltHCnum( byte hcNum )
  * @param  None
  * @retval : None
  */
-schar usbHOSTdoPingHC( volatile struct HC_STRUCT * HC )
+schar USBHdoPingHC( volatile struct HC_STRUCT * HC )
 { union STM32_USB_HOST$HCTSIZ HSIZE; HSIZE.atomic= 0;
 
 //  union STM32_USB_HOST$FS_HCCHAR HCHAR= STM32F4.USB.HOST.HC[ hcNum ].CHAR;
@@ -407,7 +407,7 @@ schar usbHOSTdoPingHC( volatile struct HC_STRUCT * HC )
  * @param  None
  * @retval : None
  */
-void USB_OTG_StopHost()
+void USBHstopHost()
 { STM32F4.USB.HOST.HAINT.atomic=    0xFFFFFFFF;
   STM32F4.USB.HOST.HAINTMSK.atomic= 0x00000000;
 
@@ -435,7 +435,7 @@ void USB_OTG_StopHost()
   */
 schar HCD1init( )
 { STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
-  usbHOSTcoreInit();                  /* Host initializations */
+  USBHcoreInit();                  /* Host initializations */
   usbOTGenableCommonInt( HOST_MODE );    /* Enable the common interrupts */
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
   return( 0 );
@@ -465,7 +465,7 @@ dword HCDgetCurrentSpeed()
 
 
 dword HCDresetPort(  )
-{ usbHOSTresetPort();
+{ USBHresetPort();
   return( 0 );
 }
 
@@ -513,19 +513,19 @@ static word handleHcnOutISR( volatile struct HC_STRUCT * HC, word status )
 
   if ( HCINT.FRMOVRR )    /** 0x09 Frame overrun */
   { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
   }
 
   if ( HCINT.XFRC )        /** 0x00 Transfer completed */
   { HC->INTMSK.CHHLT= 1;   /** 0x01 Channel halted mask */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
 
     status= HC_XFRC;
   }
 
   if ( HCINT.STALL )
   { HC->INTMSK.CHHLT= 1;   /** 0x01 Channel halted mask */
-    usbHOSThaltHC(  HC );
+    USBHhaltHC(  HC );
     status= HC_STALL;
   }
 
@@ -533,7 +533,7 @@ static word handleHcnOutISR( volatile struct HC_STRUCT * HC, word status )
   { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
 
     if ( !USB_OTG_Core.dmaEnable )
-    { usbHOSThaltHC( HC );
+    { USBHhaltHC( HC );
     }
 
     status= HC_NAK;
@@ -541,14 +541,14 @@ static word handleHcnOutISR( volatile struct HC_STRUCT * HC, word status )
 
   if ( HCINT.XACTERR )
   { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
     status= HC_XACTERR;
   }
 
   if ( HCINT.NYET )
   { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
     if ( ! USB_OTG_Core.dmaEnable )
-    { usbHOSThaltHC( HC );
+    { USBHhaltHC( HC );
     }
 
     status= HC_NYET;
@@ -556,7 +556,7 @@ static word handleHcnOutISR( volatile struct HC_STRUCT * HC, word status )
 
   if ( HCINT.DTGLERR )  /** 0x0A Data toggle error */
   { HC->INTMSK.CHHLT= 1;    /** 0x01 Channel halted mask */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
 
     status= HC_DATATGLERR;
   }
@@ -571,7 +571,7 @@ static word handleHcnOutISR( volatile struct HC_STRUCT * HC, word status )
 
       case HC_NYET:
         if ( HC->INTMSK.ACK )          // do_ping
-        { usbHOSTdoPingHC( HC );
+        { USBHdoPingHC( HC );
         }
         status |= URB_STATE_NACK << 8;
       break;
@@ -613,18 +613,18 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
         /* Clear the NAK Condition */
       /* Clear the STALL Condition */
     HCINT.NAK= 0;    /* NOTE: When there is a 'stall', reset also nak,  else, the   will be overwritten by 'nak' in code below */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
   }
 
   if ( HCINT.DTGLERR )       /** 0x0A Data toggle error */
   { HC->INTMSK.CHHLT= 1;     /** 0x01 Channel halted mask */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
     status = HC_DATATGLERR;
   }
 
   if ( HCINT.FRMOVRR )
   { HC->INTMSK.CHHLT= 1;      /** 0x01 Channel halted mask */
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
   }
 
   if ( HCINT.XFRC )          /** 0x00 Transfer completed */
@@ -639,7 +639,7 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
     if (( HC->CHAR.EPTYP == USB_EP_TYPE_CTRL )
     ||  ( HC->CHAR.EPTYP == USB_EP_TYPE_BULK ))
     { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
-      usbHOSThaltHC( HC );
+      USBHhaltHC( HC );
 
        status |= URB_TOGGLE_IN << 8; // USBHtoggle( num, 1 ); // ].toggleIn ^= 1;
     }
@@ -664,14 +664,14 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
   if ( HCINT.XACTERR )  /** 0x07 Transaction error */
   { HC->INTMSK.CHHLT= 1;    /** 0x01 Channel halted mask */
     status = HC_XACTERR;
-    usbHOSThaltHC( HC );
+    USBHhaltHC( HC );
   }
 
   if ( HCINT.NAK )
   { if ( HC->CHAR.EPTYP == USB_EP_TYPE_INTR)
     { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
       if ( !USB_OTG_Core.dmaEnable )
-      { usbHOSThaltHC( HC );
+      { USBHhaltHC( HC );
     } }
 
     status= HC_NAK | ( URB_STATE_NACK << 8 );

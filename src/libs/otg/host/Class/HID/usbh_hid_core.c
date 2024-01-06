@@ -140,7 +140,7 @@ static schar USBH_HID_Handle( byte ep )
   break;
 
   case HID_REQ_GET_REPORT_DESC:     /* Get Report Desc, not used at this moment */
-    hidParseReportDescriptor( &HID_Desc, usbHOSTgetBuffer() );
+    hidParseReportDescriptor( &HID_Desc, USBHgetBuffer() );
     USBH_GetDescriptor( USB_REQ_RECIPIENT_INTERFACE | USB_REQ_TYPE_STANDARD
                       , HID_DTYPE_REPORT << 8
                       , HID_Desc.wDescriptorLength0 );

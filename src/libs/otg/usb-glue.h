@@ -40,7 +40,6 @@ typedef enum
 } URB_STATE;
 
 
-
 enum
 { DEVICE_MODE=   0
 , HOST_MODE
@@ -54,37 +53,27 @@ void USBIrqHandlerOTG( );
 
 /* usb-coredev.c
  */
-void  USBDepSetAddress ( byte epNum );
-void  USBDepSetTestMode( byte mode  );
+void   USBDepSetAddress ( byte epNum );
+void   USBDepSetTestMode( byte mode  );
+schar  USBDcoreInit    ( void );
+void   USBDstopDevice  ( void );
+void   USBDep0OutStart ();
+schar  USBDsetStall    ( byte epAddr );
+schar  USBDepActivate  ( byte epAddr, byte epType, word maxPacket );
+schar  USBDepDeactivate( byte epAddr );
+schar  USBDep0StartRecv( word maxpacket );
+schar  USBDepClearStall( byte epAddr );
+schar  USBDepStartXrecv( byte, word, word );
+schar  USBDep0StartXmit( word xferLen   );
+schar  USBDepStartXmit ( byte epAddr, void * xferBuff, word xferLen );
 
-void  USB_OTG_EP0_OutStart();
-schar USB_OTG_EPActivate  ( byte epAddr, byte epType, word maxPacket );
-schar OTGEPdeactivate( byte epAddr );
-
-schar OTGEPsetStall       ( byte epAddr );
-schar OTGselectCore( dword flags );
-schar OTGcoreInitDev( );
-schar OTGsetCurrentMode( byte mode );
-
-void   USB_OTG_StopDevice          ();
-schar  USB_OTG_EP0StartRecv( word maxpacket );
-schar  USB_OTG_EPClearStall( byte epAddr );
-schar  USB_OTG_EPStartXrecv( byte, word, word );
-schar  USB_OTG_EP0StartXmit( word xferLen   );
-schar  USB_OTG_EPStartXmit ( byte epAddr, void * xferBuff, word xferLen );
-void * USB_OTG_ReadPacket( void * dest, word len );
-schar  usbOTGwritePacket( void * src, byte ch_ep_num, word len );
-
-
-
-
-schar OTGgetDmaEnable();
-schar OTGgetDevEndpoints(); // USB_OTG_Core.devEndpoints
-schar OTGgetHostChannels();
-
-
-
-
+schar  OTGsetCurrentMode( byte mode );
+void * OTGreadPacket( void * dest, word len );
+schar  OTGwritePacket( void * src, byte ch_ep_num, word len );
+schar  OTGselectCore( dword flags );
+schar  OTGgetDmaEnable();
+schar  OTGgetDevEndpoints(); // USB_OTG_Core.devEndpoints
+schar  OTGgetHostChannels();
 
 
 

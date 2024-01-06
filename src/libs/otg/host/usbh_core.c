@@ -72,8 +72,8 @@ byte gotDevConnected()
   * @retval Status
   */
 void USBHsetControlChannelAddr( byte devAddr, byte ( *handle )( byte epNum ) )
-{ usbHOSTaddrHC( USB_Host.Control.hcNumIn , devAddr );
-  usbHOSTaddrHC( USB_Host.Control.hcNumOut, devAddr );
+{ USBHaddrHC( USB_Host.Control.hcNumIn , devAddr );
+  USBHaddrHC( USB_Host.Control.hcNumOut, devAddr );
   USB_Host.handleCtrlPkg= handle;
 }
 
@@ -260,7 +260,7 @@ void USBHxferOutControl( dword channel )
 
 
 
-void * usbHOSTgetBuffer()
+void * USBHgetBuffer()
 { return( USB_HOST.rxBuffer );
 }
 
@@ -281,10 +281,10 @@ byte USBH_HandleEnum( byte ep )
 
       USB_Host.Control.ep0size= USB_Host.deviceProp.Dev_Desc.bMaxPacketSize;
 
-      usbHOSTpacketHC( USB_Host.Control.hcNumOut /* modify control channels configuration for MaxPacket size */
+      USBHpacketHC( USB_Host.Control.hcNumOut /* modify control channels configuration for MaxPacket size */
                  , USB_Host.Control.ep0size );
 
-      usbHOSTpacketHC( USB_Host.Control.hcNumIn
+      USBHpacketHC( USB_Host.Control.hcNumIn
                  , USB_Host.Control.ep0size );
 
       USBH_Get_DevDesc( 0, USB_DEVICE_DESC_SIZE );
@@ -307,8 +307,8 @@ byte USBH_HandleEnum( byte ep )
 
     /* modify control channels to update device address
      */
-      usbHOSTaddrHC( USB_Host.Control.hcNumIn,  USB_Host.deviceProp.devAddr );
-      usbHOSTaddrHC( USB_Host.Control.hcNumOut, USB_Host.deviceProp.devAddr );
+      USBHaddrHC( USB_Host.Control.hcNumIn,  USB_Host.deviceProp.devAddr );
+      USBHaddrHC( USB_Host.Control.hcNumOut, USB_Host.deviceProp.devAddr );
 
       USBHGetCfgDesc( USB_CONFIGURATION_DESC_SIZE );
       USB_Host.EnumState= ENUM_GET_CFG_DESC;
@@ -477,7 +477,7 @@ schar USBHdeInit( void ) /* Software Init */
 void * USBinitHOST( dword vbusPin )
 { OTGselectCore( vbusPin );
   OTGsetCurrentMode( HOST_MODE ); /* No OTG, force Host Mode */
-  usbHOSTcoreInit();              /* Start the USB OTG core  */
+  USBHcoreInit();              /* Start the USB OTG core  */
 
   return( &USBIrqHandlerHOST );   /* Be sure is linked */
 }

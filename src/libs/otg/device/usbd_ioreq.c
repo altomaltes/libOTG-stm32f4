@@ -36,7 +36,7 @@ dword USBDepTx( byte   epAddr
 
 /* Setup and start the Transfer
  */
-  ep->is_in     = 1;
+//  ep->is_in     = 1;
   ep->num       = epAddr & 0x7F;
   ep->xferBuffEp= pbuf;
   ep->dmaAddr   = (dword)pbuf;
@@ -47,10 +47,10 @@ dword USBDepTx( byte   epAddr
   { if ( ep->xferLen > ep->maxpacket )
     { ep->xferLen= ep->maxpacket;
     }
-    USB_OTG_EP0StartXmit( ep->xferLen );
+    USBDep0StartXmit( ep->xferLen );
   }
   else
-  { USB_OTG_EPStartXmit( epAddr
+  { USBDepStartXmit( epAddr
                        , ep->xferBuffEp
                        , ep->xferLen );
   }
@@ -126,7 +126,7 @@ schar USBDctlContinueRx( byte * pbuf, word len)
 schar  USBDctlSendStatus(  )
 { USB_DEV.deviceState = USB_OTG_EP0_STATUS_IN;
   USBDepTx (0,  NULL, 0 );
-  USB_OTG_EP0_OutStart();
+  USBDep0OutStart();
 
   return( 0 );
 }
@@ -139,8 +139,7 @@ schar  USBDctlSendStatus(  )
 schar USBDctlReceiveStatus(  )
 { USB_DEV.deviceState= USB_OTG_EP0_STATUS_OUT;
   USBDepPrepareRx( 0, NULL, 0 );
-
-  USB_OTG_EP0_OutStart();
+  USBDep0OutStart();
 
   return( 0 );
 }
@@ -160,7 +159,7 @@ short USBDreadPacket( byte epNum, word size )
       ep->xferCount= 0; size= 8;
     }
 
-    USB_OTG_ReadPacket( ep->xferBuffEp, size );
+    OTGreadPacket( ep->xferBuffEp, size );
     ep->xferBuffEp += size;
     ep->xferCount  += size;
   }
@@ -198,7 +197,7 @@ short USBDwritePacket( byte epNum, word size )
     { size= ep->maxpacket;
     }
 
-     usbOTGwritePacket( ep->xferBuffEp
+     OTGwritePacket( ep->xferBuffEp
                       , epNum
                       , size );
      ep->xferBuffEp+= size;

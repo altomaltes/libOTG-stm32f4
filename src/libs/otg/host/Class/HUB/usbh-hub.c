@@ -177,7 +177,7 @@ static byte doEvent( byte what )
 static byte USBH_HUB_Handle( byte epAddr )
 { switch( HUB_Machine.phase )
   { case PHASE_GET_DESC:
-    { descriptor_hub_desc_t * desc= (descriptor_hub_desc_t *)usbHOSTgetBuffer();
+    { descriptor_hub_desc_t * desc= (descriptor_hub_desc_t *)USBHgetBuffer();
 
       HUB_Machine.portIdx= 1;
       HUB_Machine.portCount= desc->bNbrPorts;

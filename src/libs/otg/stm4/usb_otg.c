@@ -125,7 +125,7 @@ word handleOtgISR()
   }
 
   if ( STM32F4.USB.GLOBAL.GOTGINT.DBCDNE ) /** 0x13 Debounce done */
-  {// usbHOSTresetPort();
+  {// USBHresetPort();
     STM32F4.USB.GLOBAL.GOTGINT.DBCDNE= 1;   /* Clear OTG INT */
   }
 
@@ -256,11 +256,11 @@ void * USBinitOTG( dword vbusPin )
  */
 void handleConIDStChgISR()
 { if ( STM32F4.USB.GLOBAL.GOTGCTL.CIDSTS ) /** 0x10 Connector ID status */
-  { usbHOSTdriveVbus( 0 );   /* Only has sense over OTG */
-    OTGcoreInitDev();    /* B-Device connector (Device Mode) */
+  { USBHdriveVbus( 0 );   /* Only has sense over OTG */
+    USBDcoreInit();    /* B-Device connector (Device Mode) */
   }
   else
-  { usbHOSTcoreInit();
+  { USBHcoreInit();
 } }
 
 

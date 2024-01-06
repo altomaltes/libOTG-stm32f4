@@ -83,14 +83,14 @@ dword  usbOTGgetMode  ();
 dword     usbDEVreadAllInEPItr();
 enum USB_OTG_SPEED usbDEVgetDeviceSpeed();
 
-schar usbDEVep0Activate ( );
-schar usbDEVepStartRevc ( byte epAddr );
+schar USBDep0Activate ( );
+schar USBDepStartRevc ( byte epAddr );
 
 dword usbDEVreadOutEPitr      ( byte epnum);
 dword usbDEVreadAllInEPItr    ( );
 void  usbDEVinitSpeed         ( byte speed );
 void  usbDEVactiveRemoteWakeup();
-void  usbDEVungateClock       ();
+void  USBDEVungateClock       ();
 void  usbDEVsetEPStatus       ( byte epAddr, dword Status);
 dword usbDEVgetEPStatus       ( byte epAddr );
 schar usbDEVdeInit            ( void ); /* Software Init */
@@ -117,7 +117,7 @@ void handleSofFrameISR  ();  /** 0x03 Start of frame */
 
 void   usbOTGenableCommonInt( byte mode );
 byte   usbHOSTsetUrbState( byte channel, byte state );
-void * usbHOSTgetBuffer();
+void * USBHgetBuffer();
 
 
 

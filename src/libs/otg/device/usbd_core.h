@@ -27,7 +27,7 @@ typedef struct
   word   tx_fifo_num;
   dword  maxpacket;
 
-  byte   is_in         : 1;
+//  byte   is_in         : 1;
   byte   is_stall      : 1;
   byte   even_odd_frame: 1;
 

@@ -32,22 +32,22 @@ byte   OTGgetCoreSpeed();
 schar usbHOSTstartXferHC( byte hcNum, byte pid
                         , void * xferbuff, word xferLen );
 
-schar usbHOSTcoreInit ();
-void  usbHOSThaltHC   (   volatile struct HC_STRUCT * );
-schar usbHOSTdoPingHC ( volatile struct HC_STRUCT * );
-void  usbHOSThaltHCnum( byte idx );
-byte  usbHOSTresetPort( );
-byte  usbHOSTgetHCdad ( byte hcNum );
-byte  usbHOSTaddrHC   (   byte hcNum, byte devAddr );
-byte  usbHOSTpacketHC ( byte hcNum, word maxPacket );
-schar usbHOSTinitC    ( byte hcNum
-                      , byte epAddr, byte epType
-                      , byte devAddr, word maxPacket );
+schar USBHcoreInit ();
+void  USBHhaltHC   (   volatile struct HC_STRUCT * );
+schar USBHdoPingHC ( volatile struct HC_STRUCT * );
+void  USBHhaltHCnum( byte idx );
+byte  USBHresetPort( );
+byte  USBHgetHCdad ( byte hcNum );
+byte  USBHaddrHC   ( byte hcNum, byte devAddr );
+byte  USBHpacketHC ( byte hcNum, word maxPacket );
+schar USBHinitC    ( byte hcNum
+                   , byte epAddr, byte epType
+                   , byte devAddr, word maxPacket );
 
-void  usbHOSTdriveVbus      ( byte state );
+void  USBHdriveVbus      ( byte state );
 void  usbHOSTinitFSLSPClkSel( byte freq );
-byte  usbHOSTisEvenFrame();
-void  USB_OTG_StopHost   ();
+byte  USBHisEvenFrame();
+void  USBHstopHost   ();
 
 word handleSofHostISR( word frame );  /** 0x03 Start of frame */
 void usbHostGotDisconnected( byte devAddr );
