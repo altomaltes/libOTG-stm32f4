@@ -113,8 +113,8 @@ schar USBH_BulkSendData( byte * buff
   * @retval Status.
   */
 schar USBH_BulkReceiveData( byte *buff
-                                , word len
-                                , byte hcNum )
+                          , word len
+                          , byte hcNum )
 { return( HCDsubmitRequest( hcNum, USB_HOST.hc[ hcNum ].toggleIn ? HC_PID_DATA1 /* Put the PID 1 */
                                                                  : HC_PID_DATA0 /* Put the PID 0 */
                           , buff, len ));
@@ -215,14 +215,14 @@ short USBHreadPacket( byte chNum, word size )
 short USBHwritePacket( byte chNum, word size )
 { if ( size )
   { OTGwritePacket( USB_HOST.hc[ chNum ].xferBuff
-                       , chNum
-                       , size );
+                  , chNum
+                  , size );
     USB_HOST.hc[ chNum ].xferBuff  += size;
-    USB_HOST.hc[ chNum ].xferLen   -= size;
+    USB_HOST.hc[ chNum ].xferSzHC  -= size;
     USB_HOST.hc[ chNum ].xferCount += size;
   }
 
-  return( USB_HOST.hc[ chNum ].xferLen );
+  return( USB_HOST.hc[ chNum ].xferSzHC );
 }
 
 

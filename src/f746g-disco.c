@@ -138,6 +138,8 @@ void usbHostGotDisconnected( byte devAddr )
 
 extern dword STM32F4;
 
+debug()
+{}
 
 /**
   * @brief  Main program.
@@ -170,8 +172,8 @@ int main( void )
   * @param
   * @retval
   */
-//ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
-ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
+ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
+//ABSOLUTE(    STM32F4, 0x40040000 ); // choose USB_OTG_HS
 ABSOLUTE(   RAM_SIZE, 0x00010000 );
 ABSOLUTE( FLASH_SIZE, 0x00100000 );
 

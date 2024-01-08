@@ -107,9 +107,10 @@ void  USBDctlError( USB_SETUP_REQ * );
 
 byte * USBDgetString( const char * desc );
 
-short USBDreadPacket(  byte epNum, word size );
-short USBDwritePacket( byte epNum, word size );
-word  USBDgetRxCount( byte epnum );
+int USBDreadPacket(  byte epNum, word size );
+int USBDwritePacket( byte epNum, word size );
+int USBDgetTxCount(  byte epNum );            /* Available size */
+int USBDgetRxCount(  byte epnum );
 
 extern DCD_DEV USB_DEV;
 extern USBD_DEVICE USBdeviceDesc;

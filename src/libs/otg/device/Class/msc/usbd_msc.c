@@ -166,8 +166,8 @@ byte  USBD_MSC_Setup( USB_SETUP_REQ * req  )
     break;
 
     case USB_REQ_CLEAR_FEATURE:
-      USBDepFlush( (byte)req->wIndex ); /* Flush the FIFO and Clear the stall status */
-      USBDepClose( (byte)req->wIndex ); /* Re-activate the EP */
+      USBDepFlush( req->wIndex ); /* Flush the FIFO and Clear the stall status */
+      USBDepClose( req->wIndex ); /* Re-activate the EP */
 
       if ( req->wIndex & 0x80 )
       { if ( devSpeed == USB_OTG_SPEED_HIGH  )
@@ -183,10 +183,10 @@ byte  USBD_MSC_Setup( USB_SETUP_REQ * req  )
         }
         else
         { USBDepOpen(MSC_EPOUT_ADDR, MSC_MAX_FS_PACKET, EPTYPE_BULK, MSC_BOT_DataOut ); /* Open EP OUT */
-      }  }
+      } }
 
       /* Handle BOT error */
-      MSC_BOT_CplClrFeature( (byte)req->wIndex);
+      MSC_BOT_CplClrFeature( req->wIndex);
     break;
     }
   break;

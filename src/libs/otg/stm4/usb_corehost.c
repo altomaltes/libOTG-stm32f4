@@ -279,7 +279,7 @@ schar USBHinitC( byte hcNum
  * @retval schar : status STM32_USB_HOST$FS_HCCHAR
  */
 schar usbHOSTstartXferHC( byte hcNum, byte pid
-                          , void * xferBuff, word xferLen )
+                        , void * xferBuff, word xferlenHC )
 { volatile struct HC_STRUCT * HC= STM32F4.USB.HOST.HC + hcNum;
 
   union STM32_USB_HOST$HCTSIZ HSIZE; HSIZE.atomic= 0;
@@ -294,25 +294,25 @@ schar usbHOSTstartXferHC( byte hcNum, byte pid
 
 /* Compute the expected number of packets associated to the transfer
  */
-  if ( xferLen > 0 )
-  { num_packets= ( xferLen
+  if ( xferlenHC > 0 )
+  { num_packets= ( xferlenHC
                  + maxPacket - 1 ) / maxPacket;
 
     if ( num_packets > max_hc_pkt_count )
     { num_packets= max_hc_pkt_count;
-      xferLen = num_packets * maxPacket;
+      xferlenHC = num_packets * maxPacket;
   } }
   else
   { num_packets = 1;
   }
 
   if ( HC->CHAR.EPDIR )    //  if ( USB_HOST . hc[ hcNum ].ep_ is_in )
-  { xferLen= num_packets * maxPacket;
+  { xferlenHC= num_packets * maxPacket;
   }
 
 /* Initialize the HCTSIZn register
  */
-  HSIZE.XFRSIZ= xferLen;
+  HSIZE.XFRSIZ= xferlenHC;
   HSIZE.PKTCNT= num_packets;
   HSIZE.DPID  = pid;
   HC->TSIZ= HSIZE;
@@ -328,8 +328,8 @@ schar usbHOSTstartXferHC( byte hcNum, byte pid
   HC->CHAR= HCHAR;
 
   if ( ! USB_OTG_Core.dmaEnable ) /* Slave mode */
-  { if (( HC->CHAR.EPDIR == 0 ) && ( xferLen >  0 ))  /* EP is out */
-    { word len_words= (xferLen + 3 ) / 4;
+  { if (( HC->CHAR.EPDIR == 0 ) && ( xferlenHC >  0 ))  /* EP is out */
+    { word len_words= (xferlenHC + 3 ) / 4;
 
       if ( len_words > STM32F4.USB.HOST.HPTXSTS.PTXFSAVL )  /* check if there is enough space in FIFO space */
       { switch( HC->CHAR.EPTYP )
@@ -346,7 +346,7 @@ schar usbHOSTstartXferHC( byte hcNum, byte pid
 
       OTGwritePacket( xferBuff
                     , hcNum
-                    , xferLen );
+                    , xferlenHC );
   } }
 
   return( 0 );
@@ -629,7 +629,7 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
 
   if ( HCINT.XFRC )          /** 0x00 Transfer completed */
   { //if (USB_OTG_Core.dmaEnable == 1 )
-    //{ USB_HOST.XferCnt[ num ]=  USB_HOST.hc[ num ].xferLen
+    //{ USB_HOST.XferCnt[ num ]=  USB_HOST.hc[ num ].xfer Len
     //                         -  HC->TSIZ.XFRSIZ;
    // çç  }
 
@@ -641,7 +641,7 @@ static word handleHcnInISR( volatile struct HC_STRUCT * HC, word status )
     { HC->INTMSK.CHHLT= 1;  /** 0x01 Channel halted mask */
       USBHhaltHC( HC );
 
-       status |= URB_TOGGLE_IN << 8; // USBHtoggle( num, 1 ); // ].toggleIn ^= 1;
+      status |= URB_TOGGLE_IN << 8; // USBHtoggle( num, 1 ); // ].toggleIn ^= 1;
     }
 
     else if ( HC->CHAR.EPTYP == USB_EP_TYPE_INTR )
@@ -737,7 +737,7 @@ void handleDisconnectISR()
 void handleNptxfemptyISR()
 { word chNum= STM32F4.USB.GLOBAL.GNPTXSTS.CHNUM_NW;
   word chLen= USBHwritePacket( chNum, 0 );
-  word lenWords= (chLen + 3) / 4;
+  word lenWords= (chLen + 3 ) / 4;
 
   while (( STM32F4.USB.GLOBAL.GNPTXSTS.NPTXFSAV > lenWords) && ( chLen ))  /** 0x00 Non-periodic TxFIFO space available */
   { word len= STM32F4.USB.GLOBAL.GNPTXSTS.NPTXFSAV * 4;
@@ -747,7 +747,7 @@ void handleNptxfemptyISR()
       STM32F4.USB.GLOBAL.GINTMSK.NPTXFE= 1;  /** 0x05 Non-periodic TxFIFO empty mask */
     }
 
-    lenWords= ( chLen + 3) / 4;
+    lenWords= ( chLen + 3 ) / 4;
     chLen= USBHwritePacket( chNum, len );
 } }
 

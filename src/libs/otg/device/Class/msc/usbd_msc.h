@@ -36,6 +36,8 @@
 #include  "./usbd_msc_bot.h"
 #include  "./usbd_msc_scsi.h"
 
+#include  "usbd_mass.h"
+
 #define MSC_MAX_FS_PACKET         0x40
 #define MSC_MAX_HS_PACKET123     0x200
 
@@ -69,10 +71,8 @@ typedef struct
   byte  bot_state;
   byte  bot_status;
 
-  USBD_MSC_BOT_CBWTypeDef cbw;
-  USBD_MSC_BOT_CBWTypeDef cbw1;
-  USBD_MSC_BOT_CSWTypeDef csw;
-  USBD_MSC_BOT_CSWTypeDef csw1;
+  MScmdBlkWrapperRec cbw;
+  MScmdStatWrapperRec csw;
 
   USBD_SCSI_SenseTypeDef scsi_sense[ SENSE_LIST_DEEPTH ];
   byte scsi_sense_head; byte scsi_sense_tail;

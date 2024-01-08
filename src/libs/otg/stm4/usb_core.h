@@ -80,14 +80,12 @@ schar  usbOTGflushRxFifo( );
 dword  usbOTGgetMode  ();
 
 
-dword     usbDEVreadAllInEPItr();
 enum USB_OTG_SPEED usbDEVgetDeviceSpeed();
 
 schar USBDep0Activate ( );
 schar USBDepStartRevc ( byte epAddr );
 
 dword usbDEVreadOutEPitr      ( byte epnum);
-dword usbDEVreadAllInEPItr    ( );
 void  usbDEVinitSpeed         ( byte speed );
 void  usbDEVactiveRemoteWakeup();
 void  USBDEVungateClock       ();

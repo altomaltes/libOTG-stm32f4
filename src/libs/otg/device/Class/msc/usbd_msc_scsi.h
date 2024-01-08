@@ -128,7 +128,7 @@ typedef struct _SENSE_ITEM
 
 
 schar SCSI_ProcessCmd( byte lun, byte *cmd );
-void   SCSI_SenseCode( byte lun, byte sKey, byte ASC);
+void   SCSIsenseCode( byte lun, byte sKey, byte ASC);
 
 
 #endif /* __USBD_MSC_SCSI_H */

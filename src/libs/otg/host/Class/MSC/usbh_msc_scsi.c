@@ -233,8 +233,8 @@ signed char USBH_MSC_Read10( byte * dataBuffer
   }
 
   USBH_MSC_CBWData.field.CBWTransferLength= nbOfbytes;
-  USBH_MSC_CBWData.field.CBWFlags= USB_EP_DIR_IN;
-  USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH;
+  USBH_MSC_CBWData.field.CBWFlags         = USB_EP_DIR_IN;
+  USBH_MSC_CBWData.field.CBWLength        = CBW_LENGTH;
 
   USBH_MSC_BOTXferParam.pRxTxBuff= dataBuffer;
 

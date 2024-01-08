@@ -55,13 +55,13 @@ static schar USB_OTG_CoreReset(  )
  * @retval schar : status
  */
 schar OTGwritePacket( void * buff
-                         , byte   ch_ep_num
-                         , word   len )
+                    , byte   ch_ep_num
+                    , word   len )
 { if ( !USB_OTG_Core.dmaEnable )
   { dword * src= (dword *)buff;
     volatile dword * fifo= STM32F4.USB.FIFOMEM + ch_ep_num;
 
-    len += 3; len /= 4;  while( len-- )               /* Quantize to dword */
+    len += 3; len /= 4;  while( len-- )  /* Quantize to dword */
     { *fifo= *src++;
   } }
 
@@ -251,14 +251,14 @@ schar OTGselectCore( dword flags )
  */
 schar usbOTGflushTxFifo( dword num )
 { dword count    = 0;
-  STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH = 1;
-  STM32F4.USB.GLOBAL.GRSTCTL.TXFNUM  = num;
+  STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH= 1;
+  STM32F4.USB.GLOBAL.GRSTCTL.TXFNUM = num;
 
   do
   { if ( ++count > 1400000 )
     { break;
   } }
-  while ( STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH == 1);
+  while ( STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH );
 
   mDelay( 3 ); /* Wait for 3 PHY Clocks*/
 

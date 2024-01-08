@@ -42,8 +42,8 @@ void MSC_BOT_Init()
 { hmsc.bot_state  = USBD_BOT_IDLE;
   hmsc.bot_status = USBD_BOT_STATUS_NORMAL;
 
-  hmsc.scsi_sense_tail = 0;
-  hmsc.scsi_sense_head = 0;
+  hmsc.scsi_sense_tail=
+  hmsc.scsi_sense_head= 0;
 
 //  ((USBD_StorageTypeDef *)pdev->pUserData)->Init(0);  çççç
 
@@ -103,9 +103,9 @@ static void  MSC_BOT_SendData( byte * buf
  * @retval status
  */
 static void  MSC_BOT_Abort()
-{ if ((hmsc.cbw.bmFlags == 0)
-  &&  (hmsc.cbw.dDataLength != 0)
-  &&  (hmsc.bot_status == USBD_BOT_STATUS_NORMAL) )
+{ if (( hmsc.cbw.bFlags == 0)
+  &&  ( hmsc.cbw.dDataLength != 0)
+  &&  ( hmsc.bot_status == USBD_BOT_STATUS_NORMAL) )
   { USBDepStall( MSC_EPOUT_ADDR );
   }
   USBDepStall( MSC_EPIN_ADDR);
@@ -128,16 +128,16 @@ static void  MSC_BOT_CBW_Decode()
   if  (( USBDgetRxCount( MSC_EPOUT_ADDR) != USBD_BOT_CBW_LENGTH )
     || ( hmsc.cbw.dSignature != USBD_BOT_CBW_SIGNATURE )
     || ( hmsc.cbw.bLUN      > 1  )
-    || ( hmsc.cbw.bCBLength < 1  )
-    || ( hmsc.cbw.bCBLength > 16 ))
-  { SCSI_SenseCode( hmsc.cbw.bLUN, ILLEGAL_REQUEST, INVALID_CDB );
+    || ( hmsc.cbw.bCmdLength < 1  )
+    || ( hmsc.cbw.bCmdLength > 16 ))
+  { SCSIsenseCode( hmsc.cbw.bLUN, ILLEGAL_REQUEST, INVALID_CDB );
 
     hmsc.bot_status = USBD_BOT_STATUS_ERROR;
     MSC_BOT_Abort();
   }
   else
   { if ( SCSI_ProcessCmd( hmsc.cbw.bLUN
-                        , hmsc.cbw.CB ) < 0 )
+                        , hmsc.cbw.bCmdData ) < 0 )
     { if ( hmsc.bot_state == USBD_BOT_NO_DATA )
       { MSC_BOT_SendCSW( USBD_CSW_CMD_FAILED );
       }
@@ -196,7 +196,7 @@ void MSC_BOT_DataOut( byte epnum )
 
     case USBD_BOT_DATA_OUT:
       if ( SCSI_ProcessCmd( hmsc.cbw.bLUN
-                          , hmsc.cbw.CB ) < 0 )
+                          , hmsc.cbw.bCmdData ) < 0 )
       { MSC_BOT_SendCSW( USBD_CSW_CMD_FAILED );
       }
     break;
@@ -215,13 +215,14 @@ void MSC_BOT_DataIn( byte epnum )
 { switch( hmsc.bot_state )
   { case USBD_BOT_DATA_IN:
       if ( SCSI_ProcessCmd( hmsc.cbw.bLUN
-                          , hmsc.cbw.CB ) < 0 )
+                          , hmsc.cbw.bCmdData ) < 0 )
       { MSC_BOT_SendCSW( USBD_CSW_CMD_FAILED );
       }
     break;
 
     case USBD_BOT_LAST_DATA_IN:
       epnum++;
+
     case USBD_BOT_SEND_DATA:
       MSC_BOT_SendCSW( USBD_CSW_CMD_PASSED );
     break;

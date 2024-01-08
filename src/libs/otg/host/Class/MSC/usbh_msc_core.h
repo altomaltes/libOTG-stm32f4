@@ -33,7 +33,7 @@ typedef struct _MSC_Process /* Structure for MSC process */
   word MSBulkOutEpSize;
   byte maxLun;
 
-  byte buff[ USBH_MSC_MPS_SIZE ];
+  byte buff[ 0x200 ];
 }
 MSC_Machine_TypeDef;
 

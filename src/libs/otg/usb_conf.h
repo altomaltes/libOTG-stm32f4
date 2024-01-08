@@ -61,25 +61,6 @@
 #define USB_ULPI_PHY 0x20000   /* use UPLI pysical interface */
 #define USB_VBUS_EMB 0x10000
 
-#define RX_FIFO_FS_SIZE 128
-#define RX_FIFO_HS_SIZE 512
-
-#define TX0_FIFO_FS_SIZE   64
-#define TX0_FIFO_HS_SIZE  256
-
-#define TXN_FIFO_FS_SIZE   128
-#define TXN_FIFO_HS_SIZE   128
-
-#define TXH_NP_FS_FIFOSIZ  96
-#define TXH_NP_HS_FIFOSIZ 256
-
-#define TXH_P_FS_FIFOSIZ   96
-#define TXH_P_HS_FIFOSIZ  256
-
-//      USB_OTG_Core.TotalFifoSize= 320; /* in 32-bits */
-//      USB_OTG_Core.TotalFifoSize= 1280;        /* in 32-bits */
-//#define USBD_ITF_MAX_NUM      1
-
 #define USB_MAX_STR_DESC_SIZ 64
 
 #define USBH_MAX_NUM_INTERFACES 2
@@ -88,11 +69,35 @@
 #define USBH_MAX_DATA_BUFFER 256
 
 
-#ifdef USE_USB_OTG_FS
-  #define USBH_MSC_MPS_SIZE 0x40
-#else
-  #define USBH_MSC_MPS_SIZE 0x200
-#endif
+
+/* RAM  fifo sizes
+ */
+#define USB_OTG_FS_TOTAL_FIFO_SIZE ( 320  * 4 )
+#define USB_OTG_HS_TOTAL_FIFO_SIZE ( 1280 * 4 )
+
+
+
+/* COMMON fifo sizes
+ */
+#define RX_FIFO_FS_SIZE 192
+#define RX_FIFO_HS_SIZE 512
+
+
+/* HOST fifo sizes
+ */
+
+#define TXH_NP_FS_FIFOSIZ  96
+#define TXH_NP_HS_FIFOSIZ 256
+#define TXH_P_FS_FIFOSIZ   96
+#define TXH_P_HS_FIFOSIZ  256
+
+/* DEVICE fifo sizes
+ */
+//#define TXN_FIFO_FS_SIZE  128
+//#define TXN_FIFO_HS_SIZE  256
+
+
+
 
 #define HID_IN_EP   0x81
 #define HID_IN_PACKET  4

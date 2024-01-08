@@ -29,30 +29,29 @@
  */
 dword USBDepTx( byte   epAddr
               , byte * pbuf
-              , word   buf_len )
+              , word   bufLen )
 { static volatile USB_OTG_EP * ep;
 
   ep= &USB_DEV.inEp[ epAddr & 0x7F ];
 
 /* Setup and start the Transfer
  */
-//  ep->is_in     = 1;
   ep->num       = epAddr & 0x7F;
   ep->xferBuffEp= pbuf;
   ep->dmaAddr   = (dword)pbuf;
   ep->xferCount = 0;
-  ep->xferLen   = buf_len;
+  ep->xferLen   = bufLen;
 
   if ( ep->num == 0 )
   { if ( ep->xferLen > ep->maxpacket )
     { ep->xferLen= ep->maxpacket;
     }
-    USBDep0StartXmit( ep->xferLen );
+    USBDep0StartXmit( bufLen );
   }
   else
   { USBDepStartXmit( epAddr
-                       , ep->xferBuffEp
-                       , ep->xferLen );
+                   , pbuf
+                   , bufLen );
   }
 
   return( 0 );
@@ -100,7 +99,7 @@ schar USBDctlPrepareRx( byte * pbuf, word len )
  * @retval status
  */
 schar  USBDctlContinueSendData( byte * pbuf, word len )
-{ USBDepTx( 0, pbuf, len);
+{ USBDepTx( 0, pbuf, len );
 
   return( 0 );
 }
@@ -150,7 +149,7 @@ schar USBDctlReceiveStatus(  )
  *
  * @retval status
  */
-short USBDreadPacket( byte epNum, word size )
+int USBDreadPacket( byte epNum, word size )
 { if ( size )
   { USB_OTG_EP * ep= &USB_DEV.outEp[ epNum ];
 
@@ -173,36 +172,52 @@ short USBDreadPacket( byte epNum, word size )
  *         epnum: endpoint index
  * @retval Rx Data blength
  */
-word  USBDgetRxCount( byte epnum )
+int USBDgetRxCount( byte epnum )
 { return( USB_DEV.outEp[ epnum ].xferCount );
 }
-
 
 /**
  * @brief  USBHwritePacket (JACS)
  *
  * @retval status
  */
-short USBDwritePacket( byte epNum, word size )
+int USBDgetTxCount( byte epNum )          /* Available size */
 { USB_OTG_EP * ep= USB_DEV.inEp + epNum;
+  int left= ep->xferLen - ep->xferCount;
 
-  if ( size )
-  { word left= ep->xferLen - ep->xferCount;
-
-    if ( size > left )
-    { size= left;
-    }
-
-    if ( size > ep->maxpacket )
-    { size= ep->maxpacket;
-    }
-
-     OTGwritePacket( ep->xferBuffEp
-                      , epNum
-                      , size );
-     ep->xferBuffEp+= size;
-     ep->xferCount += size;
+  if ( left > 0 )
+  { return( left );
   }
 
-  return( ep->xferLen - ep->xferCount );
+  ep->xferBuffEp= NULL;                   /* Reset transaction */
+
+  return( ep->xferLen= ep->xferCount= 0 );
+}
+
+int USBDwritePacket( byte epNum, word size )   /* Available size */
+{ USB_OTG_EP * ep= USB_DEV.inEp + epNum;
+  int left= ep->xferLen - ep->xferCount;
+
+  if ( size )
+{  if ( left > ep->maxpacket )
+  { left= ep->maxpacket;
+  }
+
+  if ( left > size )
+  { left= size;         /* short ( last ) packet */
+  }
+
+  OTGwritePacket( ep->xferBuffEp
+                , epNum
+                , left );
+
+  ep->xferBuffEp+= left;
+  ep->xferCount += left;
+  left           = ep->xferLen - ep->xferCount;
+
+  if ( ep->xferLen == 512 )
+  { debug( "W: %d %d %d %d\r\n", ep->xferLen, ep->xferCount, left, size );
+  } }
+
+  return( left );
 }

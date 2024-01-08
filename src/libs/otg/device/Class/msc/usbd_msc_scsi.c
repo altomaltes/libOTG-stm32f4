@@ -43,16 +43,16 @@
 static schar SCSI_TestUnitReady( byte   lun
                                , byte * params )
 { if ( hmsc.cbw.dDataLength ) /* case 9 : Hi > D0 */
-  { SCSI_SenseCode( hmsc.cbw.bLUN
+  { SCSIsenseCode( hmsc.cbw.bLUN
                   , ILLEGAL_REQUEST
                   , INVALID_CDB );
     return( -1 );
   }
 
   if ( stor.IsReady( lun ))
-  { SCSI_SenseCode( lun
-                  , NOT_READY
-                  , MEDIUM_NOT_PRESENT);
+  { SCSIsenseCode( lun
+                 , NOT_READY
+                 , MEDIUM_NOT_PRESENT );
     hmsc.bot_state= USBD_BOT_NO_DATA;
     return( -1 );
   }
@@ -96,16 +96,16 @@ static schar SCSI_Inquiry( byte lun
 }
 
 /**
- * @brief  SCSI_ReadCapacity10
+ * @brief  SCSIreadCapacity10
  *         Process Read Capacity 10 command
  * @param  lun: Logical unit number
  * @param  params: Command parameters
  * @retval status
  */
-static schar SCSI_ReadCapacity10( byte lun
+static schar SCSIreadCapacity10( byte lun
                                 , byte *params)
 { if ( stor.GetCapacity(lun, &hmsc.scsi_blk_nbr, &hmsc.scsi_blk_size) != 0)
-  { SCSI_SenseCode( lun
+  { SCSIsenseCode( lun
                     , NOT_READY
                     , MEDIUM_NOT_PRESENT );
     return( -1 );
@@ -144,7 +144,7 @@ static schar SCSIreadFmtCap( byte lun, byte *params)
   }
 
   if ( stor.GetCapacity(lun, &blk_nbr, &blk_size) )
-  { SCSI_SenseCode( lun
+  { SCSIsenseCode( lun
                   , NOT_READY
                   , MEDIUM_NOT_PRESENT );
     return( -1 );
@@ -235,14 +235,14 @@ static schar SCSI_RequestSense ( byte lun, byte *params )
 }
 
 /**
- * @brief  SCSI_SenseCode
+ * @brief  SCSIsenseCode
  *         Load the last error code in the error list
  * @param  lun: Logical unit number
  * @param  sKey: Sense Key
  * @param  ASC: Additional Sense Key
  * @retval none
  */
-void SCSI_SenseCode( byte lun, byte sKey, byte ASC )
+void SCSIsenseCode( byte lun, byte sKey, byte ASC )
 { hmsc.scsi_sense[ hmsc.scsi_sense_tail ].Skey  = sKey;
   hmsc.scsi_sense[ hmsc.scsi_sense_tail ].w.ASC = ASC << 8;
   hmsc.scsi_sense_tail++;
@@ -276,7 +276,7 @@ static schar SCSI_CheckAddressRange( byte lun
                                      , dword blk_offset
                                      , word blk_nbr)
 { if ((blk_offset + blk_nbr) > hmsc.scsi_blk_nbr )
-  { SCSI_SenseCode(lun,
+  { SCSIsenseCode(lun,
                    ILLEGAL_REQUEST,
                    ADDRESS_OUT_OF_RANGE);
     return -1;
@@ -285,24 +285,24 @@ static schar SCSI_CheckAddressRange( byte lun
 }
 
 /**
- * @brief  SCSI_ProcessRead
+ * @brief  SCSIprocessRead
  *         Handle Read Process
  * @param  lun: Logical unit number
  * @retval status
  */
-static schar SCSI_ProcessRead( byte lun )
+static schar SCSIprocessRead( byte lun )
 { dword len= MIN( hmsc.scsi_blk_len, MSC_MEDIA_PACKET );
 
   if  ( stor.Read( lun, hmsc.bot_data
                  , hmsc.scsi_blk_addr / hmsc.scsi_blk_size
                  , len                / hmsc.scsi_blk_size ) < 0 )
-  { SCSI_SenseCode( lun, HARDWARE_ERROR, UNRECOVERED_READ_ERROR );
+  { SCSIsenseCode( lun, HARDWARE_ERROR, UNRECOVERED_READ_ERROR );
     return( -1 );
   }
 
   USBDepTx( MSC_EPIN_ADDR
           , hmsc.bot_data
-          , len );
+          , len  );  // !!!
   hmsc.scsi_blk_addr   += len;
   hmsc.scsi_blk_len    -= len;
   hmsc.csw.dDataResidue-= len;   /* case 6 : Hi = Di */
@@ -310,27 +310,30 @@ static schar SCSI_ProcessRead( byte lun )
 
   hmsc.bot_state= hmsc.scsi_blk_len ? USBD_BOT_DATA_IN   /* more to send */
                                     : USBD_BOT_LAST_DATA_IN;
+
+  debug("-- READ10 %d %d \r\n", hmsc.scsi_blk_addr, hmsc.scsi_blk_len );
+
   return( 0 );
 }
 
 /**
- * @brief  SCSI_Read10
+ * @brief  SCSIread10
  *         Process Read10 command
  * @param  lun: Logical unit number
  * @param  params: Command parameters
  * @retval status
  */
-static schar SCSI_Read10( byte lun, byte * params )
+static schar SCSIread10( byte lun, byte * params )
 { if ( hmsc.bot_state == USBD_BOT_IDLE )  /* Idle */
-  { if ((hmsc.cbw.bmFlags & 0x80) != 0x80)     /* case 10 : Ho <> Di */
-    { SCSI_SenseCode( hmsc.cbw.bLUN
+  { if ((hmsc.cbw.bFlags & 0x80) != 0x80)     /* case 10 : Ho <> Di */
+    { SCSIsenseCode( hmsc.cbw.bLUN
                     , ILLEGAL_REQUEST
                     , INVALID_CDB );
       return( -1 );
     }
 
     if ( stor.IsReady( lun ))
-    { SCSI_SenseCode( lun
+    { SCSIsenseCode( lun
                     , NOT_READY
                     , MEDIUM_NOT_PRESENT);
       return( -1 );
@@ -342,7 +345,7 @@ static schar SCSI_Read10( byte lun, byte * params )
                       |  params[5];
 
     hmsc.scsi_blk_len =  (params[7] <<  8)
-                      |   params[8];
+                      |   params[8] ;
 
     if ( SCSI_CheckAddressRange( lun
                                , hmsc.scsi_blk_addr
@@ -356,7 +359,7 @@ static schar SCSI_Read10( byte lun, byte * params )
 /* cases 4,5 : Hi <> Dn
  */
     if ( hmsc.cbw.dDataLength != hmsc.scsi_blk_len )
-    { SCSI_SenseCode( hmsc.cbw.bLUN
+    { SCSIsenseCode( hmsc.cbw.bLUN
                     , ILLEGAL_REQUEST
                     , INVALID_CDB );
       return -1;
@@ -364,7 +367,7 @@ static schar SCSI_Read10( byte lun, byte * params )
 
   hmsc.bot_data_length= MSC_MEDIA_PACKET;
 
-  return( SCSI_ProcessRead( lun ) );
+  return( SCSIprocessRead( lun ) );
 }
 
 /**
@@ -383,7 +386,7 @@ static schar SCSI_ProcessWrite( byte lun )
                  , hmsc.bot_data
                  , hmsc.scsi_blk_addr / hmsc.scsi_blk_size
                  , len                / hmsc.scsi_blk_size ) < 0 )
-  { SCSI_SenseCode( lun
+  { SCSIsenseCode( lun
                   , HARDWARE_ERROR
                   , WRITE_FAULT );
     return -1;
@@ -415,37 +418,37 @@ static schar SCSI_ProcessWrite( byte lun )
  * @retval status
  */
 static schar SCSI_Write10( byte lun, byte *params )
-{ if (hmsc.bot_state == USBD_BOT_IDLE) /* Idle */
-  { if ( (hmsc.cbw.bmFlags & 0x80) == 0x80 )    /* case 8 : Hi <> Do */
-    { SCSI_SenseCode( hmsc.cbw.bLUN
+{ if ( hmsc.bot_state == USBD_BOT_IDLE )     /* Idle */
+  { if ( hmsc.cbw.bFlags & 0x80 )           /* case 8 : Hi <> Do */
+    { SCSIsenseCode( hmsc.cbw.bLUN
                     , ILLEGAL_REQUEST
                     , INVALID_CDB );
-      return -1;
+      return( -1 );
     }
 
 /* Check whether Media is ready
  */
     if ( stor.IsReady(lun) )
-    { SCSI_SenseCode( lun
+    { SCSIsenseCode( lun
                     , NOT_READY
                     , MEDIUM_NOT_PRESENT );
-      return -1;
+      return( -1 );
     }
 
 /* Check If media is write-protected
  */
-    if(stor.IsWriteProtected(lun) )
-    { SCSI_SenseCode(lun,
-                     NOT_READY,
-                     WRITE_PROTECTED);
-      return -1;
+    if ( stor.IsWriteProtected( lun ))
+    { SCSIsenseCode( lun
+                    , NOT_READY
+                    , WRITE_PROTECTED );
+      return( -1 );
     }
 
 
-    hmsc.scsi_blk_addr = (params[2] << 24)
-                       | (params[3] << 16)
-                       | (params[4] <<  8)
-                       | params[5];
+    hmsc.scsi_blk_addr = ( params[2] << 24 )
+                       | ( params[3] << 16 )
+                       | ( params[4] <<  8 )
+                       |   params[5];
 
     hmsc.scsi_blk_len = (params[7] <<  8)
                       |  params[8];
@@ -454,19 +457,19 @@ static schar SCSI_Write10( byte lun, byte *params )
  */
     if ( SCSI_CheckAddressRange( lun
                                , hmsc.scsi_blk_addr
-                               , hmsc.scsi_blk_len) < 0)
+                               , hmsc.scsi_blk_len) < 0 )
     { return -1; /* error */
     }
 
     hmsc.scsi_blk_addr *= hmsc.scsi_blk_size;
     hmsc.scsi_blk_len  *= hmsc.scsi_blk_size;
 
-    /* cases 3,11,13 : Hn,Ho <> D0 */
-    if (hmsc.cbw.dDataLength != hmsc.scsi_blk_len)
-    { SCSI_SenseCode(hmsc.cbw.bLUN,
-                     ILLEGAL_REQUEST,
-                     INVALID_CDB);
-      return -1;
+
+    if ( hmsc.cbw.dDataLength != hmsc.scsi_blk_len ) /* cases 3,11,13 : Hn,Ho <> D0 */
+    { SCSIsenseCode( hmsc.cbw.bLUN
+                    , ILLEGAL_REQUEST
+                    , INVALID_CDB);
+      return( -1 );
     }
 
 /* Prepare EP to receive first data packet
@@ -477,7 +480,7 @@ static schar SCSI_Write10( byte lun, byte *params )
                    , MIN (hmsc.scsi_blk_len, MSC_MEDIA_PACKET));
   }
   else /* Write Process ongoing */
-  { return SCSI_ProcessWrite( lun);
+  { return( SCSI_ProcessWrite( lun ));
   }
   return 0;
 }
@@ -493,9 +496,9 @@ static schar SCSI_Write10( byte lun, byte *params )
 static schar SCSI_Verify10( byte lun
                           , byte *params )
 { if ((params[1]& 0x02) == 0x02)
-  { SCSI_SenseCode( lun
-                    , ILLEGAL_REQUEST
-                    , INVALID_FIELED_IN_COMMAND );
+  { SCSIsenseCode( lun
+                  , ILLEGAL_REQUEST
+                  , INVALID_FIELED_IN_COMMAND );
     return -1; /* Error, Verify Mode Not supported*/
   }
 
@@ -523,22 +526,28 @@ schar SCSI_ProcessCmd( byte lun
   switch ( params[0] )
   { case SCSI_INQUIRY:         return( SCSI_Inquiry       ( lun, params ));
     case SCSI_READ_FMT_CAP:    return( SCSIreadFmtCap     ( lun, params ));
-    case SCSI_READ_CAPACITY10: return( SCSI_ReadCapacity10( lun, params ));
-    case SCSI_READ10:          return( SCSI_Read10        ( lun, params ));
+    case SCSI_READ_CAPACITY10: return( SCSIreadCapacity10( lun, params ));
 
-    case SCSI_TEST_UNIT_READY: x(); return( SCSI_TestUnitReady ( lun, params ));
+    case SCSI_READ10:
+    return( SCSIread10        ( lun, params ));
+
+    case SCSI_TEST_UNIT_READY:
+       debug("-- TESTREADY -\r\n");
+     return( SCSI_TestUnitReady ( lun, params ));
+
     case SCSI_REQUEST_SENSE:   x(); return( SCSI_RequestSense  ( lun, params ));
     case SCSI_START_STOP_UNIT: x(); return( SCSI_StartStopUnit ( lun, params ));
     case SCSI_ALLOW_REMOVAL:   x(); return( SCSI_StartStopUnit ( lun, params ));
 
     case SCSI_MODE_SENSE6:
-       return( SCSI_ModeSense6    ( lun, params ));
+       debug("-- SENSE6 -\r\n");
+    return( SCSI_ModeSense6    ( lun, params ));
 
     case SCSI_MODE_SENSE10:    x(); return( SCSI_ModeSense10   ( lun, params ));
     case SCSI_WRITE10:         x(); return( SCSI_Write10       ( lun, params ));
     case SCSI_VERIFY10:        x(); return( SCSI_Verify10      ( lun, params ));
 
-    default:      SCSI_SenseCode( lun, ILLEGAL_REQUEST, INVALID_CDB );  return -1;
+    default:      SCSIsenseCode( lun, ILLEGAL_REQUEST, INVALID_CDB );  return -1;
    break;
 } }
 

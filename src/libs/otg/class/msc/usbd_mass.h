@@ -77,7 +77,6 @@
 
 /** SCSI Additional Sense Codes
  */
-
 #define SCSI_ASENSE_NO_ADDITIONAL_INFORMATION          0x00		/** SCSI Additional Sense Code to indicate no additional sense information is available. */
 #define SCSI_ASENSE_LOGICAL_UNIT_NOT_READY             0x04		/** SCSI Additional Sense Code to indicate that the logical unit (LUN) addressed is not ready. */
 #define SCSI_ASENSE_INVALID_FIELD_IN_CDB               0x24		/** SCSI Additional Sense Code to indicate an invalid field was encountered while processing the issued command. */
@@ -128,36 +127,36 @@ enum MS_CommandStatusCodes_t
 };
 
 	/* Type Defines: */
-/** \brief Mass Storage Class Command Block Wrapper.
+/** &brief Mass Storage Class Command Block Wrapper.
  *
  *  Type define for a Command Block Wrapper, used in the Mass Storage Bulk-Only Transport protocol.
  *
- *  \note Regardless of CPU architecture, these values should be stored as little endian.
+ *  Regardless of CPU architecture, these values should be stored as little endian.
  */
 typedef struct
-{ dword Signature;           /** Command block signature, must be \ref MS_CBW_SIGNATURE to indicate a valid Command Block. */
-	 dword Tag;                 /** Unique command ID value, to associate a command block wrapper with its command status wrapper. */
-	 dword DataTransferLength;  /** Length of the optional data portion of the issued command, in bytes. */
-	 byte  Flags;               /** Command block flags, indicating command data direction. */
-	 byte  LUN;                 /** Logical Unit number this command is issued to. */
-	 byte  SCSICommandLength;   /** Length of the issued SCSI command within the SCSI command data array. */
-	 byte  SCSICommandData[16]; /** Issued SCSI command in the Command Block. */
+{ dword dSignature;     /** Command block signature, must be \ref MS_CBW_SIGNATURE to indicate a valid Command Block. */
+	 dword dTag;           /** Unique command ID value, to associate a command block wrapper with its command status wrapper. */
+	 dword dDataLength;    /** Length of the optional data portion of the issued command, in bytes. */
+	 byte  bFlags;         /** Command block flags, indicating command data direction. */
+	 byte  bLUN;           /** Logical Unit number this command is issued to. */
+	 byte  bCmdLength;     /** Length of the issued SCSI command within the SCSI command data array. */
+	 byte  bCmdData[ 16 ]; /** Issued SCSI command in the Command Block. */
 } PACKED MScmdBlkWrapperRec;
 
-/** \brief Mass Storage Class Command Status Wrapper.
+/** &brief Mass Storage Class Command Status Wrapper.
  *
  *  Type define for a Command Status Wrapper, used in the Mass Storage Bulk-Only Transport protocol.
  *
- *  \note Regardless of CPU architecture, these values should be stored as little endian.
+ *  Regardless of CPU architecture, these values should be stored as little endian.
  */
 typedef struct
-{ dword Signature; /**< Status block signature, must be \ref MS_CSW_SIGNATURE to indicate a valid Command Status. */
-	 dword Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
-	 dword DataTransferResidue; /**< Number of bytes of data not processed in the SCSI command. */
-	 byte  Status; /**< Status code of the issued command - a value from the \ref MS_CommandStatusCodes_t enum. */
+{ dword dSignature;     /**< Status block signature, must be \ref MS_CSW_SIGNATURE to indicate a valid Command Status. */
+	 dword dTag;          /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
+	 dword dDataResidue;  /**< Number of bytes of data not processed in the SCSI command. */
+	 byte  bStatus;       /**< Status code of the issued command - a value from the \ref MS_CommandStatusCodes_t enum. */
 } PACKED MScmdStatWrapperRec;
 
-/** \brief Mass Storage Class SCSI Sense Structure
+/** &brief Mass Storage Class SCSI Sense Structure
  *
  *  Type define for a SCSI Sense structure. Structures of this type are filled out by the
  *  device via the \ref MS_Host_RequestSense() function, indicating the current sense data of the
@@ -183,6 +182,7 @@ typedef struct
 		byte  AdditionalSenseQualifier;
 		byte  FieldReplaceableUnitCode;
 		byte  SenseKeySpecific[3];
+
 } PACKED SCSI_Request_Sense_Response_t;
 
 

@@ -203,7 +203,7 @@ static void USBH_MSC_HandleDataout( byte ep )
 void USBH_MSC_HandleBOTXferIn( byte ep )
 { switch( USBH_MSC_BOTXferParam.BOTState )
   { case USBH_BOT_DECODE_CSW:
-      USBH_MSC_DecodeCSW();             /*USBH_MSC_BOTXferParam.BOTXferStatus=*/
+      USBH_MSC_DecodeCSW();             /* USBH_MSC_BOTXferParam.BOTXferStatus=*/
       USBH_MSC_Machine( ep );           /* next step */
     break;
 

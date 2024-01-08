@@ -255,7 +255,7 @@ union STM32_USB_DEVICE$DTHRCTL
 union STM32_USB_DEVICE$DIEPEMPMSK
 { volatile struct
   { dword  INEPTXFEM :  16; /** 0x00 IN EP Tx FIFO empty interrupt mask bits */
-    dword            :  16; /** 0x10 */
+    dword            :  16; /** 0x10                                         */
   };
 };
 
@@ -333,9 +333,9 @@ struct STM32_USB_DEVICE_ST                               /** 0x50000800 USB on t
   volatile union STM32_USB_DEVICE$DAINT      DEACHINT_NW; /** 0x38 RST: 0x00000000 Dedicated endpoint  */
   volatile union STM32_USB_DEVICE$DAINT      DEACHMSK_NW; /** 0x3C RST: 0x00000000 Dedicated endpoint mask  */
 
-   dword Reserved40[ 1 ];                                  /** 0x40       */
+   dword Reserved40[ 1 ];                               /** 0x40       */
    volatile union STM32_USB_DEVICE$DAINT DINEP1MSK_NW;  /** 0x44       */
-   dword  Reserved44[15];                                  /** 0x48 87Ch  */
+   dword  Reserved44[15];                               /** 0x48 87Ch  */
    volatile union STM32_USB_DEVICE$DAINT DOUTEP1MSK_NW; /** 0x84       */
 
    dword            gap$88[ 30 ];                       /** 0x88 120->78h Unused register */
@@ -461,15 +461,15 @@ union STM32_USB_GLOBAL$GUSBCFG
 
 union STM32_USB_GLOBAL$GRSTCTL
 { volatile struct
-  { dword      CSRST :   1; /** 0x00 Core soft reset */
-    dword      HSRST :   1; /** 0x01 HCLK soft reset */
+  { dword      CSRST :   1; /** 0x00 Core soft reset          */
+    dword      HSRST :   1; /** 0x01 HCLK soft reset          */
     dword      FCRST :   1; /** 0x02 Host frame counter reset */
-    dword            :   1; /** 0x03 */
-    dword    RXFFLSH :   1; /** 0x04 RxFIFO flush */
-    dword    TXFFLSH :   1; /** 0x05 TxFIFO flush */
-    dword     TXFNUM :   5; /** 0x06 TxFIFO number */
-    dword            :  20; /** 0x0B */
-    dword     AHBIDL :   1; /** 0x1F AHB master idle */
+    dword            :   1; /** 0x03                          */
+    dword    RXFFLSH :   1; /** 0x04 RxFIFO flush             */
+    dword    TXFFLSH :   1; /** 0x05 TxFIFO flush             */
+    dword     TXFNUM :   5; /** 0x06 TxFIFO number            */
+    dword            :  20; /** 0x0B                          */
+    dword     AHBIDL :   1; /** 0x1F AHB master idle          */
   };
 
   volatile dword atomic;            /** atomic access */
@@ -623,9 +623,9 @@ struct STM32_USB_GLOBAL_ST                          /** 0x50000000 USB on the go
   volatile union STM32_USB_GLOBAL$GINTSTS GINTSTS;  /** 0x14 RST: 0x04000020 OTG_FS core interrupt register (OTG_FS_GINTSTS) */
   volatile union STM32_USB_GLOBAL$GINTSTS GINTMSK;  /** 0x18 RST: 0x00000000 OTG_FS interrupt mask register (OTG_FS_GINTMSK) */
 
-  volatile union STM32_USB_GLOBAL$GRXSTSR GRXSTSR; /** 0x1C RST: 0x00000000 OTG_FS Receive status debug read(Host mode) */
-  volatile union STM32_USB_GLOBAL$GRXSTSR GRXSTSP; /** 0x20 RST: 0x00000000 OTG_FS Receive status debug read(Host mode) */
-  volatile struct STM32_USB_GLOBAL$GRXFSIZ GRXFSIZ; /** 0x24 RST: 0x00000200 OTG_FS Receive FIFO size register (OTG_GRXFSIZ) */
+  volatile union STM32_USB_GLOBAL$GRXSTSR GRXSTSR;     /** 0x1C RST: 0x00000000 OTG_FS Receive status debug read(Host mode) */
+  volatile union STM32_USB_GLOBAL$GRXSTSR GRXSTSP;     /** 0x20 RST: 0x00000000 OTG_FS Receive status debug read(Host mode) */
+  volatile struct STM32_USB_GLOBAL$GRXFSIZ GRXFSIZ;    /** 0x24 RST: 0x00000200 OTG_FS Receive FIFO size register (OTG_GRXFSIZ) */
 
   volatile struct STM32_USB_GLOBAL$FIFOMEM GNPTXFSIZ;  /** 0x28 RST: 0x00000200 OTG_FS non-periodic transmit FIFO size register (Host mode) */
                                                        /** 0x28 RST: 0x00000200 OTG_FS non-periodic transmit FIFO size register (Device mode) */
@@ -634,9 +634,9 @@ struct STM32_USB_GLOBAL_ST                          /** 0x50000000 USB on the go
   volatile union STM32_USB_GLOBAL$GI2CCTL  GI2CCTL_NW; /** 0x30 Unused register -> i2c control */
   dword            gap$30[  1 ];                       /** 0x34  PHY Vendor Control Register        034h */
 
-  volatile union STM32_USB_GLOBAL$GCCFG GCCFG;           /** 0x38 RST: 0x00000000 OTG_FS general core configuration register (OTG_GCCFG) */
-  volatile union STM32_USB_GLOBAL$CID     CID;           /** 0x3C RST: 0x00001000 core ID register */
-   dword            gap$40[ 48 ];                        /** 0x40 Unused register */
+  volatile union STM32_USB_GLOBAL$GCCFG GCCFG;         /** 0x38 RST: 0x00000000 OTG_FS general core configuration register (OTG_GCCFG) */
+  volatile union STM32_USB_GLOBAL$CID     CID;         /** 0x3C RST: 0x00001000 core ID register */
+   dword            gap$40[ 48 ];                      /** 0x40 Unused register */
 
   volatile struct STM32_USB_GLOBAL$FIFOMEM HPTXFSIZ[ 1 ]; /** 0x100 RST: 0x02000600 OTG_FS Host periodic transmit FIFO size register (OTG_HPTXFSIZ) */
   volatile struct STM32_USB_GLOBAL$FIFOMEM DIEPTXF[  3 ]; /** 0x104 RST: 0x02000400 OTG_FS device IN endpoint transmit FIFO size register (OTG_DIEPTXF2) */

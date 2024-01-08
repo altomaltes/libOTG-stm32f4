@@ -189,7 +189,7 @@ union USBclassBM
 
 typedef struct USB_OTG_hc
 { byte *xferBuff;
-  dword xferLen;
+  dword xferSzHC;
   dword xferCount;
   byte  toggleIn;
   byte  toggleOut;
@@ -218,8 +218,6 @@ HCD_DEV;
 
 
 short usbHostGotUserApplication( union USBclassBM );
-
-
 void usbHostGotUnrecoveredError  ( void  );
 void usbHostGotProductString     ( void *);          /* ProductString*/
 void usbHostGotManufacturerString( void *);     /* ManufacturerString*/

@@ -146,7 +146,7 @@ void usbHostGotDisconnected( byte devAddr )
       PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 60 );
 } } }
 
-
+debug(){}
 /**
   * @brief  Main program.
   * @param  None
@@ -164,12 +164,12 @@ int main( void )
   PIN_MODE( LED4, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
-USBinitDEV( USB_VBUS_INT );    /*  */
-// USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
+//USBinitDEV( USB_VBUS_INT );    /*  */
+ USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
 //  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
-  { testForEvents( LED1, LED2 );
+  { testForEvents( LED1, LED3 );
     mDelay(10);
   }
   return( 0 );

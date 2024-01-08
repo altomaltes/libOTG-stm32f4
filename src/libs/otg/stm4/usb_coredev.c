@@ -61,17 +61,40 @@ schar USBDcoreInit()
   { return( -1 );
   }
 
+  for( top= 0
+     ; top < 15
+     ; top++ )
+ { size.TXSA= 0; size.TXFD= 0x00;
+   STM32F4.USB.GLOBAL.DIEPTXF[ top ]= size;
+ }
+
+
+  size.TXSA= 0; size.TXFD= 0x80;
   STM32F4.USB.GLOBAL.GRXFSIZ.RXFD= size.TXFD;  /* Set the RX fifo size, point to free  */
-  size.TXSA+= size.TXFD; size.TXFD >>= 1;
 
-  STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ].TXSA= size.TXSA;
-  STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ].TXFD= size.TXFD;
-  size.TXSA+= size.TXFD; size.TXFD= TXN_FIFO_FS_SIZE;
+  size.TXSA+= size.TXFD; size.TXFD= 0x40;
+  STM32F4.USB.GLOBAL.GNPTXFSIZ= size;
 
-  while( top )                         /* Exclode 0 */
-  { STM32F4.USB.GLOBAL.DIEPTXF[ top-- ]= size;
-    size.TXSA+= size.TXFD;             /* Next free space */
-  }
+  size.TXSA+= size.TXFD; size.TXFD= 0x30;
+  STM32F4.USB.GLOBAL.DIEPTXF[ 0 ]= size;
+
+ size.TXSA= size.TXFD= 0x00;
+  STM32F4.USB.GLOBAL.DIEPTXF[ 1 ]= size;
+  STM32F4.USB.GLOBAL.DIEPTXF[ 2 ]= size;
+
+//  size.TXSA= 128; size.TXFD= 64;  STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ]= size;
+
+//  size.TXSA= 162; size.TXFD= 48;  STM32F4.USB.GLOBAL.DIEPTXF[ 0 ]= size;
+
+//  size.TXSA+= size.TXFD; size.TXFD= 128; //TXN_FIFO_FS_SIZE;
+
+//  STM32F4.USB.GLOBAL.GNPTXFSIZ= size;   /* Non periodic */
+//  size.TXSA+= size.TXFD;
+
+//  while( top )                         /* Exclode 0 */
+//  { STM32F4.USB.GLOBAL.DIEPTXF[ top-- ]= size;
+//    size.TXSA+= size.TXFD;             /* Next free space */
+//  }
 
 
 /* Flush the FIFOs
@@ -687,21 +710,13 @@ dword USBDepFlush( byte epnum )
  * @brief  DCDwriteEmptyTxFifo
  *         check FIFO for the next packet to be loaded
  * @retval status
+ * // word lenWords= ( chLen + 3 ) / 4;
  */
 static short DCDwriteEmptyTxFifo( byte epNum )
-{ short chLen= USBDwritePacket( epNum, 0 ); /* Ask for bytes to send */
-
-  if ( chLen )
-  { word lenWords= ( chLen + 3 ) / 4;
-
-    while( STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV > lenWords && chLen )
-    { word len= STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV * 4; /* Space available on FIFO */
-
-      lenWords= ( chLen + 3 ) / 4;
-      chLen= USBDwritePacket( epNum, len );
-  } }
-
-  if ( chLen <= 0 )   /* All bytes sent */
+{ if (( USBDgetTxCount( epNum ) ))   /* job to do */
+  { while( USBDwritePacket( epNum, STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV * 4 ) );
+  }
+  else /* yet done */
   { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &=  ~( 0x1 << epNum );  /**TxFIFO empty mask */
   }
 

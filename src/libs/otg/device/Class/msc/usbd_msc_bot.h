@@ -65,27 +65,25 @@ enum
 #define USBD_BOTH_DIR                      2
 
 
-typedef struct
-{ dword dSignature;
-  dword dTag;
-  dword dDataLength;
-  byte  bmFlags;
-  byte  bLUN;
-  byte  bCBLength;
-  byte  CB[ 16 ];
-  byte  ReservedForAlign;
-}
-PACKED USBD_MSC_BOT_CBWTypeDef;
+//typedef struct
+//{ dword dSignature;
+//  dword dTag;
+//  dword dDataLength;
+//  byte  bmFlags;//
+//  byte  bLUN;
+//  byte  bCBLength;
+//  byte  CB[ 16 ];
+//  byte  ReservedForAlign;
+//}
+//PACKED USBD_MSC_BOT_CBWTypeDef;
 
-
-typedef struct
-{ dword dSignature;
-  dword dTag;
-  dword dDataResidue;
-  byte  bStatus;
-  byte  ReservedForAlign[3];
-}
-PACKED USBD_MSC_BOT_CSWTypeDef;
+//typedef struct
+//{ dword dSignature;
+//  dword dTag;
+//  dword dDataResidue;
+//  byte  bStatus;
+//}
+//PACKED USBD_MSC_BOT_CSWTypeDef;
 
 void MSC_BOT_Init  ( void );
 void MSC_BOT_Reset ( void );

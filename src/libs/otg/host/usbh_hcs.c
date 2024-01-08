@@ -57,7 +57,7 @@ byte UHOSTopenChannel( byte epNum
   USB_OTG_HC * hc= USB_HOST.hc + hcNum;
 
   hc->xferBuff= 0;
-  hc->xferLen=
+  hc->xferSzHC=
   hc->xferCount= 0;
   hc->toggleIn =
   hc->toggleOut= 0;

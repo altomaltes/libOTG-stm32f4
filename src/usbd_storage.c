@@ -252,7 +252,7 @@ schar STORAGE_Write( byte lun
     return FATFS_OK;
   }
 
-  return FATFS_ERROR;
+  return( FATFS_ERROR );
 }
 
 /**
@@ -261,7 +261,7 @@ schar STORAGE_Write( byte lun
   * @retval Lun(s) number
   */
 schar STORAGE_GetMaxLun(void)
-{ return 0;
+{ return( 0 );
 }
 
 USBD_StorageTypeDef stor =

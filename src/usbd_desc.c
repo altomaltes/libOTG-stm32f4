@@ -84,6 +84,18 @@ USBD_DEVICE USBdeviceDescCdc=
 
 USBD_DEVICE USBdeviceDesc=
 { USBD_DeviceDesc
+,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
+ ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
+ ,  "Kinetik Joystck"    // 2 USBD_CONFIGURATION_FS_STRING
+ ,  "B000000011E"        // 3 USBD_PUSBdeviceDescRODUCT_FS_STRING
+ ,  "HID Config"          // 4
+ ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
+ , &USBD_HID_cb };
+
+*/
+
+USBD_DEVICE USBdeviceDesc=
+{ USBD_DeviceDesc
 , { "\0x4\0x9"              // 0 USBD_LANGID_STRING
   ,  "STMicroelectronics"   // 1 USBD_MANUFACTURER_STRING
   ,  "Kinetik disk"         // 2 USBD_CONFIGURATION_FS_STRING
@@ -93,16 +105,4 @@ USBD_DEVICE USBdeviceDesc=
 , &USBD_MSC_cb };
 
 
-*/
-
-
-USBD_DEVICE USBdeviceDesc=
-{ USBD_DeviceDesc
-,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
- ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
- ,  "Kinetik Joystck"    // 2 USBD_CONFIGURATION_FS_STRING
- ,  "B000000011E"        // 3 USBD_PUSBdeviceDescRODUCT_FS_STRING
- ,  "HID Config"          // 4
- ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
- , &USBD_HID_cb };
 

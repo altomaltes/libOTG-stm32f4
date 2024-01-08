@@ -71,7 +71,6 @@ signed char USBH_MSC_Write10( byte *, dword, dword );
 signed char USBH_MSC_Read10(  byte *, dword, dword );
 
 
-
 void USBH_MSC_StateMachine();
 
 extern MassStorageParameter_TypeDef USBH_MSC_Param;

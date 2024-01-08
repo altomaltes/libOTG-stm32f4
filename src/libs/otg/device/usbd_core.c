@@ -263,7 +263,7 @@ void * USBinitDEV( dword flags )
 { OTGselectCore( flags );
   OTGsetCurrentMode( DEVICE_MODE );
   USBDcoreInit();             /* set USB OTG core params */
-  OTGsetCurrentMode( DEVICE_MODE );
+//  OTGsetCurrentMode( DEVICE_MODE );
 
   return( &USBIrqHandlerDEV );  /* Be sure is linked */
 }
@@ -335,27 +335,27 @@ schar usbDEVdeInit( void ) /* Software Init */
       ;     i < OTGgetDevEndpoints()
       ;     i ++ )
   { USB_OTG_EP * ep= USB_DEV.inEp + i;
-    /* Init ep structure */
-//    ep->is_in = 1;
-    ep->num = i;
+
+    ep->num = i;   /* Init ep structure */
     ep->tx_fifo_num = i;
 
     ep->type      = EPTYPE_CONTROL; /* Control until ep is activated */
-    ep->maxpacket =  USB_OTG_MAX_EP0_SIZE;
+    ep->maxpacket = USB_OTG_MAX_EP0_SIZE;
     ep->xferBuffEp= 0;
-    ep->xferLen   = 0;
+    ep->xferLen   =
+    ep->xferCount = 0;
 
 /* Init ep structure OUT
  */
-    ep = &USB_DEV.outEp[ i ];
-  //  ep->is_in= 0;
+    ep = USB_DEV.outEp + i;
     ep->num  = i;
     ep->tx_fifo_num= i;
 
-    ep->type = EPTYPE_CONTROL;              /* Control until ep is activated */
-    ep->maxpacket= USB_OTG_MAX_EP0_SIZE;
-    ep->xferBuffEp = 0;
-    ep->xferLen = 0;
+    ep->type      = EPTYPE_CONTROL;              /* Control until ep is activated */
+    ep->maxpacket = USB_OTG_MAX_EP0_SIZE;
+    ep->xferBuffEp= 0;
+    ep->xferLen   =
+    ep->xferCount = 0;
   }
 
   return( 0 );
@@ -415,27 +415,27 @@ void DCDdone()
  */
 dword USBDepPrepareRx( byte   epAddr
                      , byte * pbuf
-                     , word   buf_len )
+                     , word   bufLen )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
 /* setup and start the Xfer
  */
-  ep->xferBuffEp = pbuf;
-  ep->xferLen  = buf_len;
-  ep->xferCount= 0;
- // ep->is_in    = 0;
-  ep->num      = epAddr & 0x7F;
+  ep->xferBuffEp= pbuf;
+  ep->xferLen   = bufLen;
+  ep->xferCount = 0;
+  ep->num       = epAddr & 0x7F;
 
   if ( OTGgetDmaEnable() )
   { ep->dmaAddr= (dword)pbuf;
   }
 
-  if ( ep->num == 0 )
-  { USBDep0StartRecv( ep->xferLen= ep->maxpacket );
-  }
-  else
+  if ( ep->num  )
   { USBDepStartXrecv( ep->num, ep->xferLen, ep->maxpacket );
   }
+  else
+  { USBDep0StartRecv(          ep->xferLen= ep->maxpacket );
+  }
+
   return 0;
 }
 
