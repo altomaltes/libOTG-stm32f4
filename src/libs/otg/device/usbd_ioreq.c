@@ -38,7 +38,7 @@ dword USBDepTx( byte   epAddr
  */
   ep->num       = epAddr & 0x7F;
   ep->xferBuffEp= pbuf;
-  ep->dmaAddr   = (dword)pbuf;
+//  ep->dmaAddr   = (dword)pbuf;
   ep->xferCount = 0;
   ep->xferLen   = bufLen;
 
@@ -216,7 +216,7 @@ int USBDwritePacket( byte epNum, word size )   /* Available size */
   left           = ep->xferLen - ep->xferCount;
 
   if ( ep->xferLen == 512 )
-  { debug( "W: %d %d %d %d\r\n", ep->xferLen, ep->xferCount, left, size );
+  { //debug( "W: %d %d %d %d\r\n", ep->xferLen, ep->xferCount, left, size );
   } }
 
   return( left );

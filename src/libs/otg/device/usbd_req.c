@@ -485,14 +485,14 @@ byte * USBDgetString( const char * desc )
  */
 schar  USBDstdDevReq( USB_SETUP_REQ  * req )
 { switch ( req->bRequest )
-  { case USB_REQ_GET_STATUS:        USBD_GetStatus (    req ); break;
+  { case USB_REQ_GET_STATUS:        USBD_GetStatus (     req ); break;
     case USB_REQ_GET_DESCRIPTOR:    usbDEVgetDescriptor( req ); break;
-    case USB_REQ_SET_ADDRESS:       USBD_SetAddress(    req ); break;
-    case USB_REQ_SET_CONFIGURATION: USBD_SetConfig (    req ); break;
-    case USB_REQ_GET_CONFIGURATION: USBD_GetConfig (    req ); break;
-    case USB_REQ_SET_FEATURE:       USBD_SetFeature(    req ); break;
-    case USB_REQ_CLEAR_FEATURE:     USBD_ClrFeature(    req ); break;
-    default:                        USBDctlError(      req ); break;
+    case USB_REQ_SET_ADDRESS:       USBD_SetAddress(     req ); break;
+    case USB_REQ_SET_CONFIGURATION: USBD_SetConfig (     req ); break;
+    case USB_REQ_GET_CONFIGURATION: USBD_GetConfig (     req ); break;
+    case USB_REQ_SET_FEATURE:       USBD_SetFeature(     req ); break;
+    case USB_REQ_CLEAR_FEATURE:     USBD_ClrFeature(     req ); break;
+    default:                        USBDctlError(        req ); break;
   }
 
   return( 0 );

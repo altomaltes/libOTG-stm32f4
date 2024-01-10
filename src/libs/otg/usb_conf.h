@@ -91,16 +91,6 @@
 #define TXH_P_FS_FIFOSIZ   96
 #define TXH_P_HS_FIFOSIZ  256
 
-/* DEVICE fifo sizes
- */
-//#define TXN_FIFO_FS_SIZE  128
-//#define TXN_FIFO_HS_SIZE  256
-
-
-
-
-#define HID_IN_EP   0x81
-#define HID_IN_PACKET  4
 
 #define USB_DEVICE_DESCRIPTOR_TYPE         0x01
 #define USB_CONFIGURATION_DESCRIPTOR_TYPE  0x02

@@ -296,9 +296,9 @@ union STM32_USB_DEVICE$DIEPTSIZ
 union STM32_USB_DEVICE$DOEPTSIZ
 { volatile struct
   { dword     XFRSIZ :  19; /** 0x00 Transfer size ( 7 used )*/
-    dword     PKTCNT :   2; /** 0x13 Packet count */
-    dword            :   9; /** 0x14 */
-    dword    STUPCNT :   2; /** 0x1D SETUP packet count */
+    dword     PKTCNT :  10; /** 0x13 Packet count */
+    dword            :   2; /** 0x14 */
+    dword    STUPCNT :   1; /** 0x1D SETUP packet count */
   };
 
   volatile dword atomic;            /** atomic access */
@@ -358,7 +358,7 @@ struct STM32_USB_DEVICE_ST                               /** 0x50000800 USB on t
 
   volatile struct
   { volatile union STM32_USB_DEVICE$DOIEPCTL  CTL; dword gap$304;    /** 0x300 RST: 0x00008000 device endpoint-0 control register */
-    volatile union STM32_USB_DEVICE$DOEPINT  INT;  dword gap$30C;    /** 0x308 RST: 0x00000080 device endpoint-0 interrupt register */
+    volatile union STM32_USB_DEVICE$DOEPINT   INT;  dword gap$30C;    /** 0x308 RST: 0x00000080 device endpoint-0 interrupt register */
     volatile union STM32_USB_DEVICE$DOEPTSIZ TSIZ;                   /** 0x310 RST: 0x00000000 device OUT endpoint-0 transfer size register */
     volatile                      dword    DMA; dword gap$318[2];    /** 0x114 DMA ADDR */
   } DOEP[ 8 ];
@@ -638,7 +638,7 @@ struct STM32_USB_GLOBAL_ST                          /** 0x50000000 USB on the go
   volatile union STM32_USB_GLOBAL$CID     CID;         /** 0x3C RST: 0x00001000 core ID register */
    dword            gap$40[ 48 ];                      /** 0x40 Unused register */
 
-  volatile struct STM32_USB_GLOBAL$FIFOMEM HPTXFSIZ[ 1 ]; /** 0x100 RST: 0x02000600 OTG_FS Host periodic transmit FIFO size register (OTG_HPTXFSIZ) */
+  volatile struct STM32_USB_GLOBAL$FIFOMEM GHPTXFSIZ[ 1 ]; /** 0x100 RST: 0x02000600 OTG_FS Host periodic transmit FIFO size register (OTG_GHPTXFSIZ) */
   volatile struct STM32_USB_GLOBAL$FIFOMEM DIEPTXF[  3 ]; /** 0x104 RST: 0x02000400 OTG_FS device IN endpoint transmit FIFO size register (OTG_DIEPTXF2) */
 
    dword          gap$110[ 188 ];    /** 0x110 Unused memory */

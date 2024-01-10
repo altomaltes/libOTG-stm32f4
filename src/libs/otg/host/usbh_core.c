@@ -477,7 +477,7 @@ schar USBHdeInit( void ) /* Software Init */
 void * USBinitHOST( dword vbusPin )
 { OTGselectCore( vbusPin );
   OTGsetCurrentMode( HOST_MODE ); /* No OTG, force Host Mode */
-  USBHcoreInit();              /* Start the USB OTG core  */
+  USBHcoreInit();                 /* Start the USB OTG core  */
 
   return( &USBIrqHandlerHOST );   /* Be sure is linked */
 }

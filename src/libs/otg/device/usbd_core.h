@@ -29,7 +29,7 @@ typedef struct
 
 //  byte   is_in         : 1;
   byte   is_stall      : 1;
-  byte   even_odd_frame: 1;
+  byte   evenOddFrame: 1;
 
 /* transaction level variables
  */
@@ -37,7 +37,7 @@ typedef struct
   dword xferLen;
   dword xferCount;
 
-  dword dmaAddr;
+//  dword dmaAddr; Hardware layer
 
   word remDataLen;
   word totalDataLen;
@@ -79,15 +79,20 @@ typedef struct
 }
 DCD_DEV;
 
+#define MAX_NUM_EP 16
+
 typedef struct
 { const char * deviceDescriptor;
   const char * strings[ 6 ]; // 0
+
+  const word epSizes[ MAX_NUM_EP ];
 
   USBDclassDefREC * driver;
 
 #if ( USBD_LPM_ENABLED == 1 )
   const char * GetBOSDescriptor;
 #endif
+
 
 } USBD_DEVICE;
 

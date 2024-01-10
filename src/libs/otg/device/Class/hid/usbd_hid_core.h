@@ -21,6 +21,9 @@
 
 #include "usbd_core.h"
 
+#define HID_IN_EP   0x81
+#define HID_IN_PACKET  4
+
 #define USB_HID_CONFIG_DESC_SIZ     34
 #define USB_HID_DESC_SIZ             9
 #define HID_MOUSE_REPORT_DESC_SIZE  74

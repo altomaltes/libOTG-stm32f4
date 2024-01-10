@@ -55,7 +55,7 @@ void USBIrqHandlerOTG( );
  */
 void   USBDepSetAddress ( byte epNum );
 void   USBDepSetTestMode( byte mode  );
-schar  USBDcoreInit    ( void );
+schar  USBDcoreInit    ( const word * fifosizes );
 void   USBDstopDevice  ( void );
 void   USBDep0OutStart ();
 schar  USBDsetStall    ( byte epAddr );
@@ -67,13 +67,13 @@ schar  USBDepStartXrecv( byte, word, word );
 schar  USBDep0StartXmit( word xferLen   );
 schar  USBDepStartXmit ( byte epAddr, void * xferBuff, word xferLen );
 
-schar  OTGsetCurrentMode( byte mode );
+short  OTGsetCurrentMode( byte mode );
 void * OTGreadPacket( void * dest, word len );
-schar  OTGwritePacket( void * src, byte ch_ep_num, word len );
-schar  OTGselectCore( dword flags );
-schar  OTGgetDmaEnable();
-schar  OTGgetDevEndpoints(); // USB_OTG_Core.devEndpoints
-schar  OTGgetHostChannels();
+short  OTGwritePacket( void * src, byte ch_ep_num, word len );
+short  OTGselectCore( dword flags );
+short  OTGgetDmaEnable();
+short  OTGgetDevEndpoints(); // USB_OTG_Core.devEndpoints
+short  OTGgetHostChannels();
 
 
 

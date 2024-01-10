@@ -262,7 +262,7 @@ schar USBD_DevDisconnected()
 void * USBinitDEV( dword flags )
 { OTGselectCore( flags );
   OTGsetCurrentMode( DEVICE_MODE );
-  USBDcoreInit();             /* set USB OTG core params */
+  USBDcoreInit( USBdeviceDesc.epSizes );             /* set USB OTG core params */
 //  OTGsetCurrentMode( DEVICE_MODE );
 
   return( &USBIrqHandlerDEV );  /* Be sure is linked */
@@ -362,25 +362,6 @@ schar usbDEVdeInit( void ) /* Software Init */
 }
 
 
-///**
-// * @brief  DCDinit
-// *         Initialize Device
-// * @param  None
-// * @retval status
-// */
-//void DCDinit1234()
-//{
-//#if defined (STM 32 F446xx) || defined (STM 32 F469_479xx)
-//  OTGsetCurrentMode( DEVICE_MODE );  /* Force Device Mode*/
-//  USBcoreInit();                 /* Init the Core (common init.) */
-//#else
-//  USBcoreInit();                 /* Init the Core (common init.) */
-//  OTGsetCurrentMode( DEVICE_MODE );   /* Force Device Mode*/
-//#endif
-
- // USBDcoreInit();              /* Init Device */
-//}
-
 /**
  * @brief  called when an EP is disabled
  * @param epAddr: endpoint address
@@ -425,9 +406,9 @@ dword USBDepPrepareRx( byte   epAddr
   ep->xferCount = 0;
   ep->num       = epAddr & 0x7F;
 
-  if ( OTGgetDmaEnable() )
-  { ep->dmaAddr= (dword)pbuf;
-  }
+//  if ( OTGgetDmaEnable() )    // hardware later
+//  { ep->dmaAddr= (dword)pbuf;
+//  }
 
   if ( ep->num  )
   { USBDepStartXrecv( ep->num, ep->xferLen, ep->maxpacket );
