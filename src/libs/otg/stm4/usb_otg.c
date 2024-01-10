@@ -237,11 +237,7 @@ byte USB_OTG_GetCurrentState ()
   */
 void * USBinitOTG( dword vbusPin )
 { OTGselectCore( vbusPin );
-  OTGsetCurrentMode( OTG_MODE );
-
-  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Enable interrupts ( global ) */
   usbOTGenableCommonInt( OTG_MODE );
-  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
 
   return( &USBIrqHandlerOTG );     /* Be sure is linked */
 }
@@ -257,7 +253,7 @@ void * USBinitOTG( dword vbusPin )
 void handleConIDStChgISR()
 { if ( STM32F4.USB.GLOBAL.GOTGCTL.CIDSTS ) /** 0x10 Connector ID status */
   { USBHdriveVbus( 0 );   /* Only has sense over OTG */
-    USBDcoreInit();    /* B-Device connector (Device Mode) */
+    USBDcoreInit(USBdeviceDesc.epSizes);    /* B-Device connector (Device Mode) */
   }
   else
   { USBHcoreInit();

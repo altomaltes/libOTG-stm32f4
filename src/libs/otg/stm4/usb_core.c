@@ -54,7 +54,7 @@ static schar USB_OTG_CoreReset(  )
  * @param  bytes : No. of bytes
  * @retval schar : status
  */
-schar OTGwritePacket( void * buff
+short OTGwritePacket( void * buff
                     , byte   ch_ep_num
                     , word   len )
 { if ( !USB_OTG_Core.dmaEnable )
@@ -158,7 +158,7 @@ void * OTGreadPacket( void * buff
  *         Initialize core registers address.
  * @retval schar : status
  */
-schar OTGselectCore( dword flags )
+short OTGselectCore( dword flags )
 { USB_OTG_Core.vbusPin  = flags;
   USB_OTG_Core.dmaEnable= 0;
 
@@ -290,7 +290,7 @@ schar usbOTGflushRxFifo(  )
  * @param  mode :  (Host/device)
  * @retval schar : status
  */
-schar OTGsetCurrentMode( byte mode )
+short OTGsetCurrentMode( byte mode )
 {
   if     ( mode == HOST_MODE)
   { STM32F4.USB.GLOBAL.GUSBCFG.FDMOD= 0;
@@ -336,6 +336,8 @@ void handleMmisISR()
 void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
 { union STM32_USB_GLOBAL$GINTSTS INTS; INTS.atomic= 0;
 
+  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disable interrupts ( global ) */
+
   if ( !USB_OTG_Core.dmaEnable )
   { INTS.RXFLVL= 1;
   }
@@ -369,6 +371,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
     case DISABLE_MODE:
       STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* Enable the interrupts in the INTMSK */
       STM32F4.USB.GLOBAL.GINTMSK.atomic= 0;
+      STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0;    /* Disable interrupts ( global ) */
     return;
 
     case OTG_MODE:
@@ -379,6 +382,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
       INTS.atomic= 0x00000000; INTS.CIDSCHG= 1; STM32F4.USB.GLOBAL.GINTMSK= INTS; /** 0x1C Connector ID status change mask */
 //      STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* disable all previous, avoid CMOD */
   //    STM32F4.USB.GLOBAL.GINTMSK= INTS;
+      STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1;    /* Enable interrupts ( global ) */
     return;
   }
 
@@ -394,6 +398,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
   INTS.SRQINT= 0; /** 0x1E Session request/new session detected interrupt, dual role ? */
   STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* disable all previous, avoid CMOD */
   STM32F4.USB.GLOBAL.GINTMSK= INTS;
+  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1;    /* Enable interrupts ( global ) */
 }
 
 /**
@@ -414,9 +419,9 @@ dword usbOTGgetCurrentFrame( word delta )
   * @param  None
   * @retval : speed
   */
-schar OTGgetCoreSpeed()    { return( USB_OTG_Core.speed        ); }
-schar OTGgetDevEndpoints() { return( USB_OTG_Core.devEndpoints ); }
-schar OTGgetHostChannels() { return( USB_OTG_Core.hostChannels ); }
-schar OTGgetDmaEnable()    { return( USB_OTG_Core.dmaEnable    ); }
+short OTGgetCoreSpeed()    { return( USB_OTG_Core.speed        ); }
+short OTGgetDevEndpoints() { return( USB_OTG_Core.devEndpoints ); }
+short OTGgetHostChannels() { return( USB_OTG_Core.hostChannels ); }
+short OTGgetDmaEnable()    { return( USB_OTG_Core.dmaEnable    ); }
 
 

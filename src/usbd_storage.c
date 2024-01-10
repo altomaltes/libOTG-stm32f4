@@ -57,19 +57,18 @@ byte TestBuffer[ SECTOR_SIZE ] =
 
 /* USB Mass storage Standard Inquiry Data */
 schar STORAGE_Inquirydata[] =   /* 36 */
-{ /* LUN 0 */
-  0x00,
-  0x80,
-  0x02,
-  0x02,
-  (STANDARD_INQUIRY_DATA_LEN - 5),
-  0x00,
-  0x00,
-  0x00,
-  'K', 'Y', 'C', 'H', 'U', ' ', ' ', ' ', /* Manufacturer: 8 bytes  */
-  'M', 'B', 'D', 'i', 'c', 'l', 'e', ' ', /* Product     : 16 Bytes */
-  'U', 'p', 'g', 'r', 'a', 'd', 'e', 'r',
-  '0', '.', '8','8',                      /* Version     : 4 Bytes  */
+{ 0x00 /* LUN 0 */
+, 0x80
+, 0x02
+, 0x02
+, (STANDARD_INQUIRY_DATA_LEN - 5)
+, 0x00
+, 0x00
+, 0x00
+, 'l', 'i', 'b', 'O', 'T', 'G', '.', '.' /* Manufacturer: 8 bytes  */
+, 'a', 'l', 't', 'o', 'm', 'a', 'l', 't' /* Product     : 16 Bytes */
+, 'e', 's', ' ', ' ', ' ', ' ', ' ', ' '
+, '0', '.', '0', '1',                     /* Version     : 4 Bytes  */
 };
 
 /* Private functions ---------------------------------------------------------*/

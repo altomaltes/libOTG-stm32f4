@@ -164,9 +164,9 @@ int main( void )
   PIN_MODE( LED4, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
-//USBinitDEV( USB_VBUS_INT );    /*  */
+// USBinitDEV( USB_VBUS_INT );    /*  */
  USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
-//  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
+// USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
   { testForEvents( LED1, LED3 );

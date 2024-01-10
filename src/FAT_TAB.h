@@ -54,8 +54,10 @@ static unsigned char BOOT_TABLE[62] = { /* MSWIN4.1 */
 , __HIBYTE( SECTOR_SIZE )
 , 0x01, 0x01, 0x00, 0x02, 0x20, 0x00, __LOBYTE(TOTAL_SECTORS)
 , __HIBYTE(TOTAL_SECTORS), 0xF0, 0x03, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, RESERVED_BYTE, 0x29, 0x00, 0x00, 0x00, 0x00,  'k',  'y',  '.',  'C',  'h',
- 'u',  ' ',  'D',  'i',  's', 'k',  'F',  'A',  'T',  '1',  '2',  ' ',  ' ',  ' '
+0x00, 0x00, 0x00, 0x00, 0x00, RESERVED_BYTE, 0x29, 0x00, 0x00, 0x00, 0x00
+,  'l',  'i',  'b',  'O',  'T', 'G',  ' '
+,  'a',  'l',  't', 'o',  'm',  'a',  'l',  't'
+,  'e',  's',  ' ',  ' '
 };
 
 /* ---------- FATFS FATn TABLE ---------- */
@@ -74,7 +76,7 @@ static unsigned char FATn_TABLE[FATn_TABLE_SIZE] = {0x00, 0x00, 0x00, 0x03, 0x40
 #define ROOT_TABLE_OFFSET              ((unsigned int)0xE00)
 static unsigned char ROOT_TABLE[ROOT_TABLE_SIZE] = {
 	/* TAB - 1 */
-	 'k',  'y',  '.',  'C',  'h',  'u',  ' ',  'D',  'F',  'U',  ' ', FILE_ATTRIBUTES_VOL, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE,
+	 'L',  'I',  'B',  'O',  'T',  'G',  ' ',  'T',  'E',  'S',  'T', FILE_ATTRIBUTES_VOL, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE,
 	RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE, RESERVED_BYTE, __LOBYTE(FILE_TIME(22, 45, 32)), __HIBYTE(FILE_TIME(22, 45, 32)), __LOBYTE(FILE_DATE(1993, 8, 6)), __HIBYTE(FILE_DATE(1993, 8, 6)), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	/* TAB - 2 */
 //	0xE5, 0xB0, 0x65, 0xFA, 0x5E, 0x87, 0x65, 0x2C, 0x67, 0x87, 0x65, FILE_ATTRIBUTES_LFN, 0x00, 0xD2, 0x63, 0x68,

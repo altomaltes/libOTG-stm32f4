@@ -55,8 +55,8 @@ schar USBHcoreInit( )
     STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXSA= RX_FIFO_FS_SIZE;
     STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXFD= TXH_NP_FS_FIFOSIZ;
 
-    STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ].TXSA= RX_FIFO_FS_SIZE + TXH_NP_FS_FIFOSIZ;
-    STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ].TXFD= TXH_P_FS_FIFOSIZ;
+    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXSA= RX_FIFO_FS_SIZE + TXH_NP_FS_FIFOSIZ;
+    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXFD= TXH_P_FS_FIFOSIZ;
   }
 
   else if ( (dword)&STM32F4.USB == 0x40040000 )         /* set Rx FIFO size  High Speed */
@@ -65,8 +65,8 @@ schar USBHcoreInit( )
     STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXSA= RX_FIFO_HS_SIZE;
     STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXFD= TXH_NP_HS_FIFOSIZ;
 
-    STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ].TXSA= RX_FIFO_HS_SIZE + TXH_NP_HS_FIFOSIZ;
-    STM32F4.USB.GLOBAL.HPTXFSIZ[ 0 ].TXFD= TXH_P_HS_FIFOSIZ;
+    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXSA= RX_FIFO_HS_SIZE + TXH_NP_HS_FIFOSIZ;
+    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXFD= TXH_P_HS_FIFOSIZ;
   }
   else
   { return( -1 );  /* Out of sync */
@@ -90,7 +90,6 @@ schar USBHcoreInit( )
   USBHdriveVbus( 1 );
 
   usbOTGenableCommonInt( HOST_MODE );  /* Enable the common interrupts */
-  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
   return( 0 );
 }
 
@@ -437,7 +436,6 @@ schar HCD1init( )
 { STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disasble interrupts */
   USBHcoreInit();                  /* Host initializations */
   usbOTGenableCommonInt( HOST_MODE );    /* Enable the common interrupts */
-  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1; /* Enable interrupts ( global ) */
   return( 0 );
 }
 
