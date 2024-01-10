@@ -297,8 +297,8 @@ union STM32_USB_DEVICE$DOEPTSIZ
 { volatile struct
   { dword     XFRSIZ :  19; /** 0x00 Transfer size ( 7 used )*/
     dword     PKTCNT :  10; /** 0x13 Packet count */
-    dword            :   2; /** 0x14 */
-    dword    STUPCNT :   1; /** 0x1D SETUP packet count */
+    dword            :   1; /** 0x14 */
+    dword    STUPCNT :   2; /** 0x1D SETUP packet count */
   };
 
   volatile dword atomic;            /** atomic access */
@@ -358,7 +358,7 @@ struct STM32_USB_DEVICE_ST                               /** 0x50000800 USB on t
 
   volatile struct
   { volatile union STM32_USB_DEVICE$DOIEPCTL  CTL; dword gap$304;    /** 0x300 RST: 0x00008000 device endpoint-0 control register */
-    volatile union STM32_USB_DEVICE$DOEPINT   INT;  dword gap$30C;    /** 0x308 RST: 0x00000080 device endpoint-0 interrupt register */
+    volatile union STM32_USB_DEVICE$DOEPINT   INT;  dword gap$30C;   /** 0x308 RST: 0x00000080 device endpoint-0 interrupt register */
     volatile union STM32_USB_DEVICE$DOEPTSIZ TSIZ;                   /** 0x310 RST: 0x00000000 device OUT endpoint-0 transfer size register */
     volatile                      dword    DMA; dword gap$318[2];    /** 0x114 DMA ADDR */
   } DOEP[ 8 ];
