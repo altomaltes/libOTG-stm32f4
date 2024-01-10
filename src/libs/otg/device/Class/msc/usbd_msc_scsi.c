@@ -311,7 +311,7 @@ static schar SCSIprocessRead( byte lun )
   hmsc.bot_state= hmsc.scsi_blk_len ? USBD_BOT_DATA_IN   /* more to send */
                                     : USBD_BOT_LAST_DATA_IN;
 
-  debug("-- READ10 %d %d \r\n", hmsc.scsi_blk_addr, hmsc.scsi_blk_len );
+//  debug("-- READ10 %d %d \r\n", hmsc.scsi_blk_addr, hmsc.scsi_blk_len );
 
   return( 0 );
 }
@@ -378,36 +378,32 @@ static schar SCSIread10( byte lun, byte * params )
  */
 
 static schar SCSI_ProcessWrite( byte lun )
-{ dword len;
-
-  len = MIN(hmsc.scsi_blk_len, MSC_MEDIA_PACKET);
+{ dword len= MIN( hmsc.scsi_blk_len, MSC_MEDIA_PACKET );
 
   if ( stor.Write( lun
                  , hmsc.bot_data
                  , hmsc.scsi_blk_addr / hmsc.scsi_blk_size
                  , len                / hmsc.scsi_blk_size ) < 0 )
   { SCSIsenseCode( lun
-                  , HARDWARE_ERROR
-                  , WRITE_FAULT );
-    return -1;
+                 , HARDWARE_ERROR
+                 , WRITE_FAULT );
+    return( -1 );
   }
 
+  hmsc.scsi_blk_addr   += len;
+  hmsc.scsi_blk_len    -= len;
+  hmsc.csw.dDataResidue-= len; /* case 12 : Ho = Do */
 
-  hmsc.scsi_blk_addr  += len;
-  hmsc.scsi_blk_len   -= len;
-
-  hmsc.csw.dDataResidue -= len; /* case 12 : Ho = Do */
-
-  if ( hmsc.scsi_blk_len == 0 )
-  { MSC_BOT_SendCSW( USBD_CSW_CMD_PASSED );
-  }
-  else
+  if ( hmsc.scsi_blk_len  )
   { USBDepPrepareRx( MSC_EPOUT_ADDR    /* Prepare EP to Receive next packet */
                    , hmsc.bot_data
                    , MIN( hmsc.scsi_blk_len, MSC_MEDIA_PACKET ));
   }
+  else
+  { MSC_BOT_SendCSW( USBD_CSW_CMD_PASSED );
+  }
 
-  return 0;
+  return( 0 );
 }
 
 /**
@@ -477,12 +473,13 @@ static schar SCSI_Write10( byte lun, byte *params )
     hmsc.bot_state= USBD_BOT_DATA_OUT;
     USBDepPrepareRx( MSC_EPOUT_ADDR
                    , hmsc.bot_data
-                   , MIN (hmsc.scsi_blk_len, MSC_MEDIA_PACKET));
+                   , MIN( hmsc.scsi_blk_len, MSC_MEDIA_PACKET ));
   }
   else /* Write Process ongoing */
   { return( SCSI_ProcessWrite( lun ));
   }
-  return 0;
+
+  return( 0 );
 }
 
 
@@ -527,25 +524,17 @@ schar SCSI_ProcessCmd( byte lun
   { case SCSI_INQUIRY:         return( SCSI_Inquiry       ( lun, params ));
     case SCSI_READ_FMT_CAP:    return( SCSIreadFmtCap     ( lun, params ));
     case SCSI_READ_CAPACITY10: return( SCSIreadCapacity10( lun, params ));
+    case SCSI_READ10:          return( SCSIread10        ( lun, params ));
+    case SCSI_TEST_UNIT_READY: return( SCSI_TestUnitReady ( lun, params ));
+    case SCSI_REQUEST_SENSE:   return( SCSI_RequestSense  ( lun, params ));
+    case SCSI_START_STOP_UNIT: return( SCSI_StartStopUnit ( lun, params ));
+    case SCSI_ALLOW_REMOVAL:   return( SCSI_StartStopUnit ( lun, params ));
+    case SCSI_MODE_SENSE6:     return( SCSI_ModeSense6    ( lun, params ));
+    case SCSI_MODE_SENSE10:    return( SCSI_ModeSense10   ( lun, params ));
+    case SCSI_VERIFY10:        return( SCSI_Verify10      ( lun, params ));
 
-    case SCSI_READ10:
-    return( SCSIread10        ( lun, params ));
-
-    case SCSI_TEST_UNIT_READY:
-       debug("-- TESTREADY -\r\n");
-     return( SCSI_TestUnitReady ( lun, params ));
-
-    case SCSI_REQUEST_SENSE:   x(); return( SCSI_RequestSense  ( lun, params ));
-    case SCSI_START_STOP_UNIT: x(); return( SCSI_StartStopUnit ( lun, params ));
-    case SCSI_ALLOW_REMOVAL:   x(); return( SCSI_StartStopUnit ( lun, params ));
-
-    case SCSI_MODE_SENSE6:
-       debug("-- SENSE6 -\r\n");
-    return( SCSI_ModeSense6    ( lun, params ));
-
-    case SCSI_MODE_SENSE10:    x(); return( SCSI_ModeSense10   ( lun, params ));
-    case SCSI_WRITE10:         x(); return( SCSI_Write10       ( lun, params ));
-    case SCSI_VERIFY10:        x(); return( SCSI_Verify10      ( lun, params ));
+    case SCSI_WRITE10:
+      return( SCSI_Write10       ( lun, params ));
 
     default:      SCSIsenseCode( lun, ILLEGAL_REQUEST, INVALID_CDB );  return -1;
    break;

@@ -127,7 +127,7 @@ static void  MSC_BOT_CBW_Decode()
 
   if  (( USBDgetRxCount( MSC_EPOUT_ADDR) != USBD_BOT_CBW_LENGTH )
     || ( hmsc.cbw.dSignature != USBD_BOT_CBW_SIGNATURE )
-    || ( hmsc.cbw.bLUN      > 1  )
+    || ( hmsc.cbw.bLUN       > 1  )
     || ( hmsc.cbw.bCmdLength < 1  )
     || ( hmsc.cbw.bCmdLength > 16 ))
   { SCSIsenseCode( hmsc.cbw.bLUN, ILLEGAL_REQUEST, INVALID_CDB );
@@ -220,9 +220,11 @@ void MSC_BOT_DataIn( byte epnum )
       }
     break;
 
-    case USBD_BOT_LAST_DATA_IN:
+    case USBD_BOT_DATA_OUT:
       epnum++;
+    break;
 
+    case USBD_BOT_LAST_DATA_IN:
     case USBD_BOT_SEND_DATA:
       MSC_BOT_SendCSW( USBD_CSW_CMD_PASSED );
     break;
