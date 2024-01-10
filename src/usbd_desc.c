@@ -102,6 +102,11 @@ USBD_DEVICE USBdeviceDesc=
   ,  "DEF0A000013E"         // 3 USBD_PRODUCT_FS_STRING
   ,  "Mass Config"          // 4
   ,  "Mass Interface" }     // 5 USBD_INTERFACE_FS_STRING
+, { 0x80                 /* GRXFSIZ, RX fifo size            */
+  , 0x80                 /* GNPTXFSIZ, TX fifo size          */
+  , 0x00                 /* GHPTXFSIZ, TX periodic fifo size */
+  , 0x40, 0x40 }         /* EPIN 1 and EPIN 2 fifo size      */
+
 , &USBD_MSC_cb };
 
 
