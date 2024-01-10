@@ -573,23 +573,11 @@ union STM32_USB_GLOBAL$GNPTXSTS
 };
 
 
-//   dword      DCDET :   1; /** 0x00 Data contact detection (DCD) status */
-//    dword       PDET :   1; /** 0x01 Primary detection (PD) status */
-//    dword       SDET :   1; /** 0x02 Secondary detection (SD) status *///
-//  dword     PS2DET :   1; /** 0x03 DM pull-up detection status */
-//    dword            :  12; /** 0x04 *///
-//    dword     PWRDWN :   1; /** 0x10 Power down */
-//    dword      BCDEN :   1; /** 0x11 Battery charging detector (BCD) enable */
-//    dword      DCDEN :   1; /** 0x12 Data contact detection (DCD) mode enable */
-//    dword       PDEN :   1; /** 0x13 Primary detection (PD) mode enable */
-//    dword       SDEN :   1; /** 0x14 Secondary detection (SD) mode enable */
-//    dword      VBDEN :   1; /** 0x15 USB VBUS detection enable */
-
 union STM32_USB_GLOBAL$GCCFG
 { volatile struct
   { dword            :  16; /** 0x00 */
     dword     PWRDWN :   1; /** 0x10 Power down */
-    dword       BCDEN :   1; /** 0x11 Battery charging detector (BCD) enable */
+    dword      BCDEN :   1; /** 0x11 Battery charging detector (BCD) enable */
     dword   VBUSASEN :   1; /** DCDEN 0x12 Enable the VBUS sensing device */
     dword   VBUSBSEN :   1; /** PDEN 0x13 Enable the VBUS sensing device */
     dword   SOFOUTEN :   1; /** SDEN 0x14 SOF output enable */

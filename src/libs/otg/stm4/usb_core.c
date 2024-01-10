@@ -26,8 +26,7 @@ USB_OTG_CORE_HANDLE USB_OTG_Core;
  */
 static schar USB_OTG_CoreReset(  )
 { dword count = 0; do    /* Wait for AHB master IDLE state. */
-  { // uDelay( 100 );
-    if ( ++count > 1800000 )
+  { if ( ++count > 1800000 )
     { return( 0 );
   } }
   while( !STM32F4.USB.GLOBAL.GRSTCTL.AHBIDL ); /** 0x1F AHB master idle */
@@ -35,13 +34,10 @@ static schar USB_OTG_CoreReset(  )
   mDelay( 20 );  // Must wait 10ms
 
   count = 0; do  /* Core Soft Reset */
-  { // uDelay( 100 );
-    if ( ++count > 1800000 )
+  { if ( ++count > 1800000 )
     { break;
   } }
   while( STM32F4.USB.GLOBAL.GRSTCTL.CSRST );
-
-//  mDelay( 20 );
 
   return( 0 );
 }
@@ -159,8 +155,10 @@ void * OTGreadPacket( void * buff
  * @retval schar : status
  */
 short OTGselectCore( dword flags )
-{ USB_OTG_Core.vbusPin  = flags;
+{ USB_OTG_Core.vbusPin  = flags == 0xFFFFFFFF ? USB_OTG_Core.vbusPin : flags ;
   USB_OTG_Core.dmaEnable= 0;
+
+  DEVICE_ENABLE( RCC_SYSCFG ); // ???
 
   /* initialize device cfg following its address */
   switch( (dword)&STM32F4.USB )
@@ -180,7 +178,7 @@ short OTGselectCore( dword flags )
       PIN_MODE( PORTPIN( PORTA, 11 ), GPIO_OUT | GPIO_FAIR   | GPIO_CRUI | AF_OTG_FS );   /* FS_DM   */
       PIN_MODE( PORTPIN( PORTA, 12 ), GPIO_OUT | GPIO_FAIR   | GPIO_CRUI | AF_OTG_FS );   /* FS_DP  */
       DEVICE_ENABLE( RCC_OTG_FS  );
-      DEVICE_RESET(  RCC_OTG_FS  );
+      DEVICE_RESET(  RCC_OTG_FS  ); mDelay( 50 ); /* Wait after a device reset */
 
     /*! 42, < USB OTG FS Wakeup through EXTI line interrupt  */
 
@@ -226,7 +224,7 @@ short OTGselectCore( dword flags )
       }
 
       DEVICE_ENABLE( RCC_OTG_HS );
-      DEVICE_RESET(  RCC_OTG_HS );
+      DEVICE_RESET(  RCC_OTG_HS ); mDelay( 50 ); /* Wait after a device reset */
 
      /*! 74 < USB OTG HS End Point 1 Out global interrupt */
      /*! 75 < USB OTG HS End Point 1 In global interrupt  */
@@ -238,8 +236,6 @@ short OTGselectCore( dword flags )
     default: return( -1 );
   }
 
-
-  DEVICE_ENABLE( RCC_SYSCFG ); // ???
 
   return( USBcoreInit());
 }
@@ -338,9 +334,6 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disable interrupts ( global ) */
 
-  if ( !USB_OTG_Core.dmaEnable )
-  { INTS.RXFLVL= 1;
-  }
   INTS.SOF= 1;
 
 /* Enable interrupts matching to the Device mode ONLY
@@ -365,7 +358,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
 
     case HOST_MODE:
       INTS.HCINT  =     /** 0x19 Host channels interrupt */
-      INTS.HPRTINT= 1;  /** 0x18 Host port interrupt */
+      INTS.HPRTINT= 1;  /** 0x18 Host port interrupt     */
     break;
 
     case DISABLE_MODE:
@@ -386,12 +379,16 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
     return;
   }
 
-/** 0x1C Connector ID status change mask, keep this one in OTG mode
- */
+///** 0x1C Connector ID status change mask, keep this one in OTG mode
+// */
 //  INTS.CIDSCHG= ( STM32F4.USB.GLOBAL.GUSBCFG.FDMOD
-  //              | STM32F4.USB.GLOBAL.GUSBCFG.FHMOD )
-    //           ? 0 : 1 ;
-//               INTS.CIDSCHG=0;
+//                | STM32F4.USB.GLOBAL.GUSBCFG.FHMOD )
+//                ? 0 : 1 ;
+
+  if ( !USB_OTG_Core.dmaEnable )
+  { INTS.RXFLVL= 1;
+  }
+
   INTS.INCOMPISOIN=
   INTS.INCOMPISOOUT= 1;  /** 0x14 Incomplete isochronous IN transfer */
 

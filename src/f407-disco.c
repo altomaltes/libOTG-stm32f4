@@ -165,8 +165,8 @@ int main( void )
 
 
 // USBinitDEV( USB_VBUS_INT );    /*  */
- USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
-// USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
+// USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
+ USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
 
   while( 1 )
   { testForEvents( LED1, LED3 );

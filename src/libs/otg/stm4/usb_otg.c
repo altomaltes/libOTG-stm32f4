@@ -252,11 +252,12 @@ void * USBinitOTG( dword vbusPin )
  */
 void handleConIDStChgISR()
 { if ( STM32F4.USB.GLOBAL.GOTGCTL.CIDSTS ) /** 0x10 Connector ID status */
-  { USBHdriveVbus( 0 );   /* Only has sense over OTG */
-    USBDcoreInit(USBdeviceDesc.epSizes);    /* B-Device connector (Device Mode) */
+  { USBHdriveVbus( 0 );                      /* Only has sense over OTG */
+    USBDcoreInit( USBdeviceDesc.epSizes );   /* B-Device connector (Device Mode) */
   }
   else
-  { USBHcoreInit();
+  { OTGselectCore( 0xFFFFFFFF );
+    USBHcoreInit();
 } }
 
 
@@ -274,7 +275,7 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
   {
     if ( INTS.CIDSCHG )            /* Less probable, but void any other */
     { handleConIDStChgISR();                   /** 0x1C Connector ID status change */
-      STM32F4.USB.GLOBAL.GINTSTS.CIDSCHG= 0;
+      STM32F4.USB.GLOBAL.GINTSTS.CIDSCHG= 0;   /* Keep listening to connecor change */
       STM32F4.USB.GLOBAL.GINTMSK.CIDSCHG= 1;
       return;
     }
