@@ -302,7 +302,6 @@ byte USBH_HandleEnum( byte ep )
 
     case ENUM_SET_ADDR:       /* set address */
       mDelay( 20 );
-
       usbHostGotDeviceAddressAssigned();         /* user callback for device address assigned */
 
     /* modify control channels to update device address
