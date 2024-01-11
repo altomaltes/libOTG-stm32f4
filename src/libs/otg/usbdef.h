@@ -145,6 +145,26 @@ USBH_CfgDesc_TypeDef;
 /* JACS, hard agnostic
  */
 
+enum
+{ USB_IOCTL_NULL   = 0x00000000
+, USB_IOCTL_INIT   = 0x00010000
+, USB_IOCTL_GETCAP = 0x00020000
+, USB_IOCTL_ISREADY= 0x00030000
+, USB_IOCTL_IS_WP  = 0x00040000
+, USB_IOCTL_GET_LUN= 0x00050000
+, USB_IOCTL_INQUIRY= 0x00060000
+
+, USB_IOCTL_MASK   = 0xFFFF0000
+} USBDioctlEnum;
+
+typedef struct
+{ short (* Read  ) ( dword lun,       void * buf, dword blk_addr, dword blk_len );
+  short (* Write ) ( dword lun, const void * buf, dword blk_addr, dword blk_len );
+  short (* Ioctl ) ( dword lun, ... );
+} USBDdriverRec;
+
+
+
 
 #endif
 

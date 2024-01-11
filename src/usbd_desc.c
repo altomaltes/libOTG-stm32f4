@@ -82,19 +82,9 @@ USBD_DEVICE USBdeviceDescCdc=
  ,  "Serial CDC Interface" }    // 5 USBD_INTERFACE_FS_STRING
  , &USBD_CDC_cb };
 
-USBD_DEVICE USBdeviceDesc=
-{ USBD_DeviceDesc
-,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
- ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
- ,  "Kinetik Joystck"    // 2 USBD_CONFIGURATION_FS_STRING
- ,  "B000000011E"        // 3 USBD_PUSBdeviceDescRODUCT_FS_STRING
- ,  "HID Config"          // 4
- ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
- , &USBD_HID_cb };
-
 */
 
-USBD_DEVICE USBdeviceDesc=
+USBD_DEVICE USBdeviceDesc1=
 { USBD_DeviceDesc
 , { "\0x4\0x9"              // 0 USBD_LANGID_STRING
   ,  "STMicroelectronics"   // 1 USBD_MANUFACTURER_STRING
@@ -109,5 +99,19 @@ USBD_DEVICE USBdeviceDesc=
 
 , &USBD_MSC_cb };
 
+
+USBD_DEVICE USBdeviceDesc=
+{ USBD_DeviceDesc
+,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
+ ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
+ ,  "Kinetik Joystck"    // 2 USBD_CONFIGURATION_FS_STRING
+ ,  "B000000011E"        // 3 USBD_PUSBdeviceDescRODUCT_FS_STRING
+ ,  "HID Config"          // 4
+ ,  "HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
+, { 0x80                 /* GRXFSIZ, RX fifo size            */
+  , 0x80                 /* GNPTXFSIZ, TX fifo size          */
+  , 0x00                 /* GHPTXFSIZ, TX periodic fifo size */
+  , 0x40, 0x40 }         /* EPIN 1 and EPIN 2 fifo size      */
+ , &USBD_HID_cb };
 
 

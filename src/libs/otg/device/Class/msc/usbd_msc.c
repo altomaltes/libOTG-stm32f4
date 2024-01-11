@@ -128,8 +128,9 @@ short USBD_MSC_Setup( USB_SETUP_REQ * req  )
           if (( req->wValue  == 0 )
           &&  ( req->wLength == 1 )
           && (( req->bmRequest & 0x80) == 0x80))
-          { stor.GetMaxLun();
-            USBDctlSendData( (byte *)&hmsc.max_lun, 1 );
+          { //stor.GetMaxLun();
+            stor.Ioctl( USB_IOCTL_GET_LUN, &hmsc.max_lun );
+            USBDctlSendData( &hmsc.max_lun, 1 );
           }
           else
           {  // USBD_CtlError( req); return -1;

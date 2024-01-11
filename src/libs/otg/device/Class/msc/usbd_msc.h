@@ -50,20 +50,7 @@
 
 #define MSC_MEDIA_PACKET 0x200
 
-typedef struct
-{ short (* Init             ) ( dword lun);
-  short (* GetCapacity      ) ( dword lun, dword *block_num, word *block_size);
-  short (* IsReady          ) ( dword lun);
-  short (* IsWriteProtected ) ( dword lun);
-  short (* Read             ) ( dword lun, byte *buf, dword blk_addr, word blk_len);
-  short (* Write            ) ( dword lun, byte *buf, dword blk_addr, word blk_len);
-  short (* GetMaxLun        ) ( void );
-
-  byte *pInquiry;
-
-} USBD_StorageTypeDef;
-
-extern USBD_StorageTypeDef stor;
+extern USBDdriverRec stor;
 
 typedef struct
 { dword max_lun;
@@ -77,14 +64,14 @@ typedef struct
   USBD_SCSI_SenseTypeDef scsi_sense[ SENSE_LIST_DEEPTH ];
   byte scsi_sense_head; byte scsi_sense_tail;
 
-  word  scsi_blk_size;
+  dword scsi_blk_size;
   dword scsi_blk_nbr;
 
   dword scsi_blk_addr;
   dword scsi_blk_len;
 
   word  bot_data_length;
-  byte  bot_data[ 1024 ];  // MSC_MEDIA_PACKET
+  byte  bot_data[ 512 ];  // MSC_MEDIA_PACKET
 
 }
 USBD_MSC_BOT_HandleTypeDef;

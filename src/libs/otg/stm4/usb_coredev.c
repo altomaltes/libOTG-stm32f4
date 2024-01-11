@@ -700,10 +700,14 @@ short USBDepFlush( byte epnum )
  * // word lenWords= ( chLen + 3 ) / 4;
  */
 static short DCDwriteEmptyTxFifo( byte epNum )
-{ if (( USBDgetTxCount( epNum ) ))   /* job to do */
-  { while( USBDwritePacket( epNum, STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV * 4 ) );
+{ int len= USBDgetTxCount( epNum );   /* job to do */
+
+  if ( len > 0 ) do
+  { len= USBDgetTxCount( epNum );   /* job to do */
   }
-  else /* yet done */
+  while( USBDwritePacket( epNum, STM32F4.USB.DEVICE.DIEP[ epNum ].DTXFSTS.INEPTFSAV * 4 ) );
+
+  if ( len <= 0 )
   { STM32F4.USB.DEVICE.DIEPEMPMSK.INEPTXFEM &=  ~( 0x1 << epNum );  /**TxFIFO empty mask */
   }
 

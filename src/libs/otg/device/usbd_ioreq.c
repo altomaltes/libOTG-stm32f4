@@ -180,12 +180,16 @@ int USBDgetRxCount( byte epnum )
  * @brief  USBHwritePacket (JACS)
  *
  * @retval status
- */
+ */ int a;
 int USBDgetTxCount( byte epNum )          /* Available size */
 { USB_OTG_EP * ep= USB_DEV.inEp + epNum;
   int left= ep->xferLen - ep->xferCount;
 
-  if ( left > 0 )
+  if ( ep->totalDataLen == 74 )
+  { a++;
+  }
+
+ // if ( left > 0 )
   { return( left );
   }
 

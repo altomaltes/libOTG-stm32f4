@@ -46,23 +46,26 @@
   */
 
 #include <string.h>
+#include <stdarg.h>
+
 #include "usbd_storage.h"
 #include "FAT_TAB.h"
 #include "uc.h"
 
+
 byte TestBuffer[ SECTOR_SIZE ] =
   "We choose to go to the moon in this decade and do the other things,\r\n"
   "not because they are easy, but because they are hard.\r\n"
-  " -- John F. Kennedy, 1962"
-  ;
+  " -- John F. Kennedy, 1962";
 
-/* USB Mass storage Standard Inquiry Data */
-byte STORAGE_Inquirydata[] =   /* 36 */
+/* USB Mass storage Standard Inquiry Data
+ */
+schar STORAGE_Inquirydata[] =   /* 36 */
 { 0x00 /* LUN 0 */
 , 0x80
 , 0x02
 , 0x02
-, (STANDARD_INQUIRY_DATA_LEN - 5)
+, ( STANDARD_INQUIRY_DATA_LEN - 5 )
 , 0x00
 , 0x00
 , 0x00
@@ -75,77 +78,39 @@ byte STORAGE_Inquirydata[] =   /* 36 */
 /* Private functions ---------------------------------------------------------*/
 
 /**
-  * @brief  Initializes the storage unit (medium)
-  * @param  lun: Logical unit number
-  * @retval Status (0 : OK / -1 : Error)
-  */
-short STORAGE_Init( dword lun )
-{ return( FATFS_OK );
-}
-
-/**
-  * @brief  Returns the medium capacity.
-  * @param  lun: Logical unit number
-  * @param  block_num: Number of total block number
-  * @param  block_size: Block size
-  * @retval Status (0: OK / -1: Error)
-  */
-short STORAGE_GetCapacity( dword lun, dword *block_num, word *block_size)
-{ *block_num = TOTAL_SECTORS;
-  *block_size= SECTOR_SIZE;
-
-  return( FATFS_OK );
-}
-
-/**
-  * @brief  Checks whether the medium is ready.
-  * @param  lun: Logical unit number
-  * @retval Status (0: OK / -1: Error)
-  */
-short STORAGE_IsReady( dword lun)
-{ return( FATFS_OK );
-}
-
-/**
-  * @brief  Checks whether the medium is write protected.
-  * @param  lun: Logical unit number
-  * @retval Status (0: write enabled / -1: otherwise)
-  */
-short STORAGE_IsWriteProtected( dword lun)
-{ return( FATFS_OK );
-}
-
-/**
   * @brief  Reads data from the medium.
   * @param  lun: Logical unit number
   * @param  blk_addr: Logical block address
   * @param  blk_len: Blocks number
   * @retval Status (0: OK / -1: Error)
   */
-short STORAGE_Read( dword lun
-                  , byte *buf
-                  , dword blk_addr
-                  , word blk_len )
-{ dword blk_addr_offset = 0;
-  dword blk_copy_number = 0;
+short STORAGE_Read( dword   lun
+                  , void * buf1
+                  , dword  blk_addr
+                  , dword  blk_len )
+{ dword blk_addr_offset= 0;
+  dword blk_copy_number= 0;
+  byte * buf= (byte *)buf1;
+
+
   if ( lun == 0 )
   { do
     { if(blk_addr == BOOT_TABLE_SECTOR_IDX)
       { blk_copy_number = 1;
-        memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), BOOT_TABLE, BOOT_TABLE_USED_SIZE);
-        memset(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + BOOT_TABLE_USED_SIZE, 0, BOOT_TABLE_SIZE - BOOT_TABLE_USED_SIZE);
+        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), BOOT_TABLE, BOOT_TABLE_USED_SIZE);
+        memset( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + BOOT_TABLE_USED_SIZE, 0, BOOT_TABLE_SIZE - BOOT_TABLE_USED_SIZE);
         (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[ BOOT_TABLE_SIZE - 2 ] = 0x55;
         (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[ BOOT_TABLE_SIZE - 1 ] = 0xAA;
       }
 
       else if( blk_addr < FAT2_TABLE_SECTOR_IDX)
       { blk_copy_number = (FAT2_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : FAT2_TABLE_SECTOR_IDX - blk_addr;
-        memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
+        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
       }
 
       else if( blk_addr < ROOT_TABLE_SECTOR_IDX)
       { blk_copy_number = (ROOT_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : ROOT_TABLE_SECTOR_IDX - blk_addr;
-        memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
+        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
       }
 
       else if( blk_addr < FATFS_TOTAL_SECTORS)
@@ -193,10 +158,10 @@ short STORAGE_Read( dword lun
   * @param  blk_len: Blocks number
   * @retval Status (0 : OK / -1 : Error)
   */
-short STORAGE_Write( dword lun
-                   , byte *buf
+short STORAGE_Write( dword  lun
+                   , const void *buf
                    , dword blk_addr
-                   , word blk_len )
+                   , dword blk_len )
 { dword blk_addr_offset = 0;
   dword blk_wrte_number = 0;
   if ( lun == 0 )
@@ -256,20 +221,51 @@ short STORAGE_Write( dword lun
 }
 
 /**
-  * @brief  Returns the Max Supported LUNs.
-  * @param  None
-  * @retval Lun(s) number
+  * @brief  Miscellaneous control of the medium capacity.
+  * @param  lun: Logical unit number + opeartion << 8
+  * @retval Status (0: OK / -1: Error)
   */
-short STORAGE_GetMaxLun(void)
-{ return( 0 );
+short STORAGE_Ioctl( dword opcode, ... )
+{ switch( opcode & USB_IOCTL_MASK )
+  { case USB_IOCTL_INIT       :
+    case USB_IOCTL_ISREADY    :
+    case USB_IOCTL_IS_WP      :
+    break;
+
+    case USB_IOCTL_GET_LUN  :
+    break;
+
+    case USB_IOCTL_INQUIRY:  /// !! advance to the LUN
+    { va_list ap;
+      va_start( ap, opcode );
+
+      void ** ptr= va_arg( ap, void ** );
+      *ptr= STORAGE_Inquirydata;
+
+      va_end( ap );
+    }
+    break;
+
+    case USB_IOCTL_GETCAP:
+    { va_list ap;
+      va_start( ap, opcode );
+
+      dword * ptr;
+
+      ptr= va_arg( ap, dword * ); *ptr= TOTAL_SECTORS;
+      ptr= va_arg( ap, dword * ); *ptr= SECTOR_SIZE;
+
+      va_end( ap );
+    }
+    break;
+  }
+
+
+  return( 0 );
 }
 
-USBD_StorageTypeDef stor =
-{ STORAGE_Init
-, STORAGE_GetCapacity
-, STORAGE_IsReady
-, STORAGE_IsWriteProtected
-, STORAGE_Read
+USBDdriverRec stor=
+{ STORAGE_Read
 , STORAGE_Write
-, STORAGE_GetMaxLun
-, STORAGE_Inquirydata };
+, STORAGE_Ioctl
+};

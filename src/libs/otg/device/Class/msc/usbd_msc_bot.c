@@ -45,7 +45,7 @@ short MSC_BOT_Init()
   hmsc.scsi_sense_tail=
   hmsc.scsi_sense_head= 0;
 
-//  ((USBD_StorageTypeDef *)pdev->pUserData)->Init(0);  çççç
+//  ((USBDdriverRec *)pdev->pUserData)->Init(0);  çççç
 
   USBDepFlush( MSC_EPOUT_ADDR );
   USBDepFlush( MSC_EPIN_ADDR  );
