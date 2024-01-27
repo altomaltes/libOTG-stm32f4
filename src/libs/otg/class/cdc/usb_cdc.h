@@ -30,13 +30,13 @@
  */
 #define USB_CDC_PROTO_NONE        0x00    /** No class specific protocol required */
 #define USB_CDC_PROTO_V25TER      0x01    /** AT Commands: V.250 etc.*/
-#define USB_CDC_PROTOCOL_AT       0x01    /* opencm3 */
+#define USB_CDC_PROTO_AT       0x01    /* opencm3 */
 
 /** Data Interface Class Protocol Codes
  */
 #define USB_CDC_PROTO_NTB          0x01    /** Network Transfer Block.*/
-#define USB_CDC_PROTO_HOST         0xFD    /** Host based driver.                                                 * \details This protocol code should only be  used                                                 * in messages between host and device to identify                                                 * the host driver portion of a protocol stack.*/
-#define USB_CDC_PROTO_CDCSPEC      0xFE    /** CDC specified.                                                 * \details The protocol(s) are described using a                                                 * Protocol Unit Functional Descriptors on                                                 *Communication Class Interface.*/
+#define USB_CDC_PROTO_HOST         0xFD    /** Host based driver. This protocol code should only be used in messages between host and device to identify the host driver portion of a protocol stack.*/
+#define USB_CDC_PROTO_CDCSPEC      0xFE    /** CDC specified. The protocol(s) are described using a Protocol Unit Functional Descriptors on Communication Class Interface.*/
 
 /**USB CDC class-specified functional descriptors
  */
@@ -47,14 +47,13 @@
 #define DTYPE_CDC_COUNTRY          0x07    /** Country Selection Functional Descriptor. */
 
 
-
 /** USB CDC class-specific requests
  */
-#define USB_CDC_SEND_ENCAPSULATED_CMD  0x00 /** Used to issue a command in the format of the supported control protocol of the Communication                                                 * Class interface.*/
-#define USB_CDC_GET_ENCAPSULATED_RESP  0x01 /** Used to request a response in the format of the supported control protocol of the                                                 * Communication Class interface.*/
+#define USB_CDC_SEND_ENCAPSULATED_CMD  0x00 /** Used to issue a command in the format of the supported control protocol of the Communication Class interface.*/
+#define USB_CDC_GET_ENCAPSULATED_RESP  0x01 /** Used to request a response in the format of the supported control protocol of the Communication Class interface.*/
 #define USB_CDC_SET_COMM_FEATURE       0x02 /** Controls the settings for a particular communication feature  of a particular target.*/
 #define USB_CDC_GET_COMM_FEATURE       0x03 /** Returns the current settings for the communication feature as selected.*/
-#define USB_CDC_CLEAR_COMM_FEATURE     0x04 /** Controls the settings for a particular communication feature of a particular target,                                                 * setting the selected feature to its default state.*/
+#define USB_CDC_CLEAR_COMM_FEATURE     0x04 /** Controls the settings for a particular communication feature of a particular target, setting the selected feature to its default state.*/
 #define USB_CDC_SET_LINE_CODING        0x20 /** Allows the host to specify typical asynchronous line-character  formatting properties.*/
 #define USB_CDC_GET_LINE_CODING        0x21 /** Allows the host to find out the currently configured line coding.*/
 #define USB_CDC_SET_CONTROL_LINE_STATE 0x22 /** Generates RS-232/V.24 style control signals.*/
@@ -63,18 +62,16 @@
 
 /** Generic CDC specific notifications
  */
-#define USB_CDC_NTF_NETWORK_CONNECTION  0x00 /** Allows the device to notify the host about                                                 * network connection status.*/
-#define USB_CDC_NTF_RESPONSE_AVAILABLE  0x01 /** Allows the device to notify the host that                                                 * a response is available.*/
+#define USB_CDC_NTF_NETWORK_CONNECTION  0x00 /** Allows the device to notify the host about network connection status.*/
+#define USB_CDC_NTF_RESPONSE_AVAILABLE  0x01 /** Allows the device to notify the host that a response is available.*/
 #define USB_CDC_NTF_SERIAL_STATE        0x20 /** Sends asynchronous notification of UART status.*/
-#define USB_CDC_NTF_SPEED_CHANGE        0x2A /** Allows the device to inform the host-networking
-                                               * driver that a change in either the uplink or the
-                                               * downlink bit rate of the connection has occurred.*/
+#define USB_CDC_NTF_SPEED_CHANGE        0x2A /** Allows the device to inform the host-networking driver that a change in either the uplink or the */
 
 /** USB_CDC_ACMGMNTCAP
  * USB CDC Abstract Control Management capabilities
  */
 #define USB_CDC_COMM_FEATURE 0x01  /** Supports the request combination of Set_Comm_Feature, Clear_Comm_Feature, Get_Comm_Feature.*/
-#define USB_CDC_CAP_LINE     0x02  /** Supports the request combination of Set_Line_Coding, Set_Control_Line_State,                                                 * Get_Line_Coding, and the notification Serial_State.*/
+#define USB_CDC_CAP_LINE     0x02  /** Supports the request combination of Set_Line_Coding, Set_Control_Line_State, Get_Line_Coding, and the notification Serial_State.*/
 #define USB_CDC_CAP_BRK      0x04  /** Supports the request Send_Break.*/
 #define USB_CDC_CAP_NOTIFY   0x08  /** Supports notification Network_Connection.*/
 
@@ -83,8 +80,7 @@
  * USB CDC Call Management capabilities
  */
 #define USB_CDC_CALL_MGMT_CAP_CALL_MGMT 0x01    /** Device handles call management itself.*/
-#define USB_CDC_CALL_MGMT_CAP_DATA_INTF 0x02    /** Device can send/receive call management
-                                                 * information over a Data Class interface.*/
+#define USB_CDC_CALL_MGMT_CAP_DATA_INTF 0x02    /** Device can send/receive call management information over a Data Class interface.*/
 
 
 /** USB_CDC_LINECODE
@@ -102,17 +98,17 @@
 
 /** SERIAL_STATE notification data values
  */
-#define USB_CDC_STATE_RX_CARRIER  0x0001 /** State of receiver carrier detection mechanism. This signal corresponds to V.24 signal 109                                                * and RS-232 DCD.*/
-#define USB_CDC_STATE_TX_CARRIER  0x0002 /** State of transmission carrier.This signal corresponds to V.24 signal 106                                                * and RS-232 DSR.*/
-#define USB_CDC_STATE_BREAK       0x0004 /** State of break detection mechanism of the device.*/
-#define USB_CDC_STATE_RING        0x0008 /** State of ring signal detection of the device.*/
-#define USB_CDC_STATE_FRAMING     0x0010 /** A framing error has occurred.*/
-#define USB_CDC_STATE_PARITY      0x0020 /** A parity error has occurred.*/
-#define USB_CDC_STATE_OVERRUN     0x0040 /** Received data has been discarded due to overrun in the device.*/
+#define USB_CDC_STATE_RX_CARRIER 0x0001 /** State of receiver carrier detection mechanism. This signal corresponds to V.24 signal 109                                                * and RS-232 DCD.*/
+#define USB_CDC_STATE_TX_CARRIER 0x0002 /** State of transmission carrier.This signal corresponds to V.24 signal 106 and RS-232 DSR.*/
+#define USB_CDC_STATE_BREAK      0x0004 /** State of break detection mechanism of the device.*/
+#define USB_CDC_STATE_RING       0x0008 /** State of ring signal detection of the device.*/
+#define USB_CDC_STATE_FRAMING    0x0010 /** A framing error has occurred.*/
+#define USB_CDC_STATE_PARITY     0x0020 /** A parity error has occurred.*/
+#define USB_CDC_STATE_OVERRUN    0x0040 /** Received data has been discarded due to overrun in the device.*/
 
 
 /** Header Functional Descriptor
- * \details Header Functional Descriptor marks the beginning of the concatenated set of functional
+ * &details Header Functional Descriptor marks the beginning of the concatenated set of functional
  * descriptors for the interface.
  */
 typedef struct
@@ -122,24 +118,23 @@ typedef struct
   word  bcdCDC;              /** USB CDC Specification release number in BCD.*/
 } PACKED  usbCdcHeaderDesc;
 
-/** Union Functional Descriptor
- * \details The Union functional descriptor describes the relationship between a group of interfaces
+/**   Union Functional Descriptor
+ * The Union functional descriptor describes the relationship between a group of interfaces
  * that can be considered to form a functional unit. It can only occur within the class-specific
  * portion of an Interface descriptor. One of the interfaces in the group is designated as a master
  * or controlling interface for the group, and certain class-specific messages can be sent to this
  * interface to act upon the group as a whole.
  */
-
 typedef struct
-{ byte     bLength;            /** Size of this functional descriptor, in bytes.*/
-  byte     bType;              /** CS_INTERFACE descriptor type.*/
-  byte     bDescriptorSubType; /** Union Functional Descriptor.*/
-  byte     bMasterInterface0;  /** The interface number of the CDC interface designated as the master or controlling interface for the union.*/
-  byte     bSlaveInterface0;   /** Interface number of first slave or associated interface in the union.*/    /* ... and there could be other slave interfaces */
+{ byte  bLength;            /** Size of this functional descriptor, in bytes.*/
+  byte  bType;              /** CS_INTERFACE descriptor type.*/
+  byte  bDescriptorSubType; /** Union Functional Descriptor.*/
+  byte  bMasterInterface0;  /** The interface number of the CDC interface designated as the master or controlling interface for the union.*/
+  byte  bSlaveInterface0;   /** Interface number of first slave or associated interface in the union.*/    /* ... and there could be other slave interfaces */
 } PACKED  usbCdcUnionDesc;
 
-/** Country Selection Functional Descriptor
- * \details The Country Selection functional descriptor identifies the countries in which the
+/**   Country Selection Functional Descriptor
+ * The Country Selection functional descriptor identifies the countries in which the
  * communication device is qualified to operate. The parameters of the network connection often vary
  * from one country to another, especially in Europe. Also legal requirements impose certain
  * restrictions on devices because of different regulations by the governing body of the network to
@@ -149,21 +144,19 @@ typedef struct
  * as the country codes used in dialing international telephone calls. Implementers should refer to
  * the ISO 3166 specification for more information.
  */
-
 typedef struct
 { byte bLength;     /** Size of this functional descriptor, in bytes.*/
   byte bType;               /** CS_INTERFACE descriptor type.*/
   byte bDescriptorSubType;  /** Country Selection Functional Descriptor.*/
-  byte iCountryCodeRelDate; /** Index of a string giving the release date for the                                      * implemented ISO 3166 Country Codes. */
-  byte wCountyCode0;        /** Country code in hexadecimal format.                                      * \details As defined in ISO 3166, release date as specified                                 * in iCountryCodeRelDate for the first supported country. */    /* ... and there can be a lot of country codes */
+  byte iCountryCodeRelDate; /** Index of a string giving the release date for the implemented ISO 3166 Country Codes. */
+  byte wCountyCode0;        /** Country code in hexadecimal format. As defined in ISO 3166, release date as specified in iCountryCodeRelDate for the first supported country. */    /* ... and there can be a lot of country codes */
 } PACKED  usbCdcCountryDesc;
 
-/**Call Management Functional Descriptor.
- * \details The Call Management functional descriptor describes the processing of calls for the
+/** Call Management Functional Descriptor.
+ *   The Call Management functional descriptor describes the processing of calls for the
  * Communication Class interface. It can only occur within the class-specific portion of an Interface
  * descriptor.
  */
-
 typedef struct
 { byte bLength;             /** Size of this functional descriptor, in bytes.*/
   byte bType;               /** CS_INTERFACE descriptor type.*/

@@ -107,9 +107,9 @@
  *  Storage device class.
  */
 enum MS_Descriptor_ClassSubclassProtocol_t
-{ MS_CSCP_MassStorageClass         = 0x08 /**< Descriptor Class value indicating that the device or interface			                                           *   belongs to the Mass Storage class.			                                           */
-,	MS_CSCP_SCSITransparentSubclass  = 0x06 /**< Descriptor Subclass value indicating that the device or interface			                                           *   belongs to the SCSI Transparent Command Set subclass of the Mass			                                           *   storage class.			                                           */
-, MS_CSCP_BulkOnlyTransportProtocol= 0x50 /**< Descriptor Protocol value indicating that the device or interface			                                           *   belongs to the Bulk Only Transport protocol of the Mass Storage class.			                                           */
+{ MS_CSCP_MassStorageClass= 0x08 /**< Descriptor Class value indicating that the device or interface			                                           *   belongs to the Mass Storage class.			                                           */
+,	MS_CSCP_SCSI_TRANSPARENT= 0x06 /**< Descriptor Subclass value indicating that the device or interface			                                           *   belongs to the SCSI Transparent Command Set subclass of the Mass			                                           *   storage class.			                                           */
+, MS_CSCP_BULK_ONLY_TRANS = 0x50 /**< Descriptor Protocol value indicating that the device or interface			                                           *   belongs to the Bulk Only Transport protocol of the Mass Storage class.			                                           */
 };
 
 /** Enum for the Mass Storage class specific control requests that can be issued by the USB bus host.

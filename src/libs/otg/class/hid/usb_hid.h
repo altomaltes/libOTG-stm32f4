@@ -48,7 +48,7 @@
 
 /** USB HID class code
  */
-#define USB_CLASS_HID             0x03    /** Interface belongs to the Human Interface device class.*/
+//#define USB_CLASS_HID             0x03    /** Interface belongs to the Human Interface device class.*/
 
 /** USB HID subclass codes
  */
@@ -85,9 +85,9 @@
 
 /** USB HID country codes
  */
-#define USB_HID_COUNTRY_NONE     0    /** Not supported */
-#define USB_HID_COUNTRY_AR       1    /** Arabic */
-#define USB_HID_COUNTRY_BE       2    /** Belgian */
+#define USB_HID_COUNTRY_NONE     0    /** Not supported      */
+#define USB_HID_COUNTRY_AR       1    /** Arabic             */
+#define USB_HID_COUNTRY_BE       2    /** Belgian            */
 #define USB_HID_COUNTRY_CA_BI    3    /** Canadian-Bilingual */
 #define USB_HID_COUNTRY_CA_FR    4    /** Canadian-French */
 #define USB_HID_COUNTRY_CZ       5    /** Czech Republic */
