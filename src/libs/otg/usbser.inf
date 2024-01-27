@@ -1,72 +1,66 @@
-;
-; Device installation file for
-; USB 2 COM port emulation
-; Copyright (c) 2006-2014 by SEGGER Microcontroller GmbH & Co. KG
-;
-; This file supports:
-;     Windows 2000
-;     Windows XP
-;     Windows Server 2003 x86, x64
-;     Windows Vista x86, x64
-;     Windows 7 x86,x64
-;     Windows Server 2008 x86,x64
-;     Windows 8 x86,x64
-;     Windows 8.1 x86,x64
-;
+;************************************************************
+; Windows USB CDC ACM Setup File
+; Copyright (c) 2000 Microsoft Corporation
+;************************************************************
+
+[DefaultInstall]
+CopyINF="LUFA DualVirtualSerial.inf"
+
 [Version]
 Signature="$Windows NT$"
 Class=Ports
 ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
 Provider=%MFGNAME%
-DriverVer=03/12/2015,6.0.2600.5
-CatalogFile=usbser.cat
+DriverVer=7/1/2012,10.0.0.0
 
 [Manufacturer]
-%MFGNAME%=CDCDevice,NT,NTamd64
+%MFGNAME%=DeviceList, NTx86, NTamd64, NTia64
+
+[SourceDisksNames]
+
+[SourceDisksFiles]
 
 [DestinationDirs]
-DefaultDestDir = 12
-
-[CDCDevice.NT]
-%DESCRIPTION%=DriverInstall,USB\VID_0483&PID_3752
-
-[CDCDevice.NTamd64]
-%DESCRIPTION%=DriverInstall,USB\VID_0483&PID_3752
+DefaultDestDir=12
 
 [DriverInstall]
 Include=mdmcpq.inf
 CopyFiles=FakeModemCopyFileSection
 AddReg=DriverInstall.AddReg
 
-[DriverInstall.AddReg]
-HKR,,DevLoader,,*ntkern
-HKR,,NTMPDriver,,usbser.sys
-HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
-
 [DriverInstall.Services]
-AddService=usbser, 0x00000002, DriverServiceInst
+Include=mdmcpq.inf
+AddService=usbser, 0x00000002, LowerFilter_Service_Inst
 
-[DriverServiceInst]
-DisplayName=%SERVICE%
-ServiceType=1
-StartType=3
-ErrorControl=1
-ServiceBinary=%12%\usbser.sys
+[DriverInstall.AddReg]
+HKR,,EnumPropPages32,,"msports.dll,SerialPortPropPageProvider"
 
-[SourceDisksNames.amd64]
-1=%DiskName%,,
+;------------------------------------------------------------------------------
+;  Vendor and Product ID Definitions
+;------------------------------------------------------------------------------
+; When developing your USB device, the VID and PID used in the PC side
+; application program and the firmware on the microcontroller must match.
+; Modify the below line to use your VID and PID.  Use the format as shown below.
+; Note: One INF file can be used for multiple devices with different VID and PIDs.
+; For each supported device, append ",USB\VID_xxxx&PID_yyyy" to the end of the line.
+;------------------------------------------------------------------------------
+[DeviceList]
+%DESCRIPTION%=DriverInstall, USB\VID_03EB&PID_204E&MI_01
 
-[SourceDisksFiles.amd64]
+[DeviceList.NTx86]
+%DESCRIPTION%=DriverInstall, USB\VID_03EB&PID_204E&MI_01
 
-[SourceDisksNames.x86]
-1=%DiskName%,,
+[DeviceList.NTamd64]
+%DESCRIPTION%=DriverInstall, USB\VID_03EB&PID_204E&MI_01
 
-[SourceDisksFiles.x86]
+[DeviceList.NTia64]
+%DESCRIPTION%=DriverInstall, USB\VID_03EB&PID_204E&MI_01
 
-[FakeModemCopyFileSection]
-
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+;Modify these strings to customize your device
+;------------------------------------------------------------------------------
 [Strings]
-MFGNAME = "ALTOLATES"
-DESCRIPTION = "USB CDC serial port emulation"
-SERVICE = "USB CDC serial port emulation"
-DiskName="CDC Installation Disk"
+MFGNAME="http://www.lufa-lib.org"
+DESCRIPTION="LUFA CDC-ACM Virtual Serial Port"

@@ -50,17 +50,18 @@
 
 #include "usbd_storage.h"
 #include "FAT_TAB.h"
-#include "uc.h"
+#include "usbdef.h"
+#include "usbd_msc_scsi.h"
 
 
-byte TestBuffer[ SECTOR_SIZE ] =
+static byte TestBuffer[ SECTOR_SIZE ] =
   "We choose to go to the moon in this decade and do the other things,\r\n"
   "not because they are easy, but because they are hard.\r\n"
   " -- John F. Kennedy, 1962";
 
 /* USB Mass storage Standard Inquiry Data
  */
-schar STORAGE_Inquirydata[] =   /* 36 */
+static const schar mscInquirydata[] =   /* 36 */
 { 0x00 /* LUN 0 */
 , 0x80
 , 0x02
@@ -69,7 +70,7 @@ schar STORAGE_Inquirydata[] =   /* 36 */
 , 0x00
 , 0x00
 , 0x00
-, 'l', 'i', 'b', 'O', 'T', 'G', '.', '.' /* Manufacturer: 8 bytes  */
+, 'l', 'i', 'b', 'O', 'T', 'G', ' ', ' ' /* Manufacturer: 8 bytes  */
 , 'a', 'l', 't', 'o', 'm', 'a', 'l', 't' /* Product     : 16 Bytes */
 , 'e', 's', ' ', ' ', ' ', ' ', ' ', ' '
 , '0', '.', '0', '1',                     /* Version     : 4 Bytes  */
@@ -84,56 +85,67 @@ schar STORAGE_Inquirydata[] =   /* 36 */
   * @param  blk_len: Blocks number
   * @retval Status (0: OK / -1: Error)
   */
-short STORAGE_Read( dword   lun
-                  , void * buf1
-                  , dword  blk_addr
-                  , dword  blk_len )
+static short mscRead( dword   lun
+                    , void * buf1
+                    , dword  blk_addr
+                    , dword  blk_len )
 { dword blk_addr_offset= 0;
   dword blk_copy_number= 0;
   byte * buf= (byte *)buf1;
-
 
   if ( lun == 0 )
   { do
     { if(blk_addr == BOOT_TABLE_SECTOR_IDX)
       { blk_copy_number = 1;
-        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), BOOT_TABLE, BOOT_TABLE_USED_SIZE);
-        memset( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + BOOT_TABLE_USED_SIZE, 0, BOOT_TABLE_SIZE - BOOT_TABLE_USED_SIZE);
-        (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[ BOOT_TABLE_SIZE - 2 ] = 0x55;
-        (buf + SECTOR_IDX_TO_ADDR(blk_addr_offset))[ BOOT_TABLE_SIZE - 1 ] = 0xAA;
+        memcpy( buf + SECTOR_IDX_TO_ADDR( blk_addr_offset ) , BOOT_TABLE, BOOT_TABLE_USED_SIZE );
+        memset( buf + SECTOR_IDX_TO_ADDR( blk_addr_offset ) + BOOT_TABLE_USED_SIZE, 0, BOOT_TABLE_SIZE - BOOT_TABLE_USED_SIZE);
+              ( buf + SECTOR_IDX_TO_ADDR( blk_addr_offset ))[ BOOT_TABLE_SIZE - 2 ] = 0x55;
+              ( buf + SECTOR_IDX_TO_ADDR( blk_addr_offset ))[ BOOT_TABLE_SIZE - 1 ] = 0xAA;
       }
 
       else if( blk_addr < FAT2_TABLE_SECTOR_IDX)
       { blk_copy_number = (FAT2_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : FAT2_TABLE_SECTOR_IDX - blk_addr;
-        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
+        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+              , FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT1_TABLE_SECTOR_IDX)
+              , SECTORS_CONV_BYTES(blk_copy_number));
       }
 
       else if( blk_addr < ROOT_TABLE_SECTOR_IDX)
       { blk_copy_number = (ROOT_TABLE_SECTOR_IDX - blk_addr > blk_len) ? blk_len : ROOT_TABLE_SECTOR_IDX - blk_addr;
-        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
+        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+              , FATn_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - FAT2_TABLE_SECTOR_IDX)
+              , SECTORS_CONV_BYTES( blk_copy_number ));
       }
 
       else if( blk_addr < FATFS_TOTAL_SECTORS)
       { blk_copy_number = (FATFS_TOTAL_SECTORS - blk_addr > blk_len) ? blk_len : FATFS_TOTAL_SECTORS - blk_addr;
-        memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), ROOT_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - ROOT_TABLE_SECTOR_IDX), SECTORS_CONV_BYTES(blk_copy_number));
+        memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+              , ROOT_TABLE + SECTOR_IDX_TO_ADDR(blk_addr - ROOT_TABLE_SECTOR_IDX)
+              , SECTORS_CONV_BYTES(blk_copy_number));
       }
 
       else    /* README.TXT */
       { if ( blk_addr < README_SECT_IDX + README_SECT_NUM)
         { if(blk_addr == README_SECT_IDX + README_SECT_NUM - 1)  /* END OF FILE */
           { blk_copy_number = 1;
-            memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), README_DATA + SECTORS_CONV_BYTES(README_SECT_NUM - 1), README_TAIL_LEN);
-            memset(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + README_TAIL_LEN, 0, SECTOR_SIZE - README_TAIL_LEN);
+            memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+                  , README_DATA + SECTORS_CONV_BYTES(README_SECT_NUM - 1)
+                  , README_TAIL_LEN);
+            memset( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset) + README_TAIL_LEN
+                  , 0, SECTOR_SIZE - README_TAIL_LEN);
            }
            else
            { blk_copy_number = (README_SECT_IDX + README_SECT_NUM - blk_addr - 1 > blk_len) ? blk_len : README_SECT_IDX + README_SECT_NUM - blk_addr - 1;
-             memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), README_DATA + SECTOR_IDX_TO_ADDR(blk_addr - README_SECT_IDX), SECTORS_CONV_BYTES(blk_copy_number));
+             memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+                   , README_DATA + SECTOR_IDX_TO_ADDR(blk_addr - README_SECT_IDX)
+                   , SECTORS_CONV_BYTES( blk_copy_number ));
          }  }
 
          else /* DATA IN FLASH */
-         { if(blk_addr == README_SECT_IDX + README_SECT_NUM)
+         { if ( blk_addr == README_SECT_IDX + README_SECT_NUM )
            { blk_copy_number = 1;
-             memcpy(buf + SECTOR_IDX_TO_ADDR(blk_addr_offset), TestBuffer, SECTORS_CONV_BYTES(blk_copy_number));
+             memcpy( buf + SECTOR_IDX_TO_ADDR(blk_addr_offset)
+                   , TestBuffer, SECTORS_CONV_BYTES( blk_copy_number ));
            }
            else
            { blk_copy_number = blk_len;
@@ -158,10 +170,10 @@ short STORAGE_Read( dword   lun
   * @param  blk_len: Blocks number
   * @retval Status (0 : OK / -1 : Error)
   */
-short STORAGE_Write( dword  lun
-                   , const void *buf
-                   , dword blk_addr
-                   , dword blk_len )
+static short mscWrite( dword  lun
+                          , const void *buf
+                          , dword blk_addr
+                          , dword blk_len )
 { dword blk_addr_offset = 0;
   dword blk_wrte_number = 0;
   if ( lun == 0 )
@@ -225,47 +237,48 @@ short STORAGE_Write( dword  lun
   * @param  lun: Logical unit number + opeartion << 8
   * @retval Status (0: OK / -1: Error)
   */
-short STORAGE_Ioctl( dword opcode, ... )
-{ switch( opcode & USB_IOCTL_MASK )
-  { case USB_IOCTL_INIT       :
-    case USB_IOCTL_ISREADY    :
-    case USB_IOCTL_IS_WP      :
+static short mscIoctl( dword opcode, ... )
+{ va_list ap;
+  va_start( ap, opcode );
+
+  switch( opcode & USB_IOCTL_MASK )
+  { case USB_IOCTL_INIT   :
+    case USB_IOCTL_ISREADY:
+    case USB_IOCTL_IS_WP  :
     break;
 
     case USB_IOCTL_GET_LUN  :
+    { unsigned char * ptr= va_arg( ap, unsigned char  * );
+      *ptr= 0;
+    }
     break;
 
     case USB_IOCTL_INQUIRY:  /// !! advance to the LUN
-    { va_list ap;
-      va_start( ap, opcode );
-
-      void ** ptr= va_arg( ap, void ** );
-      *ptr= STORAGE_Inquirydata;
-
-      va_end( ap );
+    { void ** ptr= va_arg( ap, void ** );
+      *ptr= mscInquirydata;
     }
     break;
 
     case USB_IOCTL_GETCAP:
-    { va_list ap;
-      va_start( ap, opcode );
-
-      dword * ptr;
+    { dword * ptr;
 
       ptr= va_arg( ap, dword * ); *ptr= TOTAL_SECTORS;
       ptr= va_arg( ap, dword * ); *ptr= SECTOR_SIZE;
-
-      va_end( ap );
     }
     break;
   }
 
-
+  va_end( ap );
   return( 0 );
 }
 
-USBDdriverRec stor=
-{ STORAGE_Read
-, STORAGE_Write
-, STORAGE_Ioctl
+extern const USBDclassDefREC USBD_MSC_cb;
+
+
+MSCdriverRec mscHandle=
+{ driver : &USBD_MSC_cb
+, Ioctl  : mscIoctl
+, Read   : mscRead
+, Write  : mscWrite
 };
+

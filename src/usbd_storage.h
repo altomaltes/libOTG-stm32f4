@@ -52,11 +52,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_msc.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-extern USBDdriverRec USBD_DISK_fops;
+extern MSCdriverRec storeHandle;
+
 
 #endif /* __USBD_STORAGE_H_ */
 

@@ -129,14 +129,14 @@ USBH_DevDesc_TypeDef;
 
 
 typedef struct
-{ byte   bLength;
-  byte   bDescriptorType;
-  word  wTotalLength;         /* Total Length of Data Returned */
-  byte   bNumInterfaces;      /* Number of Interfaces */
-  byte   bConfigurationValue; /* Value to use as an argument to select this configuration*/
-  byte   iConfiguration;      /*Index of String Descriptor Describing this configuration */
-  byte   bmAttributes;        /* D7 Bus Powered , D6 Self Powered, D5 Remote Wakeup , D4..0 Reserved (0)*/
-  byte   bMaxPower;           /*Maximum Power Consumption */
+{ byte bLength;
+  byte bDescriptorType;
+  word wTotalLength;         /* Total Length of Data Returned */
+  byte bNumInterfaces;      /* Number of Interfaces */
+  byte bConfigurationValue; /* Value to use as an argument to select this configuration*/
+  byte iConfiguration;      /*Index of String Descriptor Describing this configuration */
+  byte bmAttributes;        /* D7 Bus Powered , D6 Self Powered, D5 Remote Wakeup , D4..0 Reserved (0)*/
+  byte bMaxPower;           /*Maximum Power Consumption */
 }
 USBH_CfgDesc_TypeDef;
 
@@ -148,22 +148,25 @@ USBH_CfgDesc_TypeDef;
 enum
 { USB_IOCTL_NULL   = 0x00000000
 , USB_IOCTL_INIT   = 0x00010000
-, USB_IOCTL_GETCAP = 0x00020000
-, USB_IOCTL_ISREADY= 0x00030000
-, USB_IOCTL_IS_WP  = 0x00040000
-, USB_IOCTL_GET_LUN= 0x00050000
-, USB_IOCTL_INQUIRY= 0x00060000
+, USB_IOCTL_DEINIT = 0x00020000
+, USB_IOCTL_GETCAP = 0x00030000
+, USB_IOCTL_ISREADY= 0x00040000
+, USB_IOCTL_IS_WP  = 0x00050000
+, USB_IOCTL_GET_LUN= 0x00060000
+, USB_IOCTL_INQUIRY= 0x00070000
+, USB_IOCTL_COMMAND= 0x00020000
 
 , USB_IOCTL_MASK   = 0xFFFF0000
 } USBDioctlEnum;
 
 typedef struct
-{ short (* Read  ) ( dword lun,       void * buf, dword blk_addr, dword blk_len );
+{ short (* Ioctl ) ( dword lun, ... );
+  short (* Read  ) ( dword lun,       void * buf, dword blk_addr, dword blk_len );
   short (* Write ) ( dword lun, const void * buf, dword blk_addr, dword blk_len );
-  short (* Ioctl ) ( dword lun, ... );
 } USBDdriverRec;
 
 
+extern byte OTGscratch[ CFG_SCRATCH_SIZE ];
 
 
 #endif

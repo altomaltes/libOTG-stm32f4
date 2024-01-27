@@ -36,11 +36,12 @@
   #define dword unsigned int
   #define qword unsigned long long
 
+  #undef NULL
   #define  NULL   ((void*)0)
 
   #define  SECTION( sec  ) __attribute__ ((section( sec )))
   #define       WEAK       __attribute__ ((weak          ))
-  #define  INTERRUPT       __attribute__ ((interrupt     ))
+  #define  INTERRUPT       __attribute__ ((interrupt     )) void
   #define      NAKED       __attribute__ ((naked         ))
   #define     PACKED       __attribute__ ((packed        ))
 
@@ -305,6 +306,10 @@ dword SET_SYSCLK_HZ( dword hz, dword xtal );
 
 
 
+
+#define SWAPBYTE( addr ) (((word)(*((byte *)(addr)))) +  (((word)(*(((byte *)(addr)) + 1))) << 8))
+#define LOBYTE(x)        ((byte)((x) & 0x00FF))
+#define HIBYTE(x)        ((byte)(((x) & 0xFF00) >>8))
 
 
 

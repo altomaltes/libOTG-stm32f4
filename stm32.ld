@@ -89,22 +89,21 @@ ENTRY( resetHandler ) /* Entry Point */
 /*   SCB_ACTRL = 0xE000E008;  /* System control block ACTLR */
 
 /* JACS, sophisticated "weak". Chooses handler based on initializer, so dead code can be removed, extendable to two cores
+OTG_HSirqHnd = USBinitOTG  ? USBIrqHandlerOTG
+             : USBinitDEV  ? USBIrqHandlerDEV
+             : USBinitHOST ? USBIrqHandlerHOST
+             : irqHnd ;
+
+OTG_FSirqHnd = USBinitOTG  ? USBIrqHandlerOTG
+             : USBinitDEV  ? USBIrqHandlerDEV
+             : USBinitHOST ? USBIrqHandlerHOST
+             : irqHnd ;
+
  */
-
-OTG_HSirqHnd = USBinitOTG ? USBIrqHandlerOTG
-             : USBinitDEV   ? USBIrqHandlerDEV
-             : USBinitHOST   ? USBIrqHandlerHOST
-             : irqHnd ;
-
-OTG_FSirqHnd = USBinitOTG ? USBIrqHandlerOTG
-             : USBinitDEV   ? USBIrqHandlerDEV
-             : USBinitHOST   ? USBIrqHandlerHOST
-             : irqHnd ;
-
 
 
 HEAP_GAP  = DEFINED(  __HEAP_SIZE ) ? __HEAP_SIZE  : 0x0200;      /* required amount of heap  */
-STACK_GAP = DEFINED( __STACK_SIZE ) ? __STACK_SIZE : 0x0400;      /* required amount of stack */
+STACK_GAP = DEFINED( __STACK_SIZE ) ? __STACK_SIZE : 0x0500;      /* required amount of stack */
 
 FLASH_START = 0x08000000;
 RAM_START   = 0x20000000;
