@@ -124,9 +124,9 @@ union STM32_USB_DEVICE$DCTL
 
 union STM32_USB_DEVICE$DSTS
 { volatile struct
-  { dword    SUSPSTS :   1; /** 0x00 Suspend status */
+  { dword    SUSPSTS :   1; /** 0x00 Suspend status   */
     dword    ENUMSPD :   2; /** 0x01 Enumerated speed */
-    dword       EERR :   1; /** 0x03 Erratic error */
+    dword       EERR :   1; /** 0x03 Erratic error    */
     dword            :   4; /** 0x04 */
     dword      FNSOF :  14; /** 0x08 Frame number of the received SOF */
     dword            :  10; /** 0x16 */
@@ -382,11 +382,11 @@ union STM32_USB_GLOBAL$GOTGCTL
     dword    BVALOEN :   1; /**     0x06 B-peripheral session valid override enable */
     dword   BVALOVAL :   1; /**     0x07 B-peripheral session valid override value */
     dword     HNGSCS :   1; /** 0x08 Host negotiation success */
-    dword      HNPRQ :   1; /** 0x09 HNP request */
-    dword    HSHNPEN :   1; /** 0x0A Host set HNP enable */
-    dword     DHNPEN :   1; /** 0x0B Device HNP enabled */
-    dword      EHEN7 :   1; /** 0x0C Embedded host enable */
-    dword            :   3; /** 0x0D */
+    dword      HNPRQ :   1; /** 0x09 HNP request           */
+    dword    HSHNPEN :   1; /** 0x0A Host set HNP enable   */
+    dword     DHNPEN :   1; /** 0x0B Device HNP enabled    */
+    dword      EHEN7 :   1; /** 0x0C Embedded host enable  */
+    dword            :   3; /** 0x0D                       */
     dword     CIDSTS :   1; /** 0x10 Connector ID status */
     dword       DBCT :   1; /** 0x11 Long/short debounce time */
     dword      ASVLD :   1; /** 0x12 A-session valid */
@@ -400,16 +400,16 @@ union STM32_USB_GLOBAL$GOTGCTL
 
 union STM32_USB_GLOBAL$GOTGINT
 { volatile struct
-  { dword            :   2; /** 0x00 */
-    dword      SEDET :   1; /** 0x02 Session end detected */
-    dword            :   5; /** 0x03 */
-    dword    SRSSCHG :   1; /** 0x08 Session request success status change */
+  { dword            :   2; /** 0x00                                        */
+    dword      SEDET :   1; /** 0x02 Session end detected                   */
+    dword            :   5; /** 0x03                                        */
+    dword    SRSSCHG :   1; /** 0x08 Session request success status change  */
     dword    HNSSCHG :   1; /** 0x09 Host negotiation success status change */
-    dword            :   7; /** 0x0A */
-    dword     HNGDET :   1; /** 0x11 Host negotiation detected */
-    dword    ADTOCHG :   1; /** 0x12 A-device timeout change */
-    dword     DBCDNE :   1; /** 0x13 Debounce done */
-    dword            :  12; /** 0x14 */
+    dword            :   7; /** 0x0A                                        */
+    dword     HNGDET :   1; /** 0x11 Host negotiation detected              */
+    dword    ADTOCHG :   1; /** 0x12 A-device timeout change                */
+    dword     DBCDNE :   1; /** 0x13 Debounce done                          */
+    dword            :  12; /** 0x14                                        */
   };
 
   volatile dword atomic;            /** atomic access */
@@ -615,7 +615,7 @@ struct STM32_USB_GLOBAL_ST                          /** 0x50000000 USB on the go
   volatile union STM32_USB_GLOBAL$GRXSTSR GRXSTSP;     /** 0x20 RST: 0x00000000 OTG_FS Receive status debug read(Host mode) */
   volatile struct STM32_USB_GLOBAL$GRXFSIZ GRXFSIZ;    /** 0x24 RST: 0x00000200 OTG_FS Receive FIFO size register (OTG_GRXFSIZ) */
 
-  volatile struct STM32_USB_GLOBAL$FIFOMEM GNPTXFSIZ;  /** 0x28 RST: 0x00000200 OTG_FS non-periodic transmit FIFO size register (Host mode) */
+  volatile struct STM32_USB_GLOBAL$FIFOMEM GNPTXFSIZ;  /** 0x28 RST: 0x00000200 OTG_FS non-periodic transmit FIFO size register (Host mode  ) */
                                                        /** 0x28 RST: 0x00000200 OTG_FS non-periodic transmit FIFO size register (Device mode) */
 
   volatile union STM32_USB_GLOBAL$GNPTXSTS GNPTXSTS;   /** 0x2C RST: 0x00080200 OTG_FS non-periodic transmit FIFO/queue status register (OTG_GNPTXSTS) */
@@ -626,8 +626,8 @@ struct STM32_USB_GLOBAL_ST                          /** 0x50000000 USB on the go
   volatile union STM32_USB_GLOBAL$CID     CID;         /** 0x3C RST: 0x00001000 core ID register */
    dword            gap$40[ 48 ];                      /** 0x40 Unused register */
 
-  volatile struct STM32_USB_GLOBAL$FIFOMEM GHPTXFSIZ[ 1 ]; /** 0x100 RST: 0x02000600 OTG_FS Host periodic transmit FIFO size register (OTG_GHPTXFSIZ) */
-  volatile struct STM32_USB_GLOBAL$FIFOMEM DIEPTXF[  3 ]; /** 0x104 RST: 0x02000400 OTG_FS device IN endpoint transmit FIFO size register (OTG_DIEPTXF2) */
+  volatile struct STM32_USB_GLOBAL$FIFOMEM HPERTXF[ 1 ]; /** 0x100 RST: 0x02000600 OTG_FS Host periodic transmit FIFO size register (OTG_GHPTXFSIZ) */
+  volatile struct STM32_USB_GLOBAL$FIFOMEM DIEPTXF[ 3 ]; /** 0x104 RST: 0x02000400 OTG_FS device IN endpoint transmit FIFO size register (OTG_DIEPTXF2) */
 
    dword          gap$110[ 188 ];    /** 0x110 Unused memory */
 };

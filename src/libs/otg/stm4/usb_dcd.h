@@ -24,34 +24,27 @@ void  DCDinit          ();
 void  DCDdone          ();
 void  DCDdevConnect   ();
 void  DCDdevDisconnect();
-void  USBDepAction     ( byte epNum, short(*doIt)( word ep ) );
-void  USBDepTimer      ( byte epAddr, word interval );
 dword DCD_Handle_ISR   ();
 
 /* --------------- INT ----------------------
  */
 word  handleSofDevISR   ( word frame );  /** 0x03 Start of frame */
-word  USBdevGotSuspended( byte status );
-void  USBdevGotResumed  ( void );
-word  handleSofDevISR   ( word frNum );  /** 0x03 Start of frame */
 
-schar USBDdataOutStage    ( byte epnum );
-schar USBDdataInStage     ( byte epnum );
-schar USBDsetupStage      ( );
+short USBDdataOutStage    ( byte epnum );
+short USBDdataInStage     ( byte epnum );
+short USBDsetupStage      ( );
 
-schar USBDreset           ( );
-schar USBDsuspend         ( );
-schar USBDresume          ( );
-schar USBDisoINIncomplete ( );
-schar USBDisoOUTIncomplete( );
+short USBDreset           ( );
+short USBDsuspend         ( );
+short USBDresume          ( );
+short USBDisoINIncomplete ( );
+short USBDisoOUTIncomplete( );
 
-schar USBD_DevConnected   ( );
-schar USBD_DevDisconnected( );
+short USBD_DevConnected   ( );
+short USBD_DevDisconnected( );
 
-dword USBD_OTG_EP1OUT_ISR_Handler();
-dword USBD_OTG_EP1IN_ISR_Handler ();
-
-
+short USBD_OTG_EP1OUT_ISR_Handler();
+short USBD_OTG_EP1IN_ISR_Handler ();
 
 
 #endif

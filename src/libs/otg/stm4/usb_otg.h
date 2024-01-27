@@ -23,11 +23,6 @@
 #include "usb_dcd.h"
 
 
-//void USB_OTG_InitiateSRP(void);
-//void USB_OTG_InitiateHNP(uint8_t state , uint8_t mode);
-//void USB_OTG_Switchback (USB_OTG_CORE_DEVICE *pdev);
-//uint32_t  USB_OTG_GetCurrentState (USB_OTG_CORE_DEVICE *pdev);
-
 void * USBinitOTG( dword vbusPin );
 
 

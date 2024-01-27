@@ -29,11 +29,11 @@ void USB_OTG_BSP_Resume(  ) /*  switch-off the clocks */
   STM32F4.USB.PWRCLK.FS_PCGCCTL.PHYSUSP = 0; /** 0x04 PHY Suspended */
   STM32F4.USB.PWRCLK.FS_PCGCCTL.GATEHCLK= 1; /** 0x01 Gate HCLK */
 
-  STM32F4.USB.HOST.HPRT.PENA   =    /** 0x02 Port enable                */
-  STM32F4.USB.HOST.HPRT.PCDET  =    /** 0x01 Port connect detected      */
-  STM32F4.USB.HOST.HPRT.PENCHNG=    /** 0x03 Port enable/disable change */
-  STM32F4.USB.HOST.HPRT.POCCHNG= 0; /** 0x05 Port overcurrent change    */
-  STM32F4.USB.HOST.HPRT.PSUSP  = 0; /** 0x07 Port suspend */
+  STM32F4.USB.HOST.HPRT.PENA   =             /** 0x02 Port enable                */
+  STM32F4.USB.HOST.HPRT.PCDET  =             /** 0x01 Port connect detected      */
+  STM32F4.USB.HOST.HPRT.PENCHNG=             /** 0x03 Port enable/disable change */
+  STM32F4.USB.HOST.HPRT.POCCHNG= 0;          /** 0x05 Port overcurrent change    */
+  STM32F4.USB.HOST.HPRT.PSUSP  = 0;          /** 0x07 Port suspend */
 
   STM32F4.USB.HOST.HPRT.PRST   = 1; mDelay(100);  /** 0x08 Port reset */
   STM32F4.USB.HOST.HPRT.PRST   = 0;              /** 0x08 Port reset */
@@ -65,70 +65,37 @@ void USB_OTG_BSP_Suspend()
   * @param  None
   * @retval : status
   */
-word handleOtgISR()
-{ if ( STM32F4.USB.GLOBAL.GOTGINT.SEDET )  /** 0x02 Session end detected */
-  { if ( usbOTGgetMode() == HOST_MODE )
-    {
-    }
-    else
-    {
+static void handleOtgISR()
+{ union STM32_USB_GLOBAL$GOTGINT INT= STM32F4.USB.GLOBAL.GOTGINT;
+  STM32F4.USB.GLOBAL.GOTGINT= INT; /* ACK interrupts */
 
+  if ( INT.SEDET )                           /** 0x02 Session end detected */
+  { usbDevEvent( USB_DEV_DISCON, NULL );
+  }
+
+  if ( INT.SRSSCHG )                         /** 0x08 Session request success status change */
+  { if ( STM32F4.USB.GLOBAL.GOTGCTL.SRQSCS ) /** 0x00 Session request success */
+    { STM32F4.USB.GLOBAL.GOTGCTL.SRQ= 1;     /** 0x01 Session request */
+    }
+    else                                     /* Session request failure                                          */
+    {
   } }
 
-  return( 0 );
-
-/* ----> SRP SUCCESS or FAILURE INTERRUPT <----
- */
-  if ( STM32F4.USB.GLOBAL.GOTGINT.SRSSCHG ) /** 0x08 Session request success status change */
-  { if ( STM32F4.USB.GLOBAL.GOTGCTL.SRQSCS ) /** 0x00 Session request success */
-    { if ( usbOTGgetMode() != HOST_MODE )
-      {
-      }
-
-      STM32F4.USB.GLOBAL.GOTGCTL.SRQ= 1; /** 0x01 Session request */
-    }
-    else /* Session request failure                                          */
-    { if ( usbOTGgetMode() != HOST_MODE )
-      {
-  } } }
-
-  /* ----> HNP SUCCESS or FAILURE INTERRUPT <---- */
-  if ( STM32F4.USB.GLOBAL.GOTGINT.HNSSCHG )     /** 0x09 Host negotiation success status change */
-  { if ( STM32F4.USB.GLOBAL.GOTGCTL.HNGSCS ) /** 0x08 Host negotiation success */
-    { if ( usbOTGgetMode() == HOST_MODE )             /* The core AUTOMATICALLY sets the Host mode                        */
-      {
-    } }
-
-    else                                                        /* Host negotiation failure */
-    {
-    }
-
-    STM32F4.USB.GLOBAL.GOTGINT.HNSSCHG= 1;     /* Ack "Host Negotiation Success Status Change" interrupt.          */
+  if ( INT.HNSSCHG )                          /** 0x09 Host negotiation success status change */
+  {
   }
 
-/* ----> HOST NEGOTIATION DETECTED INTERRUPT <----
- */
-  if ( STM32F4.USB.GLOBAL.GOTGINT.HNGDET ) /** 0x11 Host negotiation detected */
-  { if ( usbOTGgetMode() == HOST_MODE  )    /* The core AUTOMATICALLY sets the Host mode   */
-    {
-    }
-    else
-    {
-    }
-    STM32F4.USB.GLOBAL.GOTGINT.HNGDET= 1;
+  if ( INT.HNGDET ) /** 0x11 Host negotiation detected */
+  {
   }
 
-  if ( STM32F4.USB.GLOBAL.GOTGINT.ADTOCHG )  /** 0x12 A-device timeout change */
-  { STM32F4.USB.GLOBAL.GOTGINT.ADTOCHG= 1;
+  if ( INT.ADTOCHG )  /** 0x12 A-device timeout change */
+  {
   }
 
-  if ( STM32F4.USB.GLOBAL.GOTGINT.DBCDNE ) /** 0x13 Debounce done */
+  if ( INT.DBCDNE ) /** 0x13 Debounce done */
   {// USBHresetPort();
-    STM32F4.USB.GLOBAL.GOTGINT.DBCDNE= 1;   /* Clear OTG INT */
-  }
-
-  return 1;
-}
+} }
 
 
 /**
@@ -192,17 +159,7 @@ void USB_OTG_InitiateHNP( byte state, byte mode )
 
 
 //static void OTGenableInts()
-//{ //STM32F4.USB.GLOBAL.GOTGINT.SEDET=     /** 0x02 Session end detected */
- // STM32F4.USB.GLOBAL.GOTGINT.SRSSCHG=   /** 0x08 Session request success status change */
- // STM32F4.USB.GLOBAL.GOTGINT.HNSSCHG=   /** 0x09 Host negotiation success status change */
- // STM32F4.USB.GLOBAL.GOTGINT.HNGDET=    /** 0x11 Host negotiation detected */
- // STM32F4.USB.GLOBAL.GOTGINT.ADTOCHG=   /** 0x12 A-device timeout change */
- // STM32F4.USB.GLOBAL.GOTGINT.DBCDNE= 1; /** 0x13 Debounce done */
-
- // STM32F4.USB.GLOBAL.GINTMSK.SRQIM=       /** 0x1E Session request/new session detected interrupt mask */
- // STM32F4.USB.GLOBAL.GINTMSK.OTGINTM=     /** 0x02 OTG interrupt mask */
- // STM32F4.USB.GLOBAL.GINTMSK.CIDSCHGM= 1; /** 0x1C Connector ID status change mask */
-
+//{
 /* initialize OTG features
  */
 
@@ -228,21 +185,6 @@ byte USB_OTG_GetCurrentState ()
 }
 
 /**
-  * @brief  USBinitOTG
-  *         Return current OTG State
-  * @param  None
-  * @retval : None
-  */
-void * USBinitOTG( dword vbusPin )
-{ OTGselectCore( vbusPin );
-  usbOTGenableCommonInt( OTG_MODE );
-
-  return( &USBIrqHandlerOTG );     /* Be sure is linked */
-}
-
-
-
-/**
  * @brief  handleConIDStChgISR
  *         handles the Connector ID Status Change Interrupt
  * @param  None
@@ -251,27 +193,26 @@ void * USBinitOTG( dword vbusPin )
 void handleConIDStChgISR()
 { if ( STM32F4.USB.GLOBAL.GOTGCTL.CIDSTS ) /** 0x10 Connector ID status */
   { USBHdriveVbus( 0 );                      /* Only has sense over OTG */
+    parseDeviceConfig( OTGscratch );         /* Build the  device table */
     USBDcoreInit( USBdeviceDesc.epSizes );   /* B-Device connector (Device Mode) */
   }
   else
-  { OTGselectCore( 0xFFFFFFFF );
+  { OTGselectCore( USB_KEEP_PCONF ); /* Keep flags */
     USBHcoreInit();
 } }
-
 
 /**
  * @brief  USBIrqHandlerOTG
  *         This function handles all USB Interrupts
  * @retval status
  */
-INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
+static void USBIrqHandlerOTG( dword core )
 { union STM32_USB_GLOBAL$GINTSTS INTS= STM32F4.USB.GLOBAL.GINTSTS; /* Read atomically */
 
   STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* Clear stored interrupts, allow new ones */
 
   if (( INTS.atomic &= STM32F4.USB.GLOBAL.GINTMSK.atomic ))
-  {
-    if ( INTS.CIDSCHG )            /* Less probable, but void any other */
+  { if ( INTS.CIDSCHG )            /* Less probable, but void any other */
     { handleConIDStChgISR();                   /** 0x1C Connector ID status change */
       STM32F4.USB.GLOBAL.GINTSTS.CIDSCHG= 0;   /* Keep listening to connecor change */
       STM32F4.USB.GLOBAL.GINTMSK.CIDSCHG= 1;
@@ -313,10 +254,10 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
     else                                               /* Device mode */
     { if ( INTS.RXFLVL       ) handleCanReadDEV   ();    /** 0x04 RxFIFO non-empty */
       if ( INTS.INCOMPISOOUT ) handleIsoOUTcopmISR();    /** 0x15 Incomplete isochronous OUT transfer(Device mode) */
-      if ( INTS.SOF          )                           /** 0x03 Start of frame */
+
+      if ( INTS.SOF && USB_DEV.deviceStatus >= USB_OTG_CONFIGURED )  /** 0x03 Start of frame  */
       { handleSofDevISR( STM32F4.USB.HOST.HFNUM.FRNUM );
     } }
-
 
 /* OTG events, less probable
  */
@@ -324,4 +265,23 @@ INTERRUPT void USBIrqHandlerOTG( /*dword core */ )
     if ( INTS.SRQINT  ) { handleSessnReqISR  (); } /** 0x1E Session request/new session detected interrupt */
 } }
 
+/**
+  * @brief  USBinitOTG
+  *         Return current OTG State
+  * @param  None
+  * @retval : None
+  */
+void * USBinitOTG( dword vbusPin )
+{ USBirqHnd= USBIrqHandlerOTG;       /* Link suitable irq handler */
+
+  OTGselectCore( vbusPin );
+  usbOTGenableCommonInt( OTG_MODE );
+
+  return( &USBIrqHandlerOTG );     /* Be sure is linked */
+}
+
+void (*USBirqHnd)( dword core );
+
+INTERRUPT OTG_HSirqHnd() { USBirqHnd( 0x40040000 ); }
+INTERRUPT OTG_FSirqHnd() { USBirqHnd( 0x50000000 ); }
 

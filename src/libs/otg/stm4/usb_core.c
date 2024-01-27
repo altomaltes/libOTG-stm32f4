@@ -18,7 +18,7 @@
 #include "usb_core.h"
 #include "stm32f4.h"
 
-USB_OTG_CORE_HANDLE USB_OTG_Core;
+struct USB_OTG_CORE_HANDLE USB_OTG_Core;
 
 /**
  * @brief  USB_OTG_CoreReset : Soft reset of the core
@@ -51,11 +51,11 @@ static schar USB_OTG_CoreReset(  )
  * @retval schar : status
  */
 short OTGwritePacket( const void * buff
-                    , byte   ch_ep_num
-                    , word   len )
+                    , byte         ChEpNum
+                    , word         len )
 { if ( !USB_OTG_Core.dmaEnable )
   { dword * src= (dword *)buff;
-    volatile dword * fifo= (dword*)(STM32F4.USB.FIFOMEM + ch_ep_num);
+    volatile dword * fifo= STM32F4.USB.FIFOMEM[ ChEpNum ];
 
     len += 3; len /= 4;  while( len-- )  /* Quantize to dword */
     { *fifo= *src++;
@@ -72,9 +72,9 @@ short OTGwritePacket( const void * buff
  * @retval None
  */
 void * OTGreadPacket( void * buff
-                         , word len )
+                    , word len )
 { dword * dst= (dword *)buff;
-  volatile dword * fifo= (dword*)STM32F4.USB.FIFOMEM;
+  volatile dword * fifo= STM32F4.USB.FIFOMEM[ 0 ];
 
   len += 3; len /= 4; while( len-- )       /* Quantize to dword */
   { *dst++ = *fifo;
@@ -155,7 +155,8 @@ void * OTGreadPacket( void * buff
  * @retval schar : status
  */
 short OTGselectCore( dword flags )
-{ USB_OTG_Core.vbusPin  = flags == 0xFFFFFFFF ? USB_OTG_Core.vbusPin : flags ;
+{ USB_OTG_Core.vbusPin= flags= ( flags == USB_KEEP_PCONF )
+                        ? USB_OTG_Core.vbusPin : flags ;
   USB_OTG_Core.dmaEnable= 0;
 
   DEVICE_ENABLE( RCC_SYSCFG ); // ???
@@ -194,7 +195,7 @@ short OTGselectCore( dword flags )
      USB_OTG_Core.dmaEnable       = 1;
 #endif
 
-      if ( flags &  USB_ULPI_PHY )   /* External interface */
+      if ( flags & USB_ULPI_PHY )   /* External interface */
       { PIN_MODE( PORTPIN( PORTA,  5 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* FS_DM   */
         PIN_MODE( PORTPIN( PORTA,  3 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* FS_DM   */
         PIN_MODE( PORTPIN( PORTB,  0 ), GPIO_OUT | GPIO_FAIR  | GPIO_FAST | AF_OTG_FS );  /* D1   */
@@ -334,7 +335,8 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
 
   STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0; /* Disable interrupts ( global ) */
 
-  INTS.SOF= 1;
+  INTS.SOF=
+  INTS.OTGINT= 1;
 
 /* Enable interrupts matching to the Device mode ONLY
  */
@@ -344,15 +346,14 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
       { INTS.SRQINT= 1;
       }
 
+      INTS.WKUPINT=     /** 0x1F Resume/remote wakeup detected interrupt mask */
       INTS.SRQINT=
       INTS.USBRST=
       INTS.IEPINT=
       INTS.OEPINT=
-      INTS.USBSUSP=         /** 0x0B USB suspend mask */
+      INTS.USBSUSP=      /** 0x0B USB suspend mask */
       INTS.ENUMDNE=
       INTS.INCOMPISOOUT= 1;
-
-      INTS.WKUPINT= 1;       /** 0x1F Resume/remote wakeup detected interrupt mask */
    //   INTS.ESUSPM= 1;
     break;
 
@@ -368,6 +369,7 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
     return;
 
     case OTG_MODE:
+
 //      INTS.SOF= 1;       /* To detect ID VBUSLESS role change*/
  // INTS.SRQIM=       /** 0x1E Session request/new session detected interrupt mask */
  // INTS.OTGINTM=     /** 0x02 OTG interrupt mask */
@@ -407,7 +409,6 @@ void usbOTGenableCommonInt( byte mode )        /* Give OTG a chance */
 dword usbOTGgetCurrentFrame( word delta )
 { return( ( STM32F4.USB.HOST.HFNUM.FRNUM + delta ) & 0x3FFF ); /** 0x00 Frame number */
 }
-
 
 
 /**

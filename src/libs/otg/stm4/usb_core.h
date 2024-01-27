@@ -51,41 +51,26 @@ enum USB_OTG_SPEED
 #define USB_OTG_EP_RX_NAK    0x2000
 #define USB_OTG_EP_RX_VALID  0x3000
 
-
-typedef struct USB_OTG_handle
-{ byte hostChannels;
-  byte devEndpoints;
-  byte speed;
-  byte dmaEnable;
+struct USB_OTG_CORE_HANDLE
+{ byte  hostChannels;
+  byte  devEndpoints;
+  byte  speed;
+  byte  dmaEnable;
+  word  keepAlive;
   dword vbusPin;
-}
-USB_OTG_CORE_HANDLE;
+};
 
-extern USB_OTG_CORE_HANDLE USB_OTG_Core;
-
-
-/* JACS
- */
-
-void usbDEVgotReset       ( byte speed  );
-void usbDEVgotSuspended   ( byte status );
-void usbDevGotConfigured  ( void );
-void usbDevGotResumed     ( void );
-void usbDevGotConnected   ( void );
-void usbDevGotDisconnected( void );
+extern struct USB_OTG_CORE_HANDLE USB_OTG_Core;
 
 schar  usbOTGflushTxFifo( dword num);
 schar  usbOTGflushRxFifo( );
 
 dword  usbOTGgetMode  ();
-
-
 enum USB_OTG_SPEED usbDEVgetDeviceSpeed();
 
-schar USBDep0Activate ( );
-schar USBDepStartRevc ( byte epAddr );
+short USBDep0Activate ( );
+short USBDepStartRevc ( byte epAddr );
 
-dword usbDEVreadOutEPitr      ( byte epnum);
 void  usbDEVinitSpeed         ( byte speed );
 void  usbDEVactiveRemoteWakeup();
 void  USBDEVungateClock       ();

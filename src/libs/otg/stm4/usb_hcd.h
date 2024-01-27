@@ -24,7 +24,6 @@
 dword  HCDsubmitRequest( byte hcNum, byte dataPid, byte * buff, word len );
 dword  HCDgetCurrentSpeed();
 dword  HCDresetPort      ();
-dword  usbOTGgetCurrentFrame( word delta );
 dword  HCDgetXferCnt     ( byte ch_num );
 
 byte   OTGgetCoreSpeed();

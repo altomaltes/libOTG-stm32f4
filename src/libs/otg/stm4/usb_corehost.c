@@ -48,27 +48,25 @@ schar USBHcoreInit( )
 
 /* Configure data FIFO sizes
  *
- *  Rx FIFO
  */
+
+  STM32F4.USB.GLOBAL.GRXFSIZ.RXFD= USBHostConfig.rxFifoSize; /* set Rx FIFO size */
+
+  STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXSA= USBHostConfig.rxFifoSize;
+  STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXFD= USBHostConfig.txNPSize;
+
+  STM32F4.USB.GLOBAL.HPERTXF[ 0 ].TXSA= USBHostConfig.rxFifoSize
+                                      + USBHostConfig.txNPSize;
+  STM32F4.USB.GLOBAL.HPERTXF[ 0 ].TXFD= USBHostConfig.txPRSize;
+
   if ( (dword)&STM32F4.USB == 0x50000000 )            /* set Rx FIFO size  Full Speed */
-  { STM32F4.USB.GLOBAL.GRXFSIZ.RXFD= RX_FIFO_FS_SIZE; /* set Rx FIFO size */
-
-    STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXSA= RX_FIFO_FS_SIZE;
-    STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXFD= TXH_NP_FS_FIFOSIZ;
-
-    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXSA= RX_FIFO_FS_SIZE + TXH_NP_FS_FIFOSIZ;
-    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXFD= TXH_P_FS_FIFOSIZ;
+  {
   }
 
   else if ( (dword)&STM32F4.USB == 0x40040000 )         /* set Rx FIFO size  High Speed */
-  { STM32F4.USB.GLOBAL.GRXFSIZ.RXFD= RX_FIFO_HS_SIZE;   /* set Rx FIFO size */
-
-    STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXSA= RX_FIFO_HS_SIZE;
-    STM32F4.USB.GLOBAL.DIEPTXF[ 0 ].TXFD= TXH_NP_HS_FIFOSIZ;
-
-    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXSA= RX_FIFO_HS_SIZE + TXH_NP_HS_FIFOSIZ;
-    STM32F4.USB.GLOBAL.GHPTXFSIZ[ 0 ].TXFD= TXH_P_HS_FIFOSIZ;
+  {
   }
+
   else
   { return( -1 );  /* Out of sync */
   }
@@ -217,7 +215,7 @@ schar USBHinitC( byte hcNum
       HC->INTMSK.DTGLERR= 1;
       HC->INTMSK.NAK    = 1;
 
-      if ( epAddr & 0x80 )
+      if ( epAddr & EPDIR_IN )
       { HC->INTMSK.BBERR = 1;
       }
       else
@@ -235,7 +233,7 @@ schar USBHinitC( byte hcNum
       HC->INTMSK.DTGLERR= 1;
       HC->INTMSK.FRMOVRR= 1;
 
-      if ( epAddr & 0x80 )       // EP is in
+      if ( epAddr & EPDIR_IN )       // EP is in
       { HC->INTMSK.BBERR = 1;
       }
 
@@ -246,7 +244,7 @@ schar USBHinitC( byte hcNum
       HC->INTMSK.FRMOVRR = 1;
       HC->INTMSK.ACK = 1;
 
-      if ( epAddr & 0x80 )       // EP is in
+      if ( epAddr & EPDIR_IN )       // EP is in
       { HC->INTMSK.XACTERR = 1;
         HC->INTMSK.BBERR = 1;
       }
@@ -259,7 +257,7 @@ schar USBHinitC( byte hcNum
 /* Program the HCCHAR register
  */
   HC->CHAR.DAD  = devAddr;
-  HC->CHAR.EPNUM= epAddr &  0x7F;
+  HC->CHAR.EPNUM= epAddr &  EPDIR_MASK;
   HC->CHAR.EPDIR= epAddr >> 0x07;
   HC->CHAR.LSDEV= lowSpeed; // (USB_HOST . hc[ hcNum ].speed == HPRT0_PRTSPD_LOW_SPEED ) ? 1 : 0;
   HC->CHAR.EPTYP= epType;
@@ -715,17 +713,9 @@ void handleChannelISR( )
  *         Handles disconnect event.
  * @retval status
  */
-WEAK byte gotDevDisconnected ()
-{ return( 0 );
-}
-
-
 void handleDisconnectISR()
-{ //STM32F4.USB.GLOBAL.GAHBCFG.GINT= 0;        /* Disasble interrupts */
-  usbHostGotDisconnected( DEFAULT_DEVADDR );
+{ usbHostGotDisconnected( DEFAULT_DEVADDR );
   usbHostDeInit();                              /* Host de-initializations */
-
-//  STM32F4.USB.GLOBAL.GAHBCFG.GINT= 1;        /* Disasble interrupts */
 }
 
 /**
@@ -879,7 +869,7 @@ void hndIncompPerXferISR(  )
  *         This function handles all USB Host Interrupts
  * @retval status
  */
-INTERRUPT void USBIrqHandlerHOST( /* dword core */)
+static void USBIrqHandlerHOST( dword core )
 { union STM32_USB_GLOBAL$GINTSTS INTS= STM32F4.USB.GLOBAL.GINTSTS; /* Read atomically */
 
   STM32F4.USB.GLOBAL.GINTSTS.atomic= 0xFFFFFFFE; /* Clear stored interrupts, allow new ones */
@@ -901,11 +891,20 @@ INTERRUPT void USBIrqHandlerHOST( /* dword core */)
     { handleSofHostISR( STM32F4.USB.HOST.HFNUM.FRNUM );
 } } }
 
+/**
+ * @brief  USBinitHOST
+ *         Host hardware and stack initializations
+ * @retval None
+ */
+void * USBinitHOST( dword vbusPin )
+{ USBirqHnd= USBIrqHandlerHOST;
 
+  OTGselectCore( vbusPin );
+  OTGsetCurrentMode( HOST_MODE ); /* No OTG, force Host Mode */
+  USBHcoreInit();                 /* Start the USB OTG core  */
 
-
-
-
+  return( &USBIrqHandlerHOST );   /* Be sure is linked */
+}
 
 
 
