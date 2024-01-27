@@ -33,8 +33,8 @@
 
 #define USBH_MSC_ERROR_RETRY_LIMIT 10
 
-
-ALIGN_THIS( MSC_Machine_TypeDef MSC_Machine );
+int currDrv=0;
+MassStorageParameter_TypeDef USBH_MSC_Param;
 
 /**
   * @brief  USBH_MSC_ClassRequest
@@ -43,10 +43,10 @@ ALIGN_THIS( MSC_Machine_TypeDef MSC_Machine );
   */
 static schar USBH_MSC_ClassRequest(  )
 { USBH_MSC_Init();
-  USBH_MSC_BOTXferParam.MSCState= USBH_MSC_GET_MAX_LUN;
+  USBH_MSC_Param.xfer.MSCState= USBH_MSC_GET_MAX_LUN;
 
   USBHgetInterface( MS_GET_MAX_LUN, 0
-                  , MSC_Machine.buff, 1 );
+                  , USBH_MSC_Param.dataInBuffer, 1 );
 
   return( 0 );
 }
@@ -60,24 +60,24 @@ static schar USBH_MSC_ClassRequest(  )
 static short USBH_MSC_Handle( byte ep )
 { static byte maxLunExceed= FALSE;
 
-  { switch( USBH_MSC_BOTXferParam.MSCState )
+  { switch( USBH_MSC_Param.xfer.MSCState )
     { case USBH_MSC_CTRL_ERROR_STATE:   /* Issue Clearfeature request !!! */
-        MSC_Machine.maxLun = 0;         /* If GetMaxLun Request not support, assume Single LUN configuration */
+        USBH_MSC_Param.maxLun= 0;         /* If GetMaxLun Request not support, assume Single LUN configuration */
         USBH_ClrFeature( 0x00, USB_Host.Control.hcNumOut );
-        USBH_MSC_BOTXferParam.MSCState= USBH_MSC_TEST_UNIT_READY;
+        USBH_MSC_Param.xfer.MSCState= USBH_MSC_TEST_UNIT_READY;
       break;
 
       case USBH_MSC_GET_MAX_LUN:     /* Issue GetMaxLUN request */
-        MSC_Machine.maxLun= *( MSC_Machine.buff );
+        USBH_MSC_Param.maxLun= *( USBH_MSC_Param.dataInBuffer );
 
-        if (( MSC_Machine.maxLun > 0 )  /* If device has more that one logical unit then it is not supported */
+        if (( USBH_MSC_Param.maxLun > 0 )  /* If device has more that one logical unit then it is not supported */
         &&  (maxLunExceed == FALSE))
         { maxLunExceed = TRUE;
-          usbHostGotDeviceNotSupported();
+          usbHostEvent( USB_HOST_DEV_NOT_SUP, "MSC" );
           return( 0 );
         }
 
-        USBH_MSC_BOTXferParam.MSCState= USBHtestUnitReady(); /* Issue SCSI command TestUnitReady */
+        USBH_MSC_Param.xfer.MSCState= USBHtestUnitReady(); /* Issue SCSI command TestUnitReady */
       break;
 
       case USBH_MSC_RESET:
@@ -99,39 +99,39 @@ static short USBH_MSC_Handle( byte ep )
 }
                                                  /* Next step */
 
-schar USBH_MSC_Machine( byte ep )
+short USBH_MSC_Machine( byte ep )
 {
-  switch( USBH_MSC_BOTXferParam.MSCState )
+  switch( USBH_MSC_Param.xfer.MSCState )
   { case USBH_MSC_TEST_UNIT_READY:     /* Answer to SCSI command TestUnitReady */
-      USBH_MSC_BOTXferParam.MSCState= MSCaskForRequestSense();
+      USBH_MSC_Param.xfer.MSCState= MSCaskForRequestSense( currDrv );
     break;
 
     case USBH_MSC_REQUEST_SENSE:
-      MSrespRequestSense();
-      USBH_MSC_BOTXferParam.MSCState= MSCaskForReadCapacity10();
+      MSrespRequestSense( currDrv );
+      USBH_MSC_Param.xfer.MSCState= MSCaskForReadCapacity10( currDrv );
     break;
 
     case USBH_MSC_READ_CAPACITY10: /* Issue READ_CAPACITY10 SCSI command */
-      MSCrespReadCapacity10();
-      USBH_MSC_BOTXferParam.MSCState= MSCaskForModeSense6();
+      MSCrespReadCapacity10( currDrv );
+      USBH_MSC_Param.xfer.MSCState= MSCaskForModeSense6( currDrv );
     break;
 
     case USBH_MSC_MODE_SENSE6:  /* Issue ModeSense6 SCSI command for detecting if device is write-protected */
-      MSCrespModeSense6();
-      USBH_MSC_BOTXferParam.MSCState= USBH_MSC_DEFAULT_APPLI_STATE;
+      MSCrespModeSense6( currDrv );
+      USBH_MSC_Param.xfer.MSCState= USBH_MSC_DEFAULT_APPLI_STATE;
     break;
 
 /* Tell application about device available, give it a unique ID
  */
     case USBH_MSC_DEFAULT_APPLI_STATE:
-      USBH_MSC_BOTXferParam.MSCState= USBH_MSC_IDLE;
+      USBH_MSC_Param.xfer.MSCState= USBH_MSC_IDLE;
       USBHclassSignaler.classMassStor= 1;
       usbHostGotUserApplication( USBHclassSignaler );  /* | 0x80 << MSC_Machine.hcNumIn | 0x80 << MSC_Machine.hcNumOut  );*/
     return( 0 ); /* do not fallout*/
 
     case USBH_MSC_READ10:
     case USBH_MSC_WRITE10:
-      USBH_MSC_BOTXferParam.MSCState= USBH_MSC_IDLE;
+      USBH_MSC_Param.xfer.MSCState= USBH_MSC_IDLE;
     default: return( 0 );
   }
 
@@ -154,26 +154,26 @@ hostClassLink USBHmscInterfaceInit( USBHdeviceRec * dev, void * handler )
     for( epList= dev->Ep_Desc
        ; epList->bLength
        ; epList++ )
-    { if ( epList->bEndpointAddress & 0x80 )
+    { if ( epList->bEndpointAddress & EPDIR_IN )
       {             MSBulkInEp    = epList->bEndpointAddress;
-        MSC_Machine.MSBulkInEpSize= epList->wMaxPacketSize;
+        USBH_MSC_Param.MSBulkInEpSize= epList->wMaxPacketSize;
       }
       else
       {             MSBulkOutEp    = epList->bEndpointAddress;
-        MSC_Machine.MSBulkOutEpSize= epList->wMaxPacketSize;
+        USBH_MSC_Param.MSBulkOutEpSize= epList->wMaxPacketSize;
     } }
 
 /* Open the new channels
  */
 
-    MSC_Machine.hcNumOut=
+    USBH_MSC_Param.hcNumOut=
      UHOSTopenChannel( MSBulkOutEp
-                     , EPTYPE_BULK, MSC_Machine.MSBulkOutEpSize
+                     , EPTYPE_BULK, USBH_MSC_Param.MSBulkOutEpSize
                      , USBH_MSC_HandleBOTXferOut );
 
-   MSC_Machine.hcNumIn=
+   USBH_MSC_Param.hcNumIn=
     UHOSTopenChannel( MSBulkInEp
-                    , EPTYPE_BULK, MSC_Machine.MSBulkInEpSize
+                    , EPTYPE_BULK, USBH_MSC_Param.MSBulkInEpSize
                     , USBH_MSC_HandleBOTXferIn );
 
     USBH_MSC_ClassRequest();

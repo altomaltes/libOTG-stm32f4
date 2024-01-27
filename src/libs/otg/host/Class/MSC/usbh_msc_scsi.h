@@ -18,12 +18,13 @@
 #ifndef __USBH_MSC_SCSI_H__
 #define __USBH_MSC_SCSI_H__
 
+#include "./usbh_msc_bot.h"
+
 typedef enum
 { USBH_MSC_OK         = 0
 , USBH_MSC_FAIL       = 1
 , USBH_MSC_PHASE_ERROR= 2
-//, USBH_MSC_BUSY       = 3
-}USBH_MSC_Status_TypeDef;
+} USBH_MSC_Status_TypeDef;
 
 typedef enum
 { CMD_UNINITIALIZED_STATE= 0
@@ -34,13 +35,30 @@ typedef enum
 
 
 typedef struct
-{ dword MSCapacity;
+{ byte hcNumIn;  byte MSBulkInEp;  word MSBulkInEpSize;
+  byte hcNumOut; byte MSBulkOutEp; word MSBulkOutEpSize;
+
+  byte maxLun;
+
+  HostCBWPkt_TypeDef USBH_MSC_CBWData;
+  HostCSWPkt_TypeDef USBH_MSC_CSWData;
+
+  dword MSCapacity;
   dword MSSenseKey;
+  dword MSWriteProtect;  // Keep aligned
   word  MSPageLength;
-  byte  MSBulkOutEp;
-  byte  MSBulkInEp;
-  byte  MSWriteProtect;
+
+  USBH_BOTXfer_TypeDef xfer;
+
+  dword  botRemainingDataLength;
+  byte * botDatapointer;
+
+  byte dataInBuffer[  512 ];
+
 } MassStorageParameter_TypeDef;
+
+
+extern MassStorageParameter_TypeDef USBH_MSC_Param;
 
 
 #define OPCODE_TEST_UNIT_READY            0X00
@@ -61,17 +79,19 @@ typedef struct
 #define DISK_WRITE_PROTECTED              0x01
 
 short USBHtestUnitReady();
-short MSCaskForReadCapacity10();
-short MSCaskForModeSense6();
-short MSCrespModeSense6();
-short MSCrespReadCapacity10();
-short MSCaskForRequestSense();
-short MSrespRequestSense();
-short USBH_MSC_Write10( const void *, dword, dword );
-short USBH_MSC_Read10(        void *, dword, dword );
-void USBH_MSC_StateMachine();
+short MSCrespModeSense6(       short pDrv);
+short MSrespRequestSense(      short pDrv);
+short MSCaskForModeSense6(     short pDrv);
+short MSCrespReadCapacity10(   short pDrv);
+short MSCaskForRequestSense(   short pDrv);
+short MSCaskForReadCapacity10( short pDrv );
 
-extern MassStorageParameter_TypeDef USBH_MSC_Param;
+dword USBH_MSCgetCapacity( short pDrv );
+short USBH_MSCwrite10(     short pDrv, const void *, dword, dword );
+short USBH_MSCread10(      short pDrv,       void *, dword, dword );
+
+void  USBH_MSC_StateMachine();
+
 
 
 

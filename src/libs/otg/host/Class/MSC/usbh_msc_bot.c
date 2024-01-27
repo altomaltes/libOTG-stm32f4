@@ -24,20 +24,12 @@
 #define DEVICE_CHANCE_MSECS 100  /* Device reaction time on writes */
 
 
-ALIGN_THIS( HostCBWPkt_TypeDef USBH_MSC_CBWData );
-ALIGN_THIS( HostCSWPkt_TypeDef USBH_MSC_CSWData );
-
-USBH_BOTXfer_TypeDef USBH_MSC_BOTXferParam;
-
-static dword remainingDataLength;
-static byte *datapointer;
-
 void USBH_MSC_Init( )
-{ USBH_MSC_CBWData.field.CBWSignature= USBH_MSC_BOT_CBW_SIGNATURE;
-  USBH_MSC_CBWData.field.CBWTag      = USBH_MSC_BOT_CBW_TAG;
-  USBH_MSC_CBWData.field.CBWLUN      = 0;
+{ USBH_MSC_Param.USBH_MSC_CBWData.field.CBWSignature= USBH_MSC_BOT_CBW_SIGNATURE;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTag      = USBH_MSC_BOT_CBW_TAG;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLUN      = 0;
 
-  USBH_MSC_BOTXferParam.MSCState= USBH_MSC_RESET;
+  USBH_MSC_Param.xfer.MSCState= USBH_MSC_RESET;
 }
 
 
@@ -56,16 +48,17 @@ void USBH_MSC_Init( )
  *     3. dCSWTag matches the dCBWTag from the corresponding CBW.
  */
 
-static byte USBH_MSC_DecodeCSW(  )
-{ if ( HCDgetXferCnt( MSC_Machine.hcNumIn ) != USBH_MSC_CSW_LENGTH )      /* Checking if the transfer length is different than 13 */
+static byte USBH_MSC_DecodeCSW( )
+{ if ( HCDgetXferCnt( USBH_MSC_Param.hcNumIn ) != USBH_MSC_CSW_LENGTH )      /* Checking if the transfer length is different than 13 */
   { return( USBH_MSC_PHASE_ERROR );
   }
 
-  if ( USBH_MSC_CSWData.field.CSWSignature != USBH_MSC_BOT_CSW_SIGNATURE )  /* Check validity of the CSW Signature and CSWStatus */
+  if ( USBH_MSC_Param.USBH_MSC_CSWData.field.CSWSignature != USBH_MSC_BOT_CSW_SIGNATURE )  /* Check validity of the CSW Signature and CSWStatus */
   { return( USBH_MSC_PHASE_ERROR );
   }
 
-  if ( USBH_MSC_CSWData.field.CSWTag != USBH_MSC_CBWData.field.CBWTag )   /* Check Condition 1. dCSWSignature is equal to 53425355h */
+  if ( USBH_MSC_Param.USBH_MSC_CSWData.field.CSWTag
+    != USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTag )   /* Check Condition 1. dCSWSignature is equal to 53425355h */
   { return( USBH_MSC_PHASE_ERROR );
   }
 
@@ -78,8 +71,8 @@ static byte USBH_MSC_DecodeCSW(  )
  * (10) Ho <> Di (Host expects to send data to the device, Di Device intends to send data to the host)
  * (13) Ho < Do (Host expects to send data to the device, Device intends to receive data from the host)
  */
-  if ( USBH_MSC_CSWData.field.CSWStatus != USBH_MSC_OK ) /* Check Condition 3. dCSWTag matches the dCBWTag from the corresponding CBW */
-  { return( USBH_MSC_CSWData.field.CSWStatus );
+  if ( USBH_MSC_Param.USBH_MSC_CSWData.field.CSWStatus != USBH_MSC_OK ) /* Check Condition 3. dCSWTag matches the dCBWTag from the corresponding CBW */
+  { return( USBH_MSC_Param.USBH_MSC_CSWData.field.CSWStatus );
   }
 
   return( USBH_MSC_OK );
@@ -98,20 +91,20 @@ static byte USBH_MSC_DecodeCSW(  )
 /* BOT CSW stage */
 /* NOTE: We cannot reset the BOTStallErrorCount here as it may come from the clearFeature from previous command */
 static void USBH_MSC_HandleBOTreceive( byte ep )
-{ USBH_MSC_BOTXferParam.pRxTxBuff = USBH_MSC_CSWData.CSWArray;
-  USBH_MSC_BOTXferParam.DataLength= USBH_MSC_CSW_MAX_LENGTH;
+{ USBH_MSC_Param.xfer.pRxTxBuff = USBH_MSC_Param.USBH_MSC_CSWData.CSWArray;
+  USBH_MSC_Param.xfer.DataLength= USBH_MSC_CSW_MAX_LENGTH;
 
   for( int index= USBH_MSC_CSW_LENGTH-1
      ;     index >= 0
      ;     index-- )
-  { USBH_MSC_CSWData.CSWArray[ index ]= 0;
+  { USBH_MSC_Param.USBH_MSC_CSWData.CSWArray[ index ]= 0;
   }
 //  USBH_MSC_CSWData.CSWArray[ 0 ]= 0;
 
-  USBH_BulkReceiveData( USBH_MSC_BOTXferParam.pRxTxBuff
+  USBH_BulkReceiveData( USBH_MSC_Param.xfer.pRxTxBuff
                       , USBH_MSC_CSW_MAX_LENGTH
-                      , MSC_Machine.hcNumIn );
-  USBH_MSC_BOTXferParam.BOTState= USBH_BOT_DECODE_CSW;
+                      , USBH_MSC_Param.hcNumIn );
+  USBH_MSC_Param.xfer.BOTState= USBH_BOT_DECODE_CSW;
 }
 
 /**
@@ -123,21 +116,21 @@ static void USBH_MSC_HandleBOTreceive( byte ep )
  *
  */
 static void USBH_MSC_HandleDatain( byte ep )
-{ { if ( remainingDataLength > MSC_Machine.MSBulkInEpSize )
-    { USBH_BulkReceiveData( datapointer
-                          , MSC_Machine.MSBulkInEpSize
-                          , MSC_Machine.hcNumIn );
+{ { if ( USBH_MSC_Param.botRemainingDataLength > USBH_MSC_Param.MSBulkInEpSize )
+    { USBH_BulkReceiveData( USBH_MSC_Param.botDatapointer
+                          , USBH_MSC_Param.MSBulkInEpSize
+                          , USBH_MSC_Param.hcNumIn );
 
-      remainingDataLength -= MSC_Machine.MSBulkInEpSize;
-      datapointer         += MSC_Machine.MSBulkInEpSize;
+      USBH_MSC_Param.botRemainingDataLength -= USBH_MSC_Param.MSBulkInEpSize;
+      USBH_MSC_Param.botDatapointer         += USBH_MSC_Param.MSBulkInEpSize;
     }
 
     else
-    { USBH_BulkReceiveData( datapointer
-                          , remainingDataLength
-                          , MSC_Machine.hcNumIn );
-      remainingDataLength= 0;  /* Reset this value and decode past receiving */
-      USBH_MSC_BOTXferParam.BOTState= USBH_BOT_RECEIVE_CSW_STATE;
+    { USBH_BulkReceiveData( USBH_MSC_Param.botDatapointer
+                          , USBH_MSC_Param.botRemainingDataLength
+                          , USBH_MSC_Param.hcNumIn );
+      USBH_MSC_Param.botRemainingDataLength= 0;  /* Reset this value and decode past receiving */
+      USBH_MSC_Param.xfer.BOTState= USBH_BOT_RECEIVE_CSW_STATE;
 } } }
 
 /*   Refer to USB Mass-Storage Class : BOT (www.usb.org)
@@ -147,7 +140,7 @@ static void USBH_MSC_HandleDatain( byte ep )
  *     The host shall clear the Bulk-In pipe.
  *  4. The host shall attempt to receive a CSW.
  *
- *     USBH_MSC_BOTXferParam.BOTStateBkp is used to switch to the Original
+ *     USBH_MSC_Param.xfer.BOTStateBkp is used to switch to the Original
  *     state after the ClearFeature Command is issued.
  */
 
@@ -164,19 +157,21 @@ static void USBH_MSC_HandleDatain( byte ep )
 static void USBH_MSC_HandleDataout( byte ep )
 { { mDelay( DEVICE_CHANCE_MSECS );   /* Give the device a chance */
 
-    if ( remainingDataLength > MSC_Machine.MSBulkOutEpSize )
-    { USBH_BulkSendData( datapointer
-                       , MSC_Machine.MSBulkOutEpSize
-                       , MSC_Machine.hcNumOut );
-      datapointer= datapointer + MSC_Machine.MSBulkOutEpSize;
-      remainingDataLength= remainingDataLength - MSC_Machine.MSBulkOutEpSize;
+    if ( USBH_MSC_Param.botRemainingDataLength > USBH_MSC_Param.MSBulkOutEpSize )
+    { USBH_BulkSendData( USBH_MSC_Param.botDatapointer
+                       , USBH_MSC_Param.MSBulkOutEpSize
+                       , USBH_MSC_Param.hcNumOut );
+      USBH_MSC_Param.botDatapointer= USBH_MSC_Param.botDatapointer
+                                   + USBH_MSC_Param.MSBulkOutEpSize;
+      USBH_MSC_Param.botRemainingDataLength= USBH_MSC_Param.botRemainingDataLength
+                         - USBH_MSC_Param.MSBulkOutEpSize;
     }
 
     else
-    { USBH_BulkSendData( datapointer
-                       , remainingDataLength
-                       , MSC_Machine.hcNumOut );
-      remainingDataLength= 0;             /* Reset this value and keep in same state */
+    { USBH_BulkSendData( USBH_MSC_Param.botDatapointer
+                       , USBH_MSC_Param.botRemainingDataLength
+                       , USBH_MSC_Param.hcNumOut );
+      USBH_MSC_Param.botRemainingDataLength= 0;             /* Reset this value and keep in same state */
       USBH_MSC_HandleBOTreceive( ep );    /* Both send and receive */
 } } }
 
@@ -189,7 +184,7 @@ static void USBH_MSC_HandleDataout( byte ep )
       The Above statement will do the clear the Bulk-Out pipe.
       The Below statement will help in Getting the CSW.
 
-              USBH_MSC_BOTXferParam.BOTStateBkp is used to switch to the Original
+              USBH_MSC_Param.xfer.BOTStateBkp is used to switch to the Original
               state after the ClearFeature Command is issued.
               */
 
@@ -203,9 +198,9 @@ static void USBH_MSC_HandleDataout( byte ep )
  *
  */
 void USBH_MSC_HandleBOTXferIn( short ep )
-{ switch( USBH_MSC_BOTXferParam.BOTState )
+{ switch( USBH_MSC_Param.xfer.BOTState )
   { case USBH_BOT_DECODE_CSW:
-      USBH_MSC_DecodeCSW();             /* USBH_MSC_BOTXferParam.BOTXferStatus=*/
+      USBH_MSC_DecodeCSW();             /* USBH_MSC_Param.xfer.BOTXferStatus=*/
       USBH_MSC_Machine( ep );           /* next step */
     break;
 
@@ -234,20 +229,20 @@ void USBH_MSC_HandleBOTXferIn( short ep )
 void USBH_MSC_HandleBOTXferOut( short ep )
 { byte xferDirection;
 
-  { switch( USBH_MSC_BOTXferParam.BOTState )
+  { switch( USBH_MSC_Param.xfer.BOTState )
     { case USBH_BOT_SENT_CBW:  /* Response from above */
-      { xferDirection= USBH_MSC_CBWData.field.CBWFlags & USB_REQ_DIR_MASK; /* If the CBW Pkt is sent successful, then change the state */
+      { xferDirection= USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags & USB_REQ_DIR_MASK; /* If the CBW Pkt is sent successful, then change the state */
 
-        if ( USBH_MSC_CBWData.field.CBWTransferLength  )
-        { remainingDataLength= USBH_MSC_CBWData.field.CBWTransferLength ;
-          datapointer= USBH_MSC_BOTXferParam.pRxTxBuff;
+        if ( USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength  )
+        { USBH_MSC_Param.botRemainingDataLength= USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength;
+          USBH_MSC_Param.botDatapointer= USBH_MSC_Param.xfer.pRxTxBuff;
 
           if ( xferDirection == USB_D2H )                           /* If there is Data Transfer Stage */
-          { USBH_MSC_BOTXferParam.BOTState= USBH_BOT_DATAIN_STATE;  /* Data Direction is IN */
+          { USBH_MSC_Param.xfer.BOTState= USBH_BOT_DATAIN_STATE;  /* Data Direction is IN */
             USBH_MSC_HandleDatain( ep );
           }
           else
-          { USBH_MSC_BOTXferParam.BOTState= USBH_BOT_DATAOUT_STATE; /* Data Direction is OUT */
+          { USBH_MSC_Param.xfer.BOTState= USBH_BOT_DATAOUT_STATE; /* Data Direction is OUT */
             USBH_MSC_HandleDataout( ep );
         } }
 
@@ -270,10 +265,10 @@ void USBH_MSC_HandleBOTXferOut( short ep )
  * @brief  USBH_MSC_XferStart
  */
 void USBH_MSC_XferStart( short ep )
-{ USBH_BulkSendData( USBH_MSC_CBWData.CBWArray
+{ USBH_BulkSendData( USBH_MSC_Param.USBH_MSC_CBWData.CBWArray
                    , USBH_MSC_BOT_CBW_PACKET_LENGTH
-                   , MSC_Machine.hcNumOut );
-  USBH_MSC_BOTXferParam.BOTState= USBH_BOT_SENT_CBW;
+                   , USBH_MSC_Param.hcNumOut );
+  USBH_MSC_Param.xfer.BOTState= USBH_BOT_SENT_CBW;
 }
 
 

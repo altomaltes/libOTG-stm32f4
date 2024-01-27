@@ -20,12 +20,6 @@
 #include "usbh_msc_bot.h"
 
 
-MassStorageParameter_TypeDef USBH_MSC_Param;
-
-ALIGN_THIS( byte USBH_DataInBuffer[  512 ] );
-ALIGN_THIS( byte USBH_DataOutBuffer[ 512 ] );
-
-
 /**
   * @brief  USBH_MSC_TestUnitReady
   *         Issues 'Test unit ready' command to the device. Once the response
@@ -34,19 +28,20 @@ ALIGN_THIS( byte USBH_DataOutBuffer[ 512 ] );
   * @retval Status
   */
 short USBHtestUnitReady()
-{ USBH_MSC_CBWData.field.CBWTransferLength = 0;       /* No Data Transfer */
-  USBH_MSC_CBWData.field.CBWFlags = USB_EP_DIR_OUT;
-  USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH_TEST_UNIT_READY;
-  USBH_MSC_BOTXferParam.pRxTxBuff = USBH_MSC_CSWData.CSWArray;
-  USBH_MSC_BOTXferParam.DataLength= USBH_MSC_CSW_MAX_LENGTH;
-  USBH_MSC_BOTXferParam.MSCState  = USBH_MSC_TEST_UNIT_READY;
+{ USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength= 0;       /* No Data Transfer */
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags = EPDIR_OUT;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH_TEST_UNIT_READY;
+
+  USBH_MSC_Param.xfer.pRxTxBuff = USBH_MSC_Param.USBH_MSC_CSWData.CSWArray;
+  USBH_MSC_Param.xfer.DataLength= USBH_MSC_CSW_MAX_LENGTH;
+  USBH_MSC_Param.xfer.MSCState  = USBH_MSC_TEST_UNIT_READY;
 
   for( int index= CBW_CB_LENGTH - 1
      ;     index
      ;     index-- )
-  { USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
+  { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
   }
-  USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_TEST_UNIT_READY;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_TEST_UNIT_READY;
 
   return( USBH_MSC_TEST_UNIT_READY );
 }
@@ -60,33 +55,33 @@ short USBHtestUnitReady()
   * @param  None
   * @retval Status
   */
-short MSCaskForReadCapacity10()
-{ USBH_MSC_CBWData.field.CBWTransferLength= XFER_LEN_READ_CAPACITY10;
-  USBH_MSC_CBWData.field.CBWFlags         = USB_EP_DIR_IN;
-  USBH_MSC_CBWData.field.CBWLength        = CBW_LENGTH;
+short MSCaskForReadCapacity10( short pDrv )
+{ USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength= XFER_LEN_READ_CAPACITY10;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags         = EPDIR_IN;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLength        = CBW_LENGTH;
 
   int index;
 
-  USBH_MSC_BOTXferParam.pRxTxBuff= USBH_DataInBuffer;
+  USBH_MSC_Param.xfer.pRxTxBuff= USBH_MSC_Param.dataInBuffer;
 
   for( index= CBW_CB_LENGTH -1
      ; index
      ; index-- )
-   { USBH_MSC_CBWData.field.CBWCB[index] = 0x00;
+   { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
    }
-   USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_READ_CAPACITY10;
+   USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_READ_CAPACITY10;
 
    return( USBH_MSC_READ_CAPACITY10 );
 }
 
-short MSCrespReadCapacity10()
-{ (((byte*)&USBH_MSC_Param.MSCapacity   )[3])= USBH_DataInBuffer[ 0 ];
-  (((byte*)&USBH_MSC_Param.MSCapacity   )[2])= USBH_DataInBuffer[ 1 ];
-  (((byte*)&USBH_MSC_Param.MSCapacity   )[1])= USBH_DataInBuffer[ 2 ];
-  (((byte*)&USBH_MSC_Param.MSCapacity   )[0])= USBH_DataInBuffer[ 3 ];
+short MSCrespReadCapacity10( short pDrv )
+{ (((byte*)&USBH_MSC_Param.MSCapacity   )[3])= USBH_MSC_Param.dataInBuffer[ 0 ];
+  (((byte*)&USBH_MSC_Param.MSCapacity   )[2])= USBH_MSC_Param.dataInBuffer[ 1 ];
+  (((byte*)&USBH_MSC_Param.MSCapacity   )[1])= USBH_MSC_Param.dataInBuffer[ 2 ];
+  (((byte*)&USBH_MSC_Param.MSCapacity   )[0])= USBH_MSC_Param.dataInBuffer[ 3 ];
 
-  (((byte*)&USBH_MSC_Param.MSPageLength )[1])= USBH_DataInBuffer[ 6 ]; /*assign the page length*/
-  (((byte*)&USBH_MSC_Param.MSPageLength )[0])= USBH_DataInBuffer[ 7 ];
+  (((byte*)&USBH_MSC_Param.MSPageLength )[1])= USBH_MSC_Param.dataInBuffer[ 6 ]; /*assign the page length*/
+  (((byte*)&USBH_MSC_Param.MSPageLength )[0])= USBH_MSC_Param.dataInBuffer[ 7 ];
 
   return( USBH_MSC_READ_CAPACITY10 );
 }
@@ -99,23 +94,23 @@ short MSCrespReadCapacity10()
   * @param  None
   * @retval Status
   */
-short MSCaskForModeSense6()
-{ USBH_MSC_CBWData.field.CBWTransferLength= XFER_LEN_MODE_SENSE6;
-  USBH_MSC_CBWData.field.CBWFlags= USB_EP_DIR_IN;
-  USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH;
+short MSCaskForModeSense6( short pDrv )
+{ USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength= XFER_LEN_MODE_SENSE6;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags= EPDIR_IN;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH;
 
-  USBH_MSC_BOTXferParam.pRxTxBuff= USBH_DataInBuffer;
-  USBH_MSC_BOTXferParam.MSCState= USBH_MSC_MODE_SENSE6;
+  USBH_MSC_Param.xfer.pRxTxBuff= USBH_MSC_Param.dataInBuffer;
+  USBH_MSC_Param.xfer.MSCState= USBH_MSC_MODE_SENSE6;
 
   for( int index= CBW_CB_LENGTH - 1
      ;     index
      ;     index-- )
-  { USBH_MSC_CBWData.field.CBWCB[ index ] = 0x00;
+  { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ index ] = 0x00;
   }
 
-  USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_MODE_SENSE6;
-  USBH_MSC_CBWData.field.CBWCB[ 2 ]= MODE_SENSE_PAGE_CONTROL_FIELD | MODE_SENSE_PAGE_CODE;
-  USBH_MSC_CBWData.field.CBWCB[ 4 ]= XFER_LEN_MODE_SENSE6;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_MODE_SENSE6;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 2 ]= MODE_SENSE_PAGE_CONTROL_FIELD | MODE_SENSE_PAGE_CODE;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 4 ]= XFER_LEN_MODE_SENSE6;
 
   return( USBH_MSC_MODE_SENSE6 );
 }
@@ -125,8 +120,8 @@ short MSCaskForModeSense6()
    If WriteProtect != 0, Disk is Write Protected
  */
 
-short MSCrespModeSense6()
-{ USBH_MSC_Param.MSWriteProtect= USBH_DataInBuffer[ 2 ] & MASK_MODE_SENSE_WRITE_PROTECT
+short MSCrespModeSense6( short pDrv )
+{ USBH_MSC_Param.MSWriteProtect= USBH_MSC_Param.dataInBuffer[ 2 ] & MASK_MODE_SENSE_WRITE_PROTECT
                                ? DISK_WRITE_PROTECTED : 0;
   return( USBH_MSC_MODE_SENSE6 );
 }
@@ -138,37 +133,41 @@ short MSCrespModeSense6()
   * @param  None
   * @retval Status
   */
-short MSCaskForRequestSense()
-{ USBH_MSC_CBWData.field.CBWFlags = USB_EP_DIR_IN;  /* Prepare the CBW and relevant field*/
-  USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH;
-  USBH_MSC_BOTXferParam.pRxTxBuff = USBH_DataInBuffer;
-  USBH_MSC_CBWData.field.CBWTransferLength= ALLOCATION_LENGTH_REQUEST_SENSE;
+short MSCaskForRequestSense( short pDrv )
+{ USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags = EPDIR_IN;  /* Prepare the CBW and relevant field*/
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength= ALLOCATION_LENGTH_REQUEST_SENSE;
+  USBH_MSC_Param.xfer.pRxTxBuff = USBH_MSC_Param.dataInBuffer;
 
   for( int index = CBW_CB_LENGTH - 1
      ; index
      ; index--)
-  { USBH_MSC_CBWData.field.CBWCB[index] = 0x00;
+  { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[index] = 0x00;
   }
 
-  USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_REQUEST_SENSE;
-  USBH_MSC_CBWData.field.CBWCB[ 1 ]= DESC_REQUEST_SENSE;
-  USBH_MSC_CBWData.field.CBWCB[ 4 ]= ALLOCATION_LENGTH_REQUEST_SENSE;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_REQUEST_SENSE;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 1 ]= DESC_REQUEST_SENSE;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 4 ]= ALLOCATION_LENGTH_REQUEST_SENSE;
 
   return( USBH_MSC_REQUEST_SENSE );
 }
 
-short MSrespRequestSense()
-{ (((byte*)&USBH_MSC_Param.MSSenseKey )[3])= USBH_DataInBuffer[ 0 ];
-  (((byte*)&USBH_MSC_Param.MSSenseKey )[2])= USBH_DataInBuffer[ 1 ];
-  (((byte*)&USBH_MSC_Param.MSSenseKey )[1])= USBH_DataInBuffer[ 2 ];
-  (((byte*)&USBH_MSC_Param.MSSenseKey )[0])= USBH_DataInBuffer[ 3 ];
+short MSrespRequestSense( short pDrv )
+{ (((byte*)&USBH_MSC_Param.MSSenseKey )[3])= USBH_MSC_Param.dataInBuffer[ 0 ];
+  (((byte*)&USBH_MSC_Param.MSSenseKey )[2])= USBH_MSC_Param.dataInBuffer[ 1 ];
+  (((byte*)&USBH_MSC_Param.MSSenseKey )[1])= USBH_MSC_Param.dataInBuffer[ 2 ];
+  (((byte*)&USBH_MSC_Param.MSSenseKey )[0])= USBH_MSC_Param.dataInBuffer[ 3 ];
 
   return( USBH_MSC_REQUEST_SENSE );
 };
 
 
+dword USBH_MSCgetCapacity( short pDrv )
+{ return( USBH_MSC_Param.MSCapacity );
+}
+
 /**
-  * @brief  USBH_MSC_Write10
+  * @brief  USBH_MSCwrite10
   *         Issue the write command to the device. Once the response received,
   *         it updates the status to upper layer
   * @param  dataBuffer : DataBuffer contains the data to write
@@ -176,46 +175,47 @@ short MSrespRequestSense()
   * @param  nbOfbytes : NbOfbytes to be written
   * @retval Status
   */
-short USBH_MSC_Write10( const void * dataBuffer
+short USBH_MSCwrite10( short  drv          /* Phisical drive */
+                      , const void * dataBuffer
                       , dword address
                       , dword nbOfbytes )
-{ switch( USBH_MSC_BOTXferParam.MSCState )  /* Allow sync and no sync access */
+{ switch( USBH_MSC_Param.xfer.MSCState )  /* Allow sync and no sync access */
   { case USBH_MSC_IDLE   : break;                    /* Free to read */
     case USBH_MSC_WRITE10: return( USBH_MSC_IDLE );  /* Progressing  */
     default              : return(            -1 );  /* Dead engine  */
   }
 
-  USBH_MSC_CBWData.field.CBWTransferLength= nbOfbytes;
-  USBH_MSC_CBWData.field.CBWFlags= USB_EP_DIR_OUT;
-  USBH_MSC_CBWData.field.CBWLength= CBW_LENGTH;
-  USBH_MSC_BOTXferParam.pRxTxBuff= (byte*)dataBuffer;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength= nbOfbytes;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags         = EPDIR_OUT;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLength        = CBW_LENGTH;
+  USBH_MSC_Param.xfer.pRxTxBuff         = (byte*)dataBuffer;
 
   for( byte index= CBW_CB_LENGTH - 1
      ;      index
      ;      index-- )
-  { USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
+  { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
   }
 
   if ( address )                                                /* Not a repeat of last try */
-  { USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_WRITE10;
-    USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]);   /*logical block address*/
-    USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
-    USBH_MSC_CBWData.field.CBWCB[ 4 ]= (((byte*)&address)[1]);
-    USBH_MSC_CBWData.field.CBWCB[ 5 ]= (((byte*)&address)[0]);
+  { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_WRITE10;
+    USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]);   /*logical block address*/
+    USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
+    USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 4 ]= (((byte*)&address)[1]);
+    USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 5 ]= (((byte*)&address)[0]);
 
     word nbOfPages = nbOfbytes/ USBH_MSC_PAGE_LENGTH;   /*USBH_MSC_PAGE_LENGTH = 512*/
 
-    USBH_MSC_CBWData.field.CBWCB[ 7 ] = (((byte *)&nbOfPages)[1]) ;       /*Transfer length */
-    USBH_MSC_CBWData.field.CBWCB[ 8 ] = (((byte *)&nbOfPages)[0]) ;
+    USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 7 ] = (((byte *)&nbOfPages)[1]) ;       /*Transfer length */
+    USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 8 ] = (((byte *)&nbOfPages)[0]) ;
   }
 
   USBH_MSC_XferStart( 0 );
 
-  return( USBH_MSC_BOTXferParam.MSCState= USBH_MSC_WRITE10 ); /*status;*/
+  return( USBH_MSC_Param.xfer.MSCState= USBH_MSC_WRITE10 ); /*status;*/
 }
 
 /**
-  * @brief  USBH_MSC_Read10
+  * @brief  USBH_MSCread10
   *         Issue the read command to the device. Once the response received,
   *         it updates the status to upper layer ( ASYNC )
   * @param  dataBuffer : DataBuffer will contain the data to be read
@@ -223,45 +223,46 @@ short USBH_MSC_Write10( const void * dataBuffer
   * @param  nbOfbytes : NbOfbytes to be read
   * @retval Status
   */
-short USBH_MSC_Read10( void * dataBuffer
+short USBH_MSCread10( short  drv          /* Phisical drive */
+                     , void * dataBuffer
                      , dword  address
                      , dword  nbOfbytes )
-{ switch( USBH_MSC_BOTXferParam.MSCState )  /* Allow sync and no sync access */
+{ switch( USBH_MSC_Param.xfer.MSCState )  /* Allow sync and no sync access */
   { case USBH_MSC_IDLE   : break;           /* Free to read */
     case USBH_MSC_READ10 : return( -2 );   // Previous read   return( USBH_MSC_IDLE );  /* Progressing  */
     default              : return( -1 );    /* Dead engine  */
   }
 
-  USBH_MSC_CBWData.field.CBWTransferLength= nbOfbytes;
-  USBH_MSC_CBWData.field.CBWFlags         = USB_EP_DIR_IN;
-  USBH_MSC_CBWData.field.CBWLength        = CBW_LENGTH;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWTransferLength= nbOfbytes;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWFlags         = EPDIR_IN;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWLength        = CBW_LENGTH;
 
-  USBH_MSC_BOTXferParam.pRxTxBuff= dataBuffer;
+  USBH_MSC_Param.xfer.pRxTxBuff= dataBuffer;
 
-  for( int index = CBW_CB_LENGTH - 1
+  for( int index= CBW_CB_LENGTH - 1
      ;     index
      ;     index-- )
-  { USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
+  { USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ index ]= 0x00;
   }
-  USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_READ10;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 0 ]= OPCODE_READ10;
 
 /* logical block address
  */
-  USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]);
-  USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
-  USBH_MSC_CBWData.field.CBWCB[ 4 ]= (((byte*)&address)[1]);
-  USBH_MSC_CBWData.field.CBWCB[ 5 ]= (((byte*)&address)[0]);
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 2 ]= (((byte*)&address)[3]);
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 3 ]= (((byte*)&address)[2]);
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 4 ]= (((byte*)&address)[1]);
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 5 ]= (((byte*)&address)[0]);
 
   word nbOfPages= nbOfbytes / USBH_MSC_PAGE_LENGTH;   /*USBH_MSC_PAGE_LENGTH = 512*/
 
 /* Transfer length
  */
-  USBH_MSC_CBWData.field.CBWCB[ 7 ]= (((byte *)&nbOfPages)[1]) ;
-  USBH_MSC_CBWData.field.CBWCB[ 8 ]= (((byte *)&nbOfPages)[0]) ;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 7 ]= (((byte *)&nbOfPages)[1]) ;
+  USBH_MSC_Param.USBH_MSC_CBWData.field.CBWCB[ 8 ]= (((byte *)&nbOfPages)[0]) ;
 
   USBH_MSC_XferStart( 0 );
 
-  return( USBH_MSC_BOTXferParam.MSCState= USBH_MSC_READ10 ); /*status;*/
+  return( USBH_MSC_Param.xfer.MSCState= USBH_MSC_READ10 ); /*status;*/
 }
 
 

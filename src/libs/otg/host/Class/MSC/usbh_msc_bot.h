@@ -58,7 +58,7 @@ enum BOTState
 
 
 
-typedef struct _BOTXfer
+typedef struct
 { enum MSCState  MSCState;
   enum BOTState  BOTState;
   byte * pRxTxBuff;
@@ -113,9 +113,7 @@ typedef union _USBH_CSW_Block
 #define MAX_BULK_STALL_COUNT_LIMIT       0x04   /* If STALL is seen on Bulk  Endpoint continuously, this means
                                          that device and Host has phase error
                                          Hence a Reset is needed */
-extern USBH_BOTXfer_TypeDef USBH_MSC_BOTXferParam;
-extern HostCBWPkt_TypeDef USBH_MSC_CBWData;
-extern HostCSWPkt_TypeDef USBH_MSC_CSWData;
+//extern USBH_BOTXfer_TypeDef USBH_MSC_BOTXferParam;
 
 void USBH_MSC_Init();
 void USBH_MSC_HandleBOTXfer(    short ep );

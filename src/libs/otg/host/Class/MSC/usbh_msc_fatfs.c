@@ -49,12 +49,12 @@ DSTATUS diskStatus( byte drv	 )	/* Physical drive number (0) */
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 
-DRESULT diskRead( dword   pdrv			  /* Physical drive number (0) */
-                , void * buff			  /* Pointer to the data buffer to store read data */
+DRESULT diskRead( dword  pDrv			 /* Physical drive number (0) */
+                , void * buff			 /* Pointer to the data buffer to store read data */
                 , dword  sector		 /* Start sector number (LBA) */
-                , dword   count )		/* Sector count (1..255) */
+                , dword  count )	/* Sector count (1..255) */
 { if ( count )
-  { if ( pdrv || !count     ) return( RES_PARERR );
+  { if ( !count             ) return( RES_PARERR );
     if ( Stat & STA_NOINIT  ) return( RES_NOTRDY );
     if ( Stat & STA_PROTECT ) return( RES_WRPRT  );
 
@@ -62,7 +62,8 @@ DRESULT diskRead( dword   pdrv			  /* Physical drive number (0) */
 
     word maxTry= 5;
     while( maxTry-- )                       /* Allow 5 tries     */
-    { if ( USBH_MSC_Read10( buff            /* Not able to read */
+    { if ( USBH_MSCread10( pDrv
+                          , buff            /* Not able to read */
                           , sector
                           , count  ) < 0 )
       { return( RES_ERROR );                /* IO error */
@@ -70,7 +71,7 @@ DRESULT diskRead( dword   pdrv			  /* Physical drive number (0) */
 
       word end= usbOTGgetCurrentFrame( 5 );       /* Allow 5 ms to read */
       while( end != usbOTGgetCurrentFrame( 0 ))
-      { if ( USBH_MSC_BOTXferParam.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
+      { if ( USBH_MSC_Param.xfer.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
         { return( RES_OK );   /* read achieved */
     } } }
     return( RES_NOTRDY );
@@ -85,13 +86,12 @@ DRESULT diskRead( dword   pdrv			  /* Physical drive number (0) */
 /*-----------------------------------------------------------------------*/
 
 #if _READONLY == 0
-DRESULT diskWrite( dword pdrv			      /* Physical drive number (0) */
+DRESULT diskWrite( dword pDrv			     /* Physical drive number (0) */
                  , const void * buff	/* Pointer to the data to be written */
                  , dword sector	    	/* Start sector number (LBA) */
                  , dword count	)	    /* Sector count (1..255) */
-
 { if ( count )
-  { if ( pdrv || !count     ) return( RES_PARERR );
+  { if ( /* pDrv || */ !count     ) return( RES_PARERR );
     if ( Stat & STA_NOINIT  ) return( RES_NOTRDY );
     if ( Stat & STA_PROTECT ) return( RES_WRPRT  );
 
@@ -103,8 +103,8 @@ DRESULT diskWrite( dword pdrv			      /* Physical drive number (0) */
 //    while( maxTry-- )
 //    { word end= usbOTGgetCurrentFrame( 5 );                        /* Allow 5 ms to read */
 //      while( end != usbOTGgetCurrentFrame( 0 ))                    /* Timer not reached */
-//      { if ( USBH_MSC_BOTXferParam.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
-//        { if ( USBH_MSC_Write10( NULL                           /* Write previous  */
+//      { if ( USBH_MSC_Param.xfer.MSCState == USBH_MSC_IDLE )  /* Is it free ?      */
+//        { if ( USBH_MSCwrite10( NULL                           /* Write previous  */
 //                               , sector
 //                               , count ) < 0 )
 //          { return( RES_ERROR );   /* IO error */
@@ -115,9 +115,10 @@ DRESULT diskWrite( dword pdrv			      /* Physical drive number (0) */
 //    if ( maxTry )                                    /* Able to write */
 
 
-    while ( USBH_MSC_BOTXferParam.MSCState != USBH_MSC_IDLE ){};  /* Is it free ?      */
+    while ( USBH_MSC_Param.xfer.MSCState != USBH_MSC_IDLE ){};  /* Is it free ?      */
 
-    { if ( USBH_MSC_Write10( buff                         /* Write previous  */
+    { if ( USBH_MSCwrite10( pDrv
+                           , buff                         /* Write previous  */
                            , sector
                            , count ) < 0 )
      { return( RES_ERROR );   /* IO error */
@@ -137,11 +138,9 @@ DRESULT diskWrite( dword pdrv			      /* Physical drive number (0) */
 /* Miscellaneous Functions                                               */
 /*-----------------------------------------------------------------------*/
 
-#if _USE_IOCTL != 0
-DRESULT diskIoctl( dword drv		/* Physical drive number (0) */
-                 , dword ctrl		/* Control code */
-                 , void *buff	)	/* Buffer to send/receive control data */
-
+DRESULT diskIoctl( dword  drv	  	/* Physical drive number (0) */
+                 , dword  ctrl 		/* Control code */
+                 , void * buff	)	/* Buffer to send/receive control data */
 { if ( !drv ) return RES_PARERR;
   if ( Stat & STA_NOINIT ) return RES_NOTRDY;
 
@@ -150,11 +149,11 @@ DRESULT diskIoctl( dword drv		/* Physical drive number (0) */
     return( RES_OK );
 
     case GET_SECTOR_COUNT :	/* Get number of sectors on the disk (DWORD) */
-      *(dword*)buff = (dword) USBH_MSC_Param.MSCapacity;
+      *(dword*)buff= USBH_MSCgetCapacity( drv );
     return( RES_OK );
 
     case GET_SECTOR_SIZE: *(word *)buff = 512; return( RES_OK );	/* Get R/W sector size (WORD) */
-    case GET_BLOCK_SIZE : *(dword*)buff= 512; return( RES_OK ); /* Get erase block size in unit of sector (DWORD) */
+    case GET_BLOCK_SIZE : *(dword*)buff=  512; return( RES_OK ); /* Get erase block size in unit of sector (DWORD) */
   }
 
   return( RES_PARERR );
@@ -169,4 +168,3 @@ WEAK dword getFattime( void )
 { return( 0 );
 }
 
-#endif /* _USE_IOCTL != 0 */
