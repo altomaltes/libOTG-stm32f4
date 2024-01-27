@@ -224,91 +224,91 @@ extern volatile struct
  */
 
 
-WEAK INTERRUPT void irqHnd()
+WEAK INTERRUPT irqHnd()
 { while( 1 );
 }
 
-WEAK INTERRUPT void NMIHnd()            { while(1);}   /* NMI Handler                  */
-WEAK INTERRUPT void HardFaultHnd()      { while(1);}   /* Hard Fault Handler           */
+WEAK INTERRUPT NMIHnd()            { while(1);}   /* NMI Handler                  */
+WEAK INTERRUPT HardFaultHnd()      { while(1);}   /* Hard Fault Handler           */
 
-WEAK INTERRUPT void MemManageHnd()
+WEAK INTERRUPT MemManageHnd()
 { while(1);
 }   /* MPU Fault Handler            */
 
 int a;
-WEAK INTERRUPT void UsageFaultHnd()
+WEAK INTERRUPT UsageFaultHnd()
 { while(1);
 }   /* Usage Fault Handler          */
 
-WEAK INTERRUPT void BusFaultHnd()       { while(1);}   /* Bus Fault Handler            */
-WEAK INTERRUPT void SVCHnd()            { while(1);}   /* SVCall Handler               */
-WEAK INTERRUPT void DebugMonHnd()       { while(1);}   /* Debug Monitor Handler        */
-WEAK INTERRUPT void PendSVHnd()         { while(1);}   /* PendSV Handler               */
+WEAK INTERRUPT BusFaultHnd()       { while(1);}   /* Bus Fault Handler            */
+WEAK INTERRUPT SVCHnd()            { while(1);}   /* SVCall Handler               */
+WEAK INTERRUPT DebugMonHnd()       { while(1);}   /* Debug Monitor Handler        */
+WEAK INTERRUPT PendSVHnd()         { while(1);}   /* PendSV Handler               */
                void SysTickHnd( void );   /* SysTick Handler              */
-WEAK INTERRUPT void WWDGirqHnd()        { while(1);}   /* Window WatchDog              */
-WEAK INTERRUPT void PVDirqHnd()         { while(1);}   /* PVD through EXTI Line detection */
-WEAK INTERRUPT void TAMP_STAMPirqHnd()  { while(1);}   /* Tamper and TimeStamps through the EXTI line */
-WEAK INTERRUPT void RTC_WKUPirqHnd()    { while(1);}   /* RTC Wakeup through the EXTI line */
-WEAK INTERRUPT void FLASHirqHnd()       { while(1);}   /* FLASH                        */
-WEAK INTERRUPT void RCCirqHnd()         { while(1);}   /* RCC                          */
-WEAK INTERRUPT void EXTI0irqHnd()       { while(1);}   /* EXTI Line0                   */
-WEAK INTERRUPT void EXTI1irqHnd()       { while(1);}   /* EXTI Line1                   */
-WEAK INTERRUPT void EXTI2irqHnd()       { while(1);}   /* EXTI Line2                   */
-WEAK INTERRUPT void EXTI3irqHnd()       { while(1);}   /* EXTI Line3                   */
-WEAK INTERRUPT void EXTI4irqHnd()       { while(1);}   /* EXTI Line4                   */
-WEAK INTERRUPT void DMA1_0irqHnd()      { while(1);}   /* DMA1 Stream 0                */
-WEAK INTERRUPT void DMA1_1irqHnd()      { while(1);}   /* DMA1 Stream 1                */
-WEAK INTERRUPT void DMA1_2irqHnd()      { while(1);}   /* DMA1 Stream 2                */
-WEAK INTERRUPT void DMA1_3irqHnd()      { while(1);}   /* DMA1 Stream 3                */
-WEAK INTERRUPT void DMA1_4irqHnd()      { while(1);}   /* DMA1 Stream 4                */
-WEAK INTERRUPT void DMA1_5irqHnd()      { while(1);}   /* DMA1 Stream 5                */
-WEAK INTERRUPT void DMA1_6irqHnd()      { while(1);}   /* DMA1 Stream 6                */
-WEAK INTERRUPT void ADCirqHnd()         { while(1);}   /* ADC1, ADC2 and ADC3s         */
-WEAK INTERRUPT void EXTI9_5irqHnd()     { while(1);}   /* External Line[9:5]s          */
-WEAK INTERRUPT void TIM1_BRK_9irqHnd()  { while(1);}   /* TIM1 Break and TIM9          */
-WEAK INTERRUPT void TIM1_UP_10irqHnd()  { while(1);}   /* TIM1 Update and TIM10        */
-WEAK INTERRUPT void TIM1_TRG_11irqHnd() { while(1);}   /* TIM1 Trigger and Commutation and TIM11 */
-WEAK INTERRUPT void TIM1_CCirqHnd()     { while(1);}   /* TIM1 Capture Compare         */
-WEAK INTERRUPT void TIM2irqHnd()        { while(1);}   /* TIM2                         */
-WEAK INTERRUPT void TIM3irqHnd()        { while(1);}   /* TIM3                         */
-WEAK INTERRUPT void TIM4irqHnd()        { while(1);}   /* TIM4                         */
-WEAK INTERRUPT void I2C1_EVirqHnd()     { while(1);}   /* I2C1 Event                   */
-WEAK INTERRUPT void I2C1_ERirqHnd()     { while(1);}   /* I2C1 Error                   */
-WEAK INTERRUPT void I2C2_EVirqHnd()     { while(1);}   /* I2C2 Event                   */
-WEAK INTERRUPT void I2C2_ERirqHnd()     { while(1);}   /* I2C2 Error                   */
-WEAK INTERRUPT void SPI1irqHnd()        { while(1);}   /* SPI1                         */
-WEAK INTERRUPT void SPI2irqHnd()        { while(1);}   /* SPI2                         */
-WEAK INTERRUPT void USART1irqHnd()      { while(1);}   /* USART1                       */
-WEAK INTERRUPT void USART2irqHnd()      { while(1);}   /* USART2                       */
-WEAK INTERRUPT void USART3irqHnd()      { while(1);}   /* USART3                       */
-WEAK INTERRUPT void USART4irqHnd()      { while(1);}   /* USART4                       */
-WEAK INTERRUPT void USART5irqHnd()      { while(1);}   /* USART5                       */
-WEAK INTERRUPT void USART6irqHnd()      { while(1);}   /* USART6                       */
-WEAK INTERRUPT void EXTI15_10irqHnd()   { while(1);}   /* External Line[15:10]s        */
-WEAK INTERRUPT void RTC_AlarmirqHnd()   { while(1);}   /* RTC Alarm (A and B) through EXTI Line */
-WEAK INTERRUPT void OTG_FS_WKUPirqHnd() { while(1);}   /* USB OTG FS Wakeup through EXTI line */
-WEAK INTERRUPT void DMA1_7irqHnd()      { while(1);}   /* DMA1 Stream7                 */
-WEAK INTERRUPT void SDIOirqHnd()        { while(1);}   /* SDIO                         */
-WEAK INTERRUPT void TIM5irqHnd()        { while(1);}   /* TIM5                         */
-WEAK INTERRUPT void SPI3irqHnd()        { while(1);}   /* SPI3                         */
-WEAK INTERRUPT void DMA2_0irqHnd()      { while(1);}   /* DMA2 Stream 0                */
-WEAK INTERRUPT void DMA2_1irqHnd()      { while(1);}   /* DMA2 Stream 1                */
-WEAK INTERRUPT void DMA2_2irqHnd()      { while(1);}   /* DMA2 Stream 2                */
-WEAK INTERRUPT void DMA2_3irqHnd()      { while(1);}   /* DMA2 Stream 3                */
-WEAK INTERRUPT void DMA2_4irqHnd()      { while(1);}   /* DMA2 Stream 4                */
-//WEAK INTERRUPT void OTG_FSirqHnd()      { while(1);}   /* USB OTG FS                   */
-WEAK INTERRUPT void DMA2_5irqHnd()      { while(1);}   /* DMA2 Stream 5                */
-WEAK INTERRUPT void DMA2_6irqHnd()      { while(1);}   /* DMA2 Stream 6                */
-WEAK INTERRUPT void DMA2_7irqHnd()      { while(1);}   /* DMA2 Stream 7                */
-WEAK INTERRUPT void I2C3_EVirqHnd()     { while(1);}   /* I2C3 event                   */
-WEAK INTERRUPT void I2C3_ERirqHnd()     { while(1);}   /* I2C3 error                   */
-WEAK INTERRUPT void FPUirqHnd()         { while(1);}   /* FPU                          */
-WEAK INTERRUPT void SPI4irqHnd()        { while(1);}   /* SPI4                         */
+WEAK INTERRUPT WWDGirqHnd()        { while(1);}   /* Window WatchDog              */
+WEAK INTERRUPT PVDirqHnd()         { while(1);}   /* PVD through EXTI Line detection */
+WEAK INTERRUPT TAMP_STAMPirqHnd()  { while(1);}   /* Tamper and TimeStamps through the EXTI line */
+WEAK INTERRUPT RTC_WKUPirqHnd()    { while(1);}   /* RTC Wakeup through the EXTI line */
+WEAK INTERRUPT FLASHirqHnd()       { while(1);}   /* FLASH                        */
+WEAK INTERRUPT RCCirqHnd()         { while(1);}   /* RCC                          */
+WEAK INTERRUPT EXTI0irqHnd()       { while(1);}   /* EXTI Line0                   */
+WEAK INTERRUPT EXTI1irqHnd()       { while(1);}   /* EXTI Line1                   */
+WEAK INTERRUPT EXTI2irqHnd()       { while(1);}   /* EXTI Line2                   */
+WEAK INTERRUPT EXTI3irqHnd()       { while(1);}   /* EXTI Line3                   */
+WEAK INTERRUPT EXTI4irqHnd()       { while(1);}   /* EXTI Line4                   */
+WEAK INTERRUPT DMA1_0irqHnd()      { while(1);}   /* DMA1 Stream 0                */
+WEAK INTERRUPT DMA1_1irqHnd()      { while(1);}   /* DMA1 Stream 1                */
+WEAK INTERRUPT DMA1_2irqHnd()      { while(1);}   /* DMA1 Stream 2                */
+WEAK INTERRUPT DMA1_3irqHnd()      { while(1);}   /* DMA1 Stream 3                */
+WEAK INTERRUPT DMA1_4irqHnd()      { while(1);}   /* DMA1 Stream 4                */
+WEAK INTERRUPT DMA1_5irqHnd()      { while(1);}   /* DMA1 Stream 5                */
+WEAK INTERRUPT DMA1_6irqHnd()      { while(1);}   /* DMA1 Stream 6                */
+WEAK INTERRUPT ADCirqHnd()         { while(1);}   /* ADC1, ADC2 and ADC3s         */
+WEAK INTERRUPT EXTI9_5irqHnd()     { while(1);}   /* External Line[9:5]s          */
+WEAK INTERRUPT TIM1_BRK_9irqHnd()  { while(1);}   /* TIM1 Break and TIM9          */
+WEAK INTERRUPT TIM1_UP_10irqHnd()  { while(1);}   /* TIM1 Update and TIM10        */
+WEAK INTERRUPT TIM1_TRG_11irqHnd() { while(1);}   /* TIM1 Trigger and Commutation and TIM11 */
+WEAK INTERRUPT TIM1_CCirqHnd()     { while(1);}   /* TIM1 Capture Compare         */
+WEAK INTERRUPT TIM2irqHnd()        { while(1);}   /* TIM2                         */
+WEAK INTERRUPT TIM3irqHnd()        { while(1);}   /* TIM3                         */
+WEAK INTERRUPT TIM4irqHnd()        { while(1);}   /* TIM4                         */
+WEAK INTERRUPT I2C1_EVirqHnd()     { while(1);}   /* I2C1 Event                   */
+WEAK INTERRUPT I2C1_ERirqHnd()     { while(1);}   /* I2C1 Error                   */
+WEAK INTERRUPT I2C2_EVirqHnd()     { while(1);}   /* I2C2 Event                   */
+WEAK INTERRUPT I2C2_ERirqHnd()     { while(1);}   /* I2C2 Error                   */
+WEAK INTERRUPT SPI1irqHnd()        { while(1);}   /* SPI1                         */
+WEAK INTERRUPT SPI2irqHnd()        { while(1);}   /* SPI2                         */
+WEAK INTERRUPT USART1irqHnd()      { while(1);}   /* USART1                       */
+WEAK INTERRUPT USART2irqHnd()      { while(1);}   /* USART2                       */
+WEAK INTERRUPT USART3irqHnd()      { while(1);}   /* USART3                       */
+WEAK INTERRUPT USART4irqHnd()      { while(1);}   /* USART4                       */
+WEAK INTERRUPT USART5irqHnd()      { while(1);}   /* USART5                       */
+WEAK INTERRUPT USART6irqHnd()      { while(1);}   /* USART6                       */
+WEAK INTERRUPT EXTI15_10irqHnd()   { while(1);}   /* External Line[15:10]s        */
+WEAK INTERRUPT RTC_AlarmirqHnd()   { while(1);}   /* RTC Alarm (A and B) through EXTI Line */
+WEAK INTERRUPT OTG_FS_WKUPirqHnd() { while(1);}   /* USB OTG FS Wakeup through EXTI line */
+WEAK INTERRUPT DMA1_7irqHnd()      { while(1);}   /* DMA1 Stream7                 */
+WEAK INTERRUPT SDIOirqHnd()        { while(1);}   /* SDIO                         */
+WEAK INTERRUPT TIM5irqHnd()        { while(1);}   /* TIM5                         */
+WEAK INTERRUPT SPI3irqHnd()        { while(1);}   /* SPI3                         */
+WEAK INTERRUPT DMA2_0irqHnd()      { while(1);}   /* DMA2 Stream 0                */
+WEAK INTERRUPT DMA2_1irqHnd()      { while(1);}   /* DMA2 Stream 1                */
+WEAK INTERRUPT DMA2_2irqHnd()      { while(1);}   /* DMA2 Stream 2                */
+WEAK INTERRUPT DMA2_3irqHnd()      { while(1);}   /* DMA2 Stream 3                */
+WEAK INTERRUPT DMA2_4irqHnd()      { while(1);}   /* DMA2 Stream 4                */
+//WEAK INTERRUPT OTG_FSirqHnd()      { while(1);}   /* USB OTG FS                   */
+WEAK INTERRUPT DMA2_5irqHnd()      { while(1);}   /* DMA2 Stream 5                */
+WEAK INTERRUPT DMA2_6irqHnd()      { while(1);}   /* DMA2 Stream 6                */
+WEAK INTERRUPT DMA2_7irqHnd()      { while(1);}   /* DMA2 Stream 7                */
+WEAK INTERRUPT I2C3_EVirqHnd()     { while(1);}   /* I2C3 event                   */
+WEAK INTERRUPT I2C3_ERirqHnd()     { while(1);}   /* I2C3 error                   */
+WEAK INTERRUPT FPUirqHnd()         { while(1);}   /* FPU                          */
+WEAK INTERRUPT SPI4irqHnd()        { while(1);}   /* SPI4                         */
 
-WEAK INTERRUPT void OTG_HSep1OUTirqHnd(){ while(1);}   /* SPI4                         */
-WEAK INTERRUPT void OTG_HSep1INirqHnd() { while(1);}   /*    75 OTG HS End Point 1 In global interrupt  */
-WEAK INTERRUPT void OTG_HSWakeUPirqHnd(){ while(1);}  /*    76 OTG HS Wakeup through EXTI interrupt    */
-WEAK INTERRUPT void OTG_HSirqHnd()      { while(1);}       /*    77 OTG HS global interrupt                 */
+WEAK INTERRUPT OTG_HSep1OUTirqHnd(){ while(1);}   /* SPI4                         */
+WEAK INTERRUPT OTG_HSep1INirqHnd() { while(1);}   /*    75 OTG HS End Point 1 In global interrupt  */
+WEAK INTERRUPT OTG_HSWakeUPirqHnd(){ while(1);}  /*    76 OTG HS Wakeup through EXTI interrupt    */
+WEAK INTERRUPT OTG_HSirqHnd()      { while(1);}       /*    77 OTG HS global interrupt                 */
 
 
 void  ldStack();  /* defined on the ld script */
@@ -539,7 +539,7 @@ volatile static  word  uSecs;
 
 
 /* ------------------------------------------------------------------------- */
-   INTERRUPT void SysTickHnd( void )
+   INTERRUPT SysTickHnd( void )
 /* ------------------------------------------------------------------------- */
 { upTime += uSecs;
 

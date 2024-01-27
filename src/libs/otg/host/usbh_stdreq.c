@@ -18,9 +18,6 @@
 
 #include "usbh_core.h"
 
-ALIGN_THIS( byte  USBH_CfgDesc[ CFG_DESC_MAX_SIZE ] );
-
-
 /**
  * @brief  USBH_Get_DevDesc
  *         Issue Get Device Descriptor command to the device. Once the response
@@ -55,7 +52,7 @@ schar USBH_Get_DevDesc( byte devAddr, byte length )
 * @param  buf: Buffer where the descriptor data is available
 * @retval None
 */
-static void  USBH_ParseInterfaceDesc( USBHinterfaceDescRec *if_descriptor
+static void  USBH_ParseInterfaceDesc( USBHinterfaceDescRec * if_descriptor
                                     , byte * buf )
 { if_descriptor->bLength           = buf[ 0 ];
   if_descriptor->bDescriptorType   = buf[ 1 ];
@@ -96,9 +93,9 @@ static void  USBH_ParseEPDesc( USBHepDescRec * ep_descriptor
  * @retval None
  */
 schar USBH_ParseCfgDesc( USBH_CfgDesc_TypeDef * cfg_desc
-                             , USBHinterfaceDescRec * itf_desc
-                             , USBHepDescRec        *  ep_desc1
-                             , byte * buf, word length )
+                       , USBHinterfaceDescRec * itf_desc
+                       , USBHepDescRec        *  ep_desc1
+                       , byte * buf, word length )
 { USBHinterfaceDescRec * pif ;
   USBHinterfaceDescRec   temp_pif ;
   USBHepDescRec        * pep;
@@ -204,7 +201,7 @@ schar parseCfgDesc( word length )
 { word index = 0;
 
   for( ; index < length ; index ++ )     /* save Cfg descriptor for class parsing usage */
-  { USBH_CfgDesc[ index ]= USB_HOST.rxBuffer[ index ];
+  { OTGscratch[ index ]= USB_HOST.rxBuffer[ index ];
   }
 
   return( USBH_ParseCfgDesc( &USB_Host.deviceProp.Cfg_Desc
@@ -482,7 +479,7 @@ schar USBH_ClrFeature( byte ep_num, byte hcNum )
   USB_Host.Control.setup.b.wIndex.w = ep_num;
   USB_Host.Control.setup.b.wLength.w = 0;
 
-  if ((ep_num & USB_REQ_DIR_MASK ) == USB_D2H) /* EP Type is IN */
+  if (( ep_num & USB_REQ_DIR_MASK ) == USB_D2H) /* EP Type is IN */
   { USB_HOST.hc[ hcNum ].toggleIn= 0;
   }
   else /* EP Type is IN */

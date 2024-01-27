@@ -20,8 +20,6 @@
 #include "../usbdef.h"
 #include "usb-glue.h"
 
-
-
 enum
 { MSC_PROTOCOL= 0x50
 , CBI_PROTOCOL= 0x01
@@ -55,9 +53,7 @@ typedef enum
 CTRL_State;
 
 
-
 #define USBH_MAX_ERROR_COUNT  2
-#define CFG_DESC_MAX_SIZE   512
 
 /* Following states are used for EnumerationState
  */
@@ -72,6 +68,7 @@ typedef enum
 , ENUM_GET_SERIALNUM_STRING_DESC
 , ENUM_SET_CONFIGURATION
 , ENUM_DEV_CONFIGURED
+
 } ENUM_State;
 
 
@@ -129,9 +126,10 @@ typedef struct
 
 
 typedef struct
-{ ENUM_State          EnumState;    /* Enumeration state Machine */
-  USBH_Ctrl_TypeDef   Control;
-  USBHdeviceRec deviceProp;
+{ ENUM_State        EnumState;    /* Enumeration state Machine */
+  USBH_Ctrl_TypeDef Control;
+  USBHdeviceRec     deviceProp;
+
   short( *handleCtrlPkg )( byte epNum ); /* Package arrive manage */
 } USBH_HOST_REC;
 
@@ -143,23 +141,32 @@ void   usbHostSetXferDest( schar( *handleXferPkg )( byte epNum ) );       /* Hos
 short  usbHostDeInit( void );
 short  usbHostHandleEnum( byte ep );
 
-void usbHostGotDeInit                    ( void  );       /* HostLibInitialized */
-void usbHostGotDeviceDescAvailable       ( void * );    /* DeviceDescriptor is available */
-void usbHostGotDescAvailable             ( void * );
-void usbHostGotDeviceAttached            ( void  );           /* DeviceAttached */
-void usbHostGotResetDevice               ( void  );
-void usbHostGotDeviceDisconnected        ( void  );
-void usbHostGotOverCurrentDetected       ( void  );
-void usbHostGotDeviceSpeedDetected       ( byte DeviceSpeed);  /* DeviceSpeed */
-void usbHostGotDeviceAddressAssigned     ( void   );           /* Address is assigned to USB Device */
+enum
+{ USB_HOST_DEINIT
+, USB_HOST_DESC_AVAILABLE
+, USB_HOST_DEV_ATTACHED
+, USB_HOST_RESET_DEV
+, USB_HOST_OVER_CURRENT
+, USB_HOST_SPEED_DET
+, USB_HOST_ADDR_ASSIGNED
+, USB_HOST_ENUM_DONE
+, USB_HOST_DEV_NOT_SUP
+, USB_HOST_USER_APP
+, USB_HOST_UNREC_ERR
+, USB_HOST_SERIAL_STR
+, USB_HOST_PRODUCT_STR
+, USB_HOST_VENDOR_STR
+};
+
+
+
+void usbHostEvent( word what, void * args );   /* HostLibInitialized */
+
 void usbHostGotConfigurationDescAvailable( USBH_CfgDesc_TypeDef *
                                          , USBHinterfaceDescRec *
                                          , USBHepDescRec        * );
-/* Configuration Descriptor available
- */
-void  usbHostGotSerialNumString   ( void *  ); /* SerialNubString*/
-void  usbHostGotEnumerationDone   ( void    ); /* Enumeration finished */
-void  usbHostGotDeviceNotSupported( void    ); /* Device is not supported*/
+
+short usbHostGotUserApplication( union USBclassBM p );
 
 union USBclassBM
 { struct
@@ -198,8 +205,7 @@ typedef struct USB_OTG_hc
 USB_OTG_HC;
 
 typedef struct
-{// dword       XferCnt[ USB_OTG_MAX_TX_FIFOS ];
-  URB_STATE URB_State[ USB_OTG_MAX_TX_FIFOS ];
+{ URB_STATE URB_State[ USB_OTG_MAX_TX_FIFOS ];
   USB_OTG_HC       hc[ USB_OTG_MAX_TX_FIFOS ];
   byte  devAddr      [ 8 ];                    /* free device address list ( 127 max ) */
 
@@ -214,14 +220,6 @@ typedef struct
   byte rxBuffer[ MAX_DATA_LENGTH ];
 }
 HCD_DEV;
-
-
-
-
-short usbHostGotUserApplication( union USBclassBM );
-void usbHostGotUnrecoveredError  ( void  );
-void usbHostGotProductString     ( void *);          /* ProductString*/
-void usbHostGotManufacturerString( void *);     /* ManufacturerString*/
 
 void USBHxferOutControl( short channel );
 void USBHxferInControl(  short channel );
@@ -253,8 +251,6 @@ hostClassLink USBHhidInterfaceInit( USBHdeviceRec *, void * handler );
 #define FEATURE_SELECTOR_ENDPOINT 0X00
 #define FEATURE_SELECTOR_DEVICE   0X01
 
-
-extern byte USBH_CfgDesc[ CFG_DESC_MAX_SIZE ];
 
 
 schar USBH_GetDescriptor( byte req_type
@@ -329,6 +325,14 @@ byte UHOSTopenChannel( byte epNum
                      , word mps
                      , void (*action)( short ep ) );
 
+struct USBHostConfigDef
+{ word rxFifoSize;
+  word txNPSize;
+  word txPRSize;
+};
+
+extern struct USBHostConfigDef USBHostConfig;
+
 /* --------------------------------------------------------------- */
 
 #define  LE16( addr ) (((word)(*((byte *)(addr))))  + (((word)(*(((byte *)(addr)) + 1))) << 8))
@@ -342,14 +346,6 @@ byte UHOSTopenChannel( byte epNum
 
 #define USB_DEVICE_DESC_SIZE        18
 #define USB_CONFIGURATION_DESC_SIZE  9
-/*
-#define USB_ENDPOINT_DESC_SIZE       7
-*/
-
-#define  USB_EP_DIR_OUT 0x00
-#define  USB_EP_DIR_IN  0x80
-#define  USB_EP_DIR_MSK 0x80
-
 
 #endif
 

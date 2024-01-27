@@ -2048,7 +2048,7 @@ static FRESULT follow_path( DIR         * dj      /* Directory object to return 
 /*-----------------------------------------------------------------------*/
 /* 0:FAT-VBR, 1:Any BR but not FAT, 2:Not a BR, 3:Disk error */
 
-static BYTE checkFs( FATFS *fs                  /* File system object */
+static BYTE checkFs( FATFS * fs                  /* File system object */
                    , DWORD sect )               /* Sector# (lba) to check if it is an FAT boot record or not */
 { if ( diskRead( fs->drv, fs->win, sect, 1 ))   /* Load boot record */
   { return( 3 );
@@ -3883,9 +3883,9 @@ FRESULT fMkfs( BYTE vol    /* Logical drive number */
     b_vol = LD_DWORD(tbl+8);  /* Volume start sector */
     n_vol = LD_DWORD(tbl+12); /* Volume size */
   }
-  else
-  { /* Create a partition in this function */
-    if (diskIoctl(pdrv, GET_SECTOR_COUNT, &n_vol) || n_vol < 128)
+
+  else /* Create a partition in this function */
+  { if ( diskIoctl(pdrv, GET_SECTOR_COUNT, &n_vol) || n_vol < 128 )
     { return FR_DISK_ERR;
     }
     b_vol = (sfd) ? 0 : 63;   /* Volume start sector */
@@ -4118,11 +4118,14 @@ FRESULT fFdisk( BYTE pdrv      /* Physical drive number */
   if ( stat & STA_PROTECT ) { return( FR_WRITE_PROTECTED ); }
 
   if ( diskIoctl( pdrv, GET_SECTOR_COUNT, &sz_disk))
-  { return FR_DISK_ERR;
+  { return( FR_DISK_ERR );
   }
 
-  /* Determine CHS in the table regardless of the drive geometry */
-  for (n = 16; n < 256 && sz_disk / n / 63 > 1024; n *= 2) ;
+/* Determine CHS in the table regardless of the drive geometry
+ */
+  for( n = 16
+     ; n < 256 && sz_disk / n / 63 > 1024
+     ; n *= 2 );
   if (n == 256) n--;
   e_hd = n - 1;
   sz_cyl = 63 * n;

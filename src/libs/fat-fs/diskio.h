@@ -8,7 +8,6 @@
 //#include "uc.h"
 
 #define _USE_WRITE	1	/* 1: Enable diskWrite function */
-#define _USE_IOCTL	1	/* 1: Enable diskIoctl fucntion */
 
 
 typedef unsigned char	DSTATUS; /* Status of Disk Functions */
@@ -32,17 +31,19 @@ typedef enum
 DSTATUS diskInitialize( unsigned char pdrv );
 DSTATUS diskStatus(     unsigned char pdrv );
 
-DRESULT diskRead( unsigned int pdrv			     /* Physical drive number (0) */
-                , void *buff	 		   /* Pointer to the data buffer to store read data */
-                , unsigned int sector		   /* Start sector number (LBA) */
-                , unsigned int count );		 /* Sector count (1..255) */
+DRESULT diskRead ( unsigned int pdrv			   /* Physical drive number (0) */
+                 , void * buff	 		        /* Pointer to the data buffer to store read data */
+                 , unsigned int sector		  /* Start sector number (LBA) */
+                 , unsigned int count );		/* Sector count (1..255) */
 
-DRESULT diskWrite( unsigned int pdrv 			     /* Physical drive number (0) */
-                 , const void * buff	/* Pointer to the data to be written */
-                 , unsigned int sector 	   	/* Start sector number (LBA) */
-                 , unsigned int count	);	   	/* Sector count (1..255) */
+DRESULT diskWrite( unsigned int pdrv 			  /* Physical drive number (0) */
+                 , const void * buff	     /* Pointer to the data to be written */
+                 , unsigned int sector 	  /* Start sector number (LBA) */
+                 , unsigned int count	);	 /* Sector count (1..255) */
 
-DRESULT diskIoctl( unsigned int pdrv, unsigned int cmd, void * buff );
+DRESULT diskIoctl( unsigned int pdrv
+                 , unsigned int cmd
+                 , void * buff );
 
 
 /* Disk Status Bits (DSTATUS) */

@@ -22,33 +22,17 @@
 
 union USBclassBM USBHclassSignaler;
 
-WEAK void usbHostGotDeInit                    ( void   ){}   /* HostLibInitialized */
-WEAK void usbHostGotDeviceDescAvailable       ( void *d){}   /* DeviceDescriptor is available */
-WEAK void usbHostGotDescAvailable             ( void *d ){}
-WEAK void usbHostGotDeviceAttached            ( void   ){}    /* DeviceAttached */
-WEAK void usbHostGotResetDevice               ( void   ){}
-WEAK void usbHostGotDeviceDisconnected        ( void   ){}
-WEAK void usbHostGotOverCurrentDetected       ( void   ){}
-WEAK void usbHostGotDeviceSpeedDetected       ( byte DeviceSpeed ) {}          /* DeviceSpeed */
-WEAK void usbHostGotDeviceAddressAssigned     ( void   ) {}  /* Address is assigned to USB Device */
+WEAK void usbHostEvent( word what, void * args ) {}   /* HostLibInitialized */
+
 WEAK void usbHostGotConfigurationDescAvailable( USBH_CfgDesc_TypeDef * c
                                               , USBHinterfaceDescRec * i
                                               , USBHepDescRec        * p ) {}
-/* Configuration Descriptor available
- */
-WEAK void usbHostGotSerialNumString   ( void * p ) {}        /* SerialNubString*/
 
 WEAK short usbHostGotUserApplication( union USBclassBM p )
 { USBHclassSignaler.addr= USB_Host.deviceProp.devAddr == DEFAULT_DEVADDR
                         ? 1 : 1 << USB_Host.deviceProp.devAddr;
   return( 0 );
 }
-
-WEAK void usbHostGotEnumerationDone   ( void     ) {}  /* Enumeration finished */
-WEAK void usbHostGotDeviceNotSupported( void     ) {}  /* Device is not supported*/
-WEAK void usbHostGotUnrecoveredError  ( void     ) {}
-WEAK void usbHostGotProductString     ( void * p ) {}  /* ProductString*/
-WEAK void usbHostGotManufacturerString( void * p ) {}  /* ManufacturerString*/
 
 HCD_DEV       USB_HOST;
 USBH_HOST_REC USB_Host;
@@ -60,9 +44,9 @@ USBH_HOST_REC USB_Host;
   * @retval Status
   */
 byte gotDevConnected()
-{ mDelay( 100 );           /* wait denounce delay */
-  HCDresetPort();         /* Apply a port RESET */
-  usbHostGotResetDevice(); /* User RESET callback*/
+{ mDelay( 100 );                      /* wait denounce delay */
+  HCDresetPort();                     /* Apply a port RESET */
+  usbHostEvent( USB_HOST_RESET_DEV, NULL ); /* User RESET callback*/
   return( 0 );
 }
 
@@ -292,7 +276,7 @@ short usbHostHandleEnum( byte ep )
     case ENUM_GET_FULL_DEV_DESC:                                     /* Get FULL Device Desc  */
       USBH_ParseDevDesc( &USB_Host.deviceProp.Dev_Desc
                        ,  USB_HOST.rxBuffer, USB_DEVICE_DESC_SIZE ); /* Commands successfully sent and Response Received */
-      usbHostGotDescAvailable( &USB_Host.deviceProp.Dev_Desc );      /* user callback for device descriptor available */
+      usbHostEvent( USB_HOST_DESC_AVAILABLE, &USB_Host.deviceProp.Dev_Desc );      /* user callback for device descriptor available */
 
       USBH_SetAddress( USB_Host.deviceProp.devAddr );
       USB_Host.EnumState= ENUM_SET_ADDR;
@@ -300,7 +284,8 @@ short usbHostHandleEnum( byte ep )
 
     case ENUM_SET_ADDR:       /* set address */
       mDelay( 20 );
-      usbHostGotDeviceAddressAssigned();         /* user callback for device address assigned */
+      usbHostEvent( USB_HOST_ADDR_ASSIGNED       /* user callback for device address assigned */
+                  , &USB_Host.deviceProp.devAddr );
 
     /* modify control channels to update device address
      */
@@ -337,13 +322,13 @@ short usbHostHandleEnum( byte ep )
         USB_Host.EnumState= ENUM_GET_MFC_STRING_DESC;
         break;
       }
-    usbHostGotManufacturerString( "N/A" );   // Not available fallout
+    usbHostEvent( USB_HOST_VENDOR_STR, "N/A" );   // Not available fallout
 
 
     case ENUM_GET_MFC_STRING_DESC: /* Check that Manufacturer String is available */
       if ( enumState == ENUM_GET_MFC_STRING_DESC )
       { USBH_ParseStringDesc( USB_HOST.rxBuffer, lBuffer, sizeof( lBuffer ));    /* Commands successfully sent and Response Received  */
-        usbHostGotManufacturerString( lBuffer ); /* User callback for Manufacturing string */
+        usbHostEvent( USB_HOST_VENDOR_STR, lBuffer ); /* User callback for Manufacturing string */
       }
 
       if ( USB_Host.deviceProp.Dev_Desc.iProduct )
@@ -353,12 +338,12 @@ short usbHostHandleEnum( byte ep )
         USB_Host.EnumState= ENUM_GET_PRODUCT_STRING_DESC;
         break;
       }
-    usbHostGotProductString("N/A");  // Not available fallout
+      usbHostEvent( USB_HOST_PRODUCT_STR, "N/A");  // Not available fallout
 
     case ENUM_GET_PRODUCT_STRING_DESC: /* Check that Product string is available */
       if ( enumState == ENUM_GET_PRODUCT_STRING_DESC )
       { USBH_ParseStringDesc( USB_HOST.rxBuffer, lBuffer,  sizeof( lBuffer ) );    /* Commands successfully sent and Response Received  */
-        usbHostGotProductString( lBuffer ); /* User callback for Product string */
+        usbHostEvent( USB_HOST_PRODUCT_STR, lBuffer ); /* User callback for Product string */
       }
 
       if ( USB_Host.deviceProp.Dev_Desc.iSerialNumber ) /* Check that Serial number string is available */
@@ -368,12 +353,12 @@ short usbHostHandleEnum( byte ep )
         USB_Host.EnumState= ENUM_GET_SERIALNUM_STRING_DESC;
         break;
       }
-    usbHostGotSerialNumString( "N/A" );
+    usbHostEvent( USB_HOST_SERIAL_STR, "N/A" );
 
     case ENUM_GET_SERIALNUM_STRING_DESC:
       if ( enumState == ENUM_GET_SERIALNUM_STRING_DESC )
       { USBH_ParseStringDesc( USB_HOST.rxBuffer, lBuffer,  sizeof( lBuffer ) );    /* Commands successfully sent and Response Received  */
-        usbHostGotSerialNumString( lBuffer ); /* User callback for Serial number string */
+        usbHostEvent( USB_HOST_SERIAL_STR, lBuffer );
       }
 
       USBH_SetCfg( USB_Host.deviceProp.Cfg_Desc.bConfigurationValue );
@@ -399,26 +384,21 @@ short usbHostHandleEnum( byte ep )
   */
 byte gotDevPortEnabled()
 { mDelay( 50 );
-  usbHostGotDeviceAttached();
+  usbHostEvent( USB_HOST_DEV_ATTACHED, NULL );
 
- // if ( ! HCDresetPort( ))       /* Reset USB Device */
-  { usbHostGotResetDevice(); //debug( "DEV ATACHED \r\n" );
+  USB_Host.deviceProp.speed= HCDgetCurrentSpeed(); /* Host is Now ready to start the Enumeration */
+  usbHostEvent( USB_HOST_SPEED_DET, &USB_Host.deviceProp.speed );
 
-    USB_Host.deviceProp.speed= HCDgetCurrentSpeed(); /* Host is Now ready to start the Enumeration */
-    usbHostGotDeviceSpeedDetected( USB_Host.deviceProp.speed );
+  USB_Host.Control.hcNumIn =
+    UHOSTopenChannel( EPDIR_IN  /* Open Control pipes */
+                    , EPTYPE_CONTROL, USB_Host.Control.ep0size
+                    , USBHxferInControl );
 
-    USB_Host.Control.hcNumIn =
-      UHOSTopenChannel( 0x80  /* Open Control pipes */
-                      , EPTYPE_CONTROL, USB_Host.Control.ep0size
-                      , USBHxferInControl );
-
-    USB_Host.Control.hcNumOut=
-      UHOSTopenChannel( 0x00 /* Open Control pipes */
-                      , EPTYPE_CONTROL, USB_Host.Control.ep0size
-                      , USBHxferOutControl );
-
-    USBH_Get_DevDesc( DEFAULT_DEVADDR, 8 );
-  }
+  USB_Host.Control.hcNumOut=
+    UHOSTopenChannel( EPDIR_OUT /* Open Control pipes */
+                    , EPTYPE_CONTROL, USB_Host.Control.ep0size
+                    , USBHxferOutControl );
+  USBH_Get_DevDesc( DEFAULT_DEVADDR, 8 );
 
   return( 0 );
 }
@@ -465,19 +445,6 @@ short usbHostDeInit( void ) /* Software Init */
   return( 0 );
 }
 
-
-/**
- * @brief  USBinitHOST
- *         Host hardware and stack initializations
- * @retval None
- */
-void * USBinitHOST( dword vbusPin )
-{ OTGselectCore( vbusPin );
-  OTGsetCurrentMode( HOST_MODE ); /* No OTG, force Host Mode */
-  USBHcoreInit();                 /* Start the USB OTG core  */
-
-  return( &USBIrqHandlerHOST );   /* Be sure is linked */
-}
 
 /**
  * @brief  usbHOSTsetUrbState

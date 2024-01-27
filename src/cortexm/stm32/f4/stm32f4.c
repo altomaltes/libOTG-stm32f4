@@ -268,7 +268,7 @@ volatile extern struct
 #define PULL_DN   0x2
 #define PULL_RES  0x3
 
-volatile extern struct           /** 0x50000000 General-purpose I/Os */
+volatile extern struct  /** 0x50000000 General-purpose I/Os */
 { dword MODER        ;  /** 0x00 RST: 0x7FFFFFFF GPIO port mode register */
   dword OTYPER       ;  /** 0x04 RST: 0x00000000 GPIO port output type register */
   dword OSPEEDR      ;  /** 0x08 RST: 0x0C000000 GPIO port output speed register */
