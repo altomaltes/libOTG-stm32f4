@@ -55,41 +55,22 @@
 
 #define   MAX_DATA_LENGTH    0x200
 
-#define USB_VBUS_INV 0x08000
-#define USB_ID_PIN   0x80000   /* OTG id connector */
-#define USB_VBUS_INT 0x40000   /* */
-#define USB_ULPI_PHY 0x20000   /* use UPLI pysical interface */
-#define USB_VBUS_EMB 0x10000
+#define USB_VBUS_INV 0x100000
+#define USB_ID_PIN   0x200000   /* OTG id connector */
+#define USB_VBUS_INT 0x400000   /* */
+#define USB_ULPI_PHY 0x800000   /* use UPLI pysical interface */
 
-#define USB_MAX_STR_DESC_SIZ 64
+#define USB_KEEP_PCONF 0xFFFFFFFF
 
 #define USBH_MAX_NUM_INTERFACES 2
 #define USBH_MAX_NUM_ENDPOINTS  3
 
 #define USBH_MAX_DATA_BUFFER 256
 
-
-
 /* RAM  fifo sizes
  */
 #define USB_OTG_FS_TOTAL_FIFO_SIZE ( 320  * 4 )
 #define USB_OTG_HS_TOTAL_FIFO_SIZE ( 1280 * 4 )
-
-
-
-/* COMMON fifo sizes
- */
-#define RX_FIFO_FS_SIZE 192
-#define RX_FIFO_HS_SIZE 512
-
-
-/* HOST fifo sizes
- */
-
-#define TXH_NP_FS_FIFOSIZ  96
-#define TXH_NP_HS_FIFOSIZ 256
-#define TXH_P_FS_FIFOSIZ   96
-#define TXH_P_HS_FIFOSIZ  256
 
 
 #define USB_DEVICE_DESCRIPTOR_TYPE         0x01
@@ -101,7 +82,7 @@
 #define USB_SIZ_STRING_LANGID                 4
 
 
-
+#define CFG_SCRATCH_SIZE   512
 
 
 #endif //__USB_CONF__H__

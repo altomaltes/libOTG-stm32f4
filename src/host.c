@@ -15,9 +15,38 @@
 #include "ff.h"
 #include "stm32.h"
 
+extern word LED1;
+extern word LED2;
+extern word LED3;
+extern word LED4;
+
+
 byte hubAddr= 0;
 byte mscAddr= 0;
 byte hidAddr= 0;
+
+/**
+ * @brief  usbHostGotDisconnected
+ *         Links the correct device handler
+ * @retval
+ */
+void usbHostGotDisconnected( byte devAddr )
+{
+  if ( devAddr == mscAddr )
+  { for( int loop= 0
+       ;     loop < 3
+       ;     loop ++ )
+    { PIN_SET( LED2 ); PIN_SET( LED4 ); mDelay( 90 );
+      PIN_RST( LED2 ); PIN_RST( LED4 ); mDelay( 60 );
+  } }
+
+  if ( devAddr == hubAddr )
+  { for( int loop= 0
+       ;     loop < 3
+       ;     loop ++ )
+    { PIN_SET( LED1 ); PIN_SET( LED3 ); mDelay( 90 );
+      PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 60 );
+} } }
 
 
 
@@ -115,5 +144,17 @@ hostClassLink USBHgetHandleAtConnect( USBHdeviceRec * dev )
 
   return( 0 );
 }
+
+
+/**
+ * @brief  USBHostConfigDef
+ *         Links the correct device handler
+ * @retval
+ */
+struct USBHostConfigDef USBHostConfig=
+{ .rxFifoSize= 192  // #define RX_FIFO_HS_SIZE 512
+, .txNPSize  =  96  // #define TXH_NP_HS_FIFOSIZ 256
+, .txPRSize  =  96  //#define TXH_P_HS_FIFOSIZ  256
+};
 
 

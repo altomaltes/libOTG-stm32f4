@@ -11,8 +11,11 @@
 
 #ifndef  USB_GLUE_H
 #define  USB_GLUE_H
+
+#include "uc.h"
 // ???
 #define DEFAULT_DEVADDR 127
+
 #define USB_OTG_HS_MAX_PACKET_SIZE 512
 #define USB_OTG_FS_MAX_PACKET_SIZE  64
 
@@ -47,25 +50,24 @@ enum
 , DISABLE_MODE
 };
 
-void USBIrqHandlerDEV( );
-void USBIrqHandlerHOST();
-void USBIrqHandlerOTG( );
+extern void (*USBirqHnd)( dword core );
+
 
 /* usb-coredev.c
  */
 void   USBDepSetAddress ( byte epNum );
 void   USBDepSetTestMode( byte mode  );
-schar  USBDcoreInit    ( const word * fifosizes );
+short  USBDcoreInit    ( const word * fifosizes );
 void   USBDstopDevice  ( void );
 void   USBDep0OutStart ();
-schar  USBDsetStall    ( byte epAddr );
-schar  USBDepActivate  ( byte epAddr, byte epType, word maxPacket );
-schar  USBDepDeactivate( byte epAddr );
-schar  USBDep0StartRecv( word maxpacket );
-schar  USBDepClearStall( byte epAddr );
-schar  USBDepStartXrecv( byte, word, word );
-schar  USBDep0StartXmit( word xferLen   );
-schar  USBDepStartXmit ( byte epAddr, const void * xferBuff, word xferLen );
+short  USBDsetStall    ( byte epAddr );
+short  USBDepActivate  ( byte epAddr, byte epType, word maxPacket );
+short  USBDepDeactivate( byte epAddr );
+short  USBDep0StartRecv( word maxpacket );
+short  USBDepClearStall( byte epAddr );
+short  USBDepStartXrecv( byte, word, word );
+short  USBDep0StartXmit( word xferLen   );
+short  USBDepStartXmit ( byte epAddr, const void * xferBuff, word xferLen );
 
 short  OTGsetCurrentMode( byte mode );
 void * OTGreadPacket( void * dest, word len );
@@ -74,6 +76,9 @@ short  OTGselectCore( dword flags );
 short  OTGgetDmaEnable();
 short  OTGgetDevEndpoints(); // USB_OTG_Core.devEndpoints
 short  OTGgetHostChannels();
+
+dword  usbOTGgetCurrentFrame( word delta );
+
 
 
 

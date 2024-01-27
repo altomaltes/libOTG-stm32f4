@@ -34,7 +34,6 @@
 #define USB_CFG_ATTR_SELFPOWERED    0x40
 
 
-
 #define __CAT(x,y) x ## y
 #define CAT(x,y) __CAT(x,y)
 
@@ -68,13 +67,13 @@
  */
 
 #define EPDIR_REQTYPE_MASK    0x60
-#define EPDIR_MASK            0x80	    /** USB Endpoint direction mask to get the EP direction from address. */
 #define EPADDR_MASK           0x0F	    /**  */
 
 #define EPTYPE_DBLBUF   0x04    /** Doublebuffered endpoint (bulk endpoint only).*/
 
 #define EPDIR_IN              0x80   /** Host-to-device endpoint direction.*/
 #define EPDIR_OUT             0x00   /** Device-to-host endpoint direction.*/
+#define EPDIR_MASK            0x7F   /** Device-to-host endpoint direction.*/
 
 #define EPTYPE_CONTROL        0x00   /** Control endpoint.     */
 #define EPTYPE_ISOCHRONUS     0x01   /** Isochronous endpoint. */
@@ -129,25 +128,25 @@
 #define USB_SUBCLASS_CDC        0x00
 
 
-#define USB_PROTO_NONE          0x00    /** No protocol defined.*/
-#define USB_PROTO_IAD           0x01    /** Protocol defined on interface association level.*/
-#define USB_PROTO_VENDOR        0xFF    /** Vendor specific protocol.*/
+#define USB_PROTO_NONE      0x00  /** No protocol defined.*/
+#define USB_PROTO_IAD       0x01  /** Protocol defined on interface association level.*/
+#define USB_PROTO_VENDOR    0xFF  /** Vendor specific protocol.*/
 
 /** USB Standard descriptor types
  */
-#define DTYPE_DEVICE            0x01    /** Device descriptor.*/
-#define DTYPE_CONFIGURATION     0x02    /** Configuration descriptor.*/
-#define DTYPE_STRING            0x03    /** String descriptor.*/
-#define DTYPE_INTERFACE         0x04    /** Interface descriptor.*/
-#define DTYPE_ENDPOINT          0x05    /** Endpoint  descriptor.*/
-#define DTYPE_QUALIFIER         0x06    /** Qualifier descriptor.*/
-#define DTYPE_OTHER             0x07    /** Descriptor is of other type. */
-#define DTYPE_INTERFACEPOWER    0x08    /** Interface power descriptor. */
-#define DTYPE_OTG               0x09    /** OTG descriptor.*/
-#define DTYPE_DEBUG             0x0A    /** Debug descriptor.                   */
-#define DTYPE_INTERFASEASSOC    0x0B    /** Interface association descriptor.   */
-#define DTYPE_CS_INTERFACE      0x24    /** Class specific interface descriptor.*/
-#define DTYPE_CS_ENDPOINT       0x25    /** Class specific endpoint descriptor. */
+#define DTYPE_DEVICE         0x01  /** Device descriptor.                  */
+#define DTYPE_CONFIGURATION  0x02  /** Configuration descriptor.           */
+#define DTYPE_STRING         0x03  /** String descriptor.                  */
+#define DTYPE_INTERFACE      0x04  /** Interface descriptor.               */
+#define DTYPE_ENDPOINT       0x05  /** Endpoint  descriptor.               */
+#define DTYPE_QUALIFIER      0x06  /** Qualifier descriptor.               */
+#define DTYPE_OTHER          0x07  /** Descriptor is of other type.        */
+#define DTYPE_INTERFACEPOWER 0x08  /** Interface power descriptor.         */
+#define DTYPE_OTG            0x09  /** OTG descriptor.                     */
+#define DTYPE_DEBUG          0x0A  /** Debug descriptor.                   */
+#define DTYPE_INTERFASEASSOC 0x0B  /** Interface association descriptor.   */
+#define DTYPE_CS_INTERFACE   0x24  /** Class specific interface descriptor.*/
+#define DTYPE_CS_ENDPOINT    0x25  /** Class specific endpoint descriptor. */
 
 
 /** USB Standard requests
@@ -379,7 +378,6 @@ typedef struct
  * device has only one device descriptor. A high-speed capable device that has different device
  * information for full-speed and high-speed must also  have a \ref usb_qualifier_descriptor.
  */
-
 typedef struct
 { byte bLength;            /** Size of the descriptor, in bytes.*/
   byte bType;              /** \ref DTYPE_DEVICE Device descriptor.*/
@@ -397,8 +395,8 @@ typedef struct
   byte bNumConfigurations; /** Total number of configurations supported by the device.*/
 } PACKED  usbDeviceDesc;
 
-/**USB device qualifier descriptor
- * \details The device_qualifier descriptor describes information about a high-speed capable device
+/**  USB device qualifier descriptor
+ * The device_qualifier descriptor describes information about a high-speed capable device
  * that would change if the device were operating at the other speed. For example, if the device is
  * currently operating at full-speed, the device qualifier returns information about how it would
  * operate at high-speed and vice-versa.
@@ -406,7 +404,7 @@ typedef struct
 typedef struct
 { byte  bLength;            /** Size of the descriptor, in bytes.*/
   byte  bType;              /** Qualifier descriptor.*/
-  word bcdUSB;              /** BCD of the supported USB specification.*/
+  word  bcdUSB;             /** BCD of the supported USB specification.*/
   byte  bDeviceClass;       /** USB device class.*/
   byte  bDeviceSubClass;    /** USB device subclass.*/
   byte  bDeviceProtocol;    /** USB device protocol.*/
@@ -449,7 +447,7 @@ typedef struct
 } PACKED  usbInterfaceDesc;
 
 /**USB interface association descriptor
- * \details USB interface association descriptor (IAD) allows the device to group interfaces that
+ * USB interface association descriptor (IAD) allows the device to group interfaces that
  * belong to a function.
  */
 typedef struct
@@ -460,7 +458,7 @@ typedef struct
   byte bFunctionClass;     /** Function class ID. */
   byte bFunctionSubClass;  /** Function subclass ID. */
   byte bFunctionProtocol;  /** Function protocol ID. */
-  byte iFunction;          /** Index of the string descriptor describing the                                     * interface association. */
+  byte iFunction;          /** Index of the string descriptor describing the interface association. */
 } PACKED  usbIadDesc;
 
 /**USB endpoint descriptor
@@ -470,10 +468,10 @@ typedef struct
 typedef struct
 { byte  bLength;           /** Size of the descriptor, in bytes. */
   byte  bType;             /** Endpoint descriptor.*/
-  byte  bEndpointAddress;  /** Logical address of the endpoint within the device for                                     * the current configuration, including direction mask. */
+  byte  bEndpointAddress;  /** Logical address of the endpoint within the device for the current configuration, including direction mask. */
   byte  bmAttributes;      /** Endpoint bmAttributes, \ref USB_ENDPOINT_DEF. */
-  word wMaxPacketSize;     /** Size of the endpoint bank, in bytes. This indicates the                                     * maximum packet size that the endpoint can receive at a time. */
-  byte  bInterval;         /** Polling interval in milliseconds for the endpoint if                                     * it is an INTERRUPT or ISOCHRONOUS type.*/
+  word wMaxPacketSize;     /** Size of the endpoint bank, in bytes. This indicates the maximum packet size that the endpoint can receive at a time. */
+  byte  bInterval;         /** Polling interval in milliseconds for the endpoint ifit is an INTERRUPT or ISOCHRONOUS type.*/
 } PACKED  usbEndpointDesc;
 
 /**USB string descriptor
