@@ -252,7 +252,7 @@ hostClassLink USBHhidInterfaceInit( USBHdeviceRec * dev, void * protocolHandler 
       for ( int num= 0
           ;     num < maxEP
           ;     num++ )
-      { if ( epList[ num ].bEndpointAddress & 0x80 )  // IN ep
+      { if ( epList[ num ].bEndpointAddress & EPDIR_IN )  // IN ep
         { HID_Machine.HIDIntInEp= epList[ num ].bEndpointAddress;
           HID_Machine.hcNumIn=
             UHOSTopenChannel( epList[ num ].bEndpointAddress /* Open channel for IN endpoint */

@@ -553,8 +553,8 @@ static USBH_StatusTypeDef USBH_AUDIO_FindAudioStreamingIN( )
   for (interface = 0U; interface < USBH_MAX_NUM_INTERFACES; interface++)
   { if ((phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass == AC_CLASS) &&
         (phost->device.CfgDesc.Itf_Desc[interface].bInterfaceSubClass == USB_SUBCLASS_AUDIOSTREAMING))
-    { if (((phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress & 0x80U) != 0U) &&
-          (phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize > 0U))
+    { if ((( phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress & EPDIR_IN) != 0U) &&
+           ( phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize > 0U))
       { AUDIO_Handle->stream_in[ alt_settings ].Ep         = phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress;
         AUDIO_Handle->stream_in[ alt_settings ].EpSize     = phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize;
         AUDIO_Handle->stream_in[ alt_settings ].interface  = phost->device.CfgDesc.Itf_Desc[interface].bInterfaceNumber;
@@ -590,7 +590,7 @@ static USBH_StatusTypeDef USBH_AUDIO_FindAudioStreamingOUT()
      ; interface++ )
   { if ((phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass == AC_CLASS) &&
         (phost->device.CfgDesc.Itf_Desc[interface].bInterfaceSubClass == USB_SUBCLASS_AUDIOSTREAMING))
-    { if (((phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress & 0x80U) == 0x00U) &&
+    { if (((phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress & EPDIR_IN) == 0x00U) &&
           (phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize > 0U))
       { AUDIO_Handle->stream_out[ alt_settings ].Ep         = phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress;
         AUDIO_Handle->stream_out[ alt_settings ].EpSize     = phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize;
@@ -631,7 +631,7 @@ static USBH_StatusTypeDef USBH_AUDIO_FindHIDControl()
      ; interface++ )
   { if ((phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass == 0x03U) && /*HID*/
         (phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize > 0U))
-    { if ((phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress & 0x80U) == 0x80U)
+    { if ((phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress & EPDIR_IN) == 0x80U)
       { AUDIO_Handle->control.Ep       = phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].bEndpointAddress;
         AUDIO_Handle->control.EpSize   = phost->device.CfgDesc.Itf_Desc[interface].Ep_Desc[0].wMaxPacketSize;
         AUDIO_Handle->control.interface= phost->device.CfgDesc.Itf_Desc[interface].bInterfaceNumber;

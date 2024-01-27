@@ -283,7 +283,7 @@ hostClassLink USBHhubInterfaceInit( USBHdeviceRec * dev, void * handler )
 { USBHepDescRec * epList= dev->Ep_Desc;
 
   if ( dev->Itf_Desc->bInterfaceProtocol <= 1  )  // hub driver does not support multiple TT yet
-  { if (( epList->bDescriptorType == USB_ENDPOINT_DESCRIPTOR_TYPE )
+  { if (( epList->bDescriptorType == DTYPE_ENDPOINT )
     &&  ( epList->bmAttributes    == EPTYPE_INTERRUPT            ))
     {  HUB_Machine.iface= 0;
        HUB_Machine.intEp= epList->bEndpointAddress;
