@@ -9,141 +9,17 @@
  */
 
 #include "usb_otg.h"
-#include "usbd_hid_core.h"
 #include "stm32.h"
 
 extern byte hubAddr;
 extern byte mscAddr;
 extern byte hidAddr;
 
+word LED1= PORTPIN( PORTD, 12 );
+word LED2= PORTPIN( PORTD, 13 );
+word LED3= PORTPIN( PORTD, 14 );
+word LED4= PORTPIN( PORTD, 15 );
 
-
-#define LED1 PORTPIN( PORTD, 12 )
-#define LED2 PORTPIN( PORTD, 13 )
-#define LED3 PORTPIN( PORTD, 14 )
-#define LED4 PORTPIN( PORTD, 15 )
-
-word HIDpoll( word frame )
-{ static schar buf[]={0,0,0,0};
-
-  frame <<= 2;
-
-  switch( frame & 0x70 )
-  { case 0x00: buf[ 1 ]=  1; buf[ 2 ]=  0; break;
-    case 0x10: buf[ 1 ]=  1; buf[ 2 ]= -1; break;
-    case 0x20: buf[ 1 ]=  0; buf[ 2 ]= -1; break;
-    case 0x30: buf[ 1 ]= -1; buf[ 2 ]= -1; break;
-    case 0x40: buf[ 1 ]= -1; buf[ 2 ]=  0; break;
-    case 0x50: buf[ 1 ]= -1; buf[ 2 ]=  1; break;
-    case 0x60: buf[ 1 ]=  0; buf[ 2 ]=  1; break;
-    case 0x70: buf[ 1 ]=  1; buf[ 2 ]=  1; break;
-  }
-
-  PIN_PUT( LED1, buf[ 1 ] > 0 );
-  PIN_PUT( LED2, buf[ 2 ] > 0 );
-  PIN_PUT( LED3, buf[ 1 ] < 0 );
-  PIN_PUT( LED4, buf[ 2 ] < 0 );
-
-  return( USBD_HID_SendReport( buf, 4 ));
-}
-
-
-/**
- * @brief  usbDevGotConnected
- *         Links the correct device handler
- * @retval
- */
-void usbHIDkeyArrived( byte * report )
-{ if ( report[ 2 ] )
-  { PIN_SET( LED2 ); PIN_SET( LED4 );
-  }
-  else
-  { PIN_RST( LED2 ); PIN_RST( LED4 );
-} }
-
-
-void usbHIDmouseArrived( byte * report )
-{ if ( report[ 2 ] )
-  { PIN_SET( LED2 ); PIN_SET( LED4 );
-  }
-  else
-  { PIN_RST( LED2 ); PIN_RST( LED4 );
-} }
-
-void usbHIDrawArrived( byte * report )
-{ if ( report[ 6 ] )
-  { PIN_SET( LED1 ); PIN_SET( LED3 );
-  }
-  else
-  { PIN_RST( LED1 ); PIN_RST( LED3 );
-} }
-
-
-/**
- * @brief  usbDevGotConnected
- *         Links the correct device handler
- * @retval
- */
-void usbDevGotConnected()
-{ for( int loop= 0
-     ;     loop < 3
-     ;     loop ++ )
-  { PIN_SET( LED2 ); PIN_SET( LED4 ); mDelay( 90 );
-    PIN_RST( LED2 ); PIN_RST( LED4 ); mDelay( 70 );
-} }
-
-/**
- * @brief  usbDevGotDisconnected
- *         Links the correct device handler
- * @retval
- */
-void usbDevGotDisconnected(  )
-{ for( int loop= 0
-     ;     loop < 3
-     ;     loop ++ )
-  { PIN_SET( LED1 ); PIN_SET( LED3 ); mDelay( 80 );
-    PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 40 );
-} }
-
-
-/**
- * @brief  USBdevGotSuspended
- *         Links the correct device handler
- * @retval
- */
-word USBdevGotSuspended( byte status )
-{ if ( status )
-  { usbDevGotDisconnected();
-  }
-  else
-  { usbDevGotConnected();
-  }
-  return( 0 );
-}
-
-
-/**
- * @brief  usbHostGotDisconnected
- *         Links the correct device handler
- * @retval
- */
-void usbHostGotDisconnected( byte devAddr )
-{
-  if ( devAddr == mscAddr )
-  { for( int loop= 0
-       ;     loop < 3
-       ;     loop ++ )
-    { PIN_SET( LED2 ); PIN_SET( LED4 ); mDelay( 90 );
-      PIN_RST( LED2 ); PIN_RST( LED4 ); mDelay( 60 );
-  } }
-
-  if ( devAddr == hubAddr )
-  { for( int loop= 0
-       ;     loop < 3
-       ;     loop ++ )
-    { PIN_SET( LED1 ); PIN_SET( LED3 ); mDelay( 90 );
-      PIN_RST( LED1 ); PIN_RST( LED3 ); mDelay( 60 );
-} } }
 
 void debug(){}
 void testForEvents( dword l1, dword l2 );
@@ -165,6 +41,8 @@ int main( void )
   PIN_MODE( LED4, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
 
+
+
 // USBinitDEV( USB_VBUS_INT );    /*  */
 // USBinitHOST( PORTPIN( PORTC, 0 ) | USB_ID_PIN );
  USBinitOTG( PORTPIN( PORTC, 0 ) | USB_VBUS_INT | USB_ID_PIN  );
@@ -181,6 +59,7 @@ int main( void )
   * @param
   * @retval
   */
+
 
 ABSOLUTE(    STM32F4, 0x50000000 ); // choose USB_OTG_FS
 

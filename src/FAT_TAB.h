@@ -6,9 +6,9 @@
                                                  (((unsigned short)(m) & 0x0F) << 5) | \
 																			           (((unsigned short)(d) & 0x1F) << 0))
 
-#define FILE_TIME(h, m, s)             ((((unsigned short)(h) & 0x1F) << 11) | \
-                                         (((unsigned short)(m) & 0x3F) << 5) | \
-																	       (((unsigned short)(s >> 1) & 0x1F) << 0))
+#define FILE_TIME(h, m, s) ((((unsigned short)(h) & 0x1F) << 11) | \
+                           (((unsigned short)(m) & 0x3F) << 5) | \
+																	          (((unsigned short)(s >> 1) & 0x1F) << 0))
 
 /* File Attributes --------------------------------------------------------- */
 #define FILE_ATTRIBUTES_RWE            0x00      /* Read Write */
