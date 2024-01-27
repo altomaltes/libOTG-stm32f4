@@ -29,11 +29,6 @@
 #ifndef __USBD_MSC_DATA_H
 #define __USBD_MSC_DATA_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-
 #define MODE_SENSE6_LEN			        8
 #define MODE_SENSE10_LEN		        8
 #define LENGTH_INQUIRY_PAGE00		   7

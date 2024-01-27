@@ -15,16 +15,17 @@
  * original draft from MCD Application Team
  */
 
+#include <string.h>
+
 #include "usbd_core.h"
 
 DCD_DEV USB_DEV;
 
-#define EPNUM( idx ) USB_DEV.inEp + ( ( idx & 0x80 ) ? ( idx & 0xF ) : ( idx & 0xF ) + USB_OTG_MAX_TX_FIFOS ) /* Skip reserver space */
+WEAK void usbDevEvent( word what, void * args ) {}
 
-WEAK void USBdevGotReset       ( void )        {}
-WEAK void USBdevGotConfigured  ( void )        {}
-WEAK word USBdevGotSuspended   ( byte status ) { return( 0 ); }
-WEAK void USBdevGotResumed     ( void )        {}
+
+
+#define EPNUM( idx ) USB_DEV.inEp + ( ( idx & EPDIR_IN ) ? ( idx & 0xF ) : ( idx & 0xF ) + USB_OTG_MAX_TX_FIFOS ) /* Skip reserver space */
 
 /**
  * @brief  Stall an endpoint.
@@ -34,9 +35,8 @@ WEAK void USBdevGotResumed     ( void )        {}
 short  USBDepStall( byte epAddr )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
-  ep->is_stall= 1;
-  ep->num     =   epAddr & 0x7F;
-//  ep->is_in   = ((epAddr & 0x80) == 0x80);
+  ep->isStall= 1;
+  ep->num    = epAddr & EPDIR_MASK;
 
   return( USBDsetStall( epAddr ));
 }
@@ -46,17 +46,15 @@ short  USBDepStall( byte epAddr )
  *         Handle the setup stage
  * @retval status
  */
-schar USBDsetupStage()
-{ USB_SETUP_REQ req;
-
-  USBDparseSetupRequest( &req );
+short USBDsetupStage()
+{ USB_SETUP_REQ req; USBDparseSetupRequest( &req );
 
   switch ( req.bmRequest & 0x1F )
   { case USB_REQ_RECIPIENT_DEVICE:    USBDstdDevReq( &req ); break;
     case USB_REQ_RECIPIENT_INTERFACE: USBDstdItfReq( &req ); break;
     case USB_REQ_RECIPIENT_ENDPOINT:  USBDstdEPReq(  &req ); break;
 
-    default: USBDepStall( req.bmRequest & 0x80);    break;
+    default: USBDepStall( req.bmRequest & 0x80 ); break;
   }
 
   return( 0 );
@@ -79,11 +77,11 @@ static schar  USBD_RunTestMode(  )
  * @param  epnum: endpoint index
  * @retval status
  */
-schar USBDdataOutStage( byte epnum )
-{ USB_OTG_EP * ep;
+short USBDdataOutStage( byte epnum )
+{ USB_OTG_EP * ep= USB_DEV.outEp + epnum;
 
   if ( epnum == 0 )
-  { ep= &USB_DEV.outEp[ 0 ];
+  {// ep= USB_DEV.outEp + 0; !!!
 
     if ( USB_DEV.deviceState == USB_OTG_EP0_DATA_OUT )
     { if ( ep->remDataLen > ep->maxpacket )
@@ -99,14 +97,14 @@ schar USBDdataOutStage( byte epnum )
       }
 
       else
-      { if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
-        { ep->doIt( 0xFFFF );
+      { if ( USB_DEV.deviceStatus >= USB_OTG_CONFIGURED )
+        { ep->doIt( epnum, ep->dev->doArgs );
         }
         USBDctlSendStatus();
   } } }
 
-  else if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
-  { USB_DEV.outEp[ epnum ].doIt( 0xFFFF );  // JACS
+  else if ( USB_DEV.deviceStatus >= USB_OTG_CONFIGURED )
+  { ep->doIt( epnum, ep->dev->doArgs );  // JACS
   }
 
   else
@@ -123,10 +121,10 @@ schar USBDdataOutStage( byte epnum )
 * @retval status
 */
 schar USBDdataInStage( byte epnum )
-{ USB_OTG_EP * ep;
+{ USB_OTG_EP * ep= USB_DEV.inEp + epnum;
 
   if ( epnum == 0 )
-  { ep= &USB_DEV.inEp[ 0 ];
+  { // ep= &[ 0 ];  !!!
     if ( USB_DEV.deviceState == USB_OTG_EP0_DATA_IN )
     { if ( ep->remDataLen > ep->maxpacket )
       { ep->remDataLen -=  ep->maxpacket;
@@ -136,22 +134,22 @@ schar USBDdataInStage( byte epnum )
         }
 
         USBDctlContinueSendData( ep->xferBuffEp
-                                , ep->remDataLen );
+                               , ep->remDataLen );
         USBDepPrepareRx( 0, NULL, 0 );
       }
 
       else                                  /* last packet is MPS multiple, so send ZLP packet */
       { if (( ep->totalDataLen %  ep->maxpacket == 0 )
         &&  ( ep->totalDataLen >= ep->maxpacket )
-        &&  ( ep->totalDataLen <  ep->ctl_data_len ))
+        &&  ( ep->totalDataLen <  ep->ctlDataLen ))
         { USBDctlContinueSendData( NULL, 0);
-          ep->ctl_data_len= 0;
+          ep->ctlDataLen= 0;
           USBDepPrepareRx ( 0, NULL, 0 );   /* Start the transfer */
         }
 
         else
-        { if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
-          { ep->doIt( 0xFFFF );
+        { if ( USB_DEV.deviceStatus >= USB_OTG_CONFIGURED )
+          { ep->doIt( epnum, ep->dev->doArgs );
           }
           USBDctlReceiveStatus(  );
     } } }
@@ -161,8 +159,8 @@ schar USBDdataInStage( byte epnum )
       USB_DEV.testMode= 0;
   } }
 
-  else if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
-  { USB_DEV.inEp[ epnum ].doIt( 0xFFFF );  // JACS, data arrived
+  else if ( USB_DEV.deviceStatus >= USB_OTG_CONFIGURED )
+  { ep->doIt( epnum, ep->dev->doArgs );  // JACS, data arrived
   }
 
   else
@@ -179,49 +177,48 @@ schar USBDdataInStage( byte epnum )
  * @retval status
  */
 schar USBDreset()
-{ USBDepOpen( 0x00, USB_OTG_MAX_EP0_SIZE, EPTYPE_CONTROL, NULL ); /* Open EP0 OUT */
-  USBDepOpen( 0x80, USB_OTG_MAX_EP0_SIZE, EPTYPE_CONTROL, NULL ); /* Open EP0 IN */
+{ USBDepOpen( EPDIR_OUT, USB_OTG_MAX_EP0_SIZE, EPTYPE_CONTROL, NULL ); /* Open EP0 OUT */
+  USBDepOpen( EPDIR_IN , USB_OTG_MAX_EP0_SIZE, EPTYPE_CONTROL, NULL ); /* Open EP0 IN */
 
   USB_DEV.deviceStatus= USB_OTG_DEFAULT; /* Upon Reset call usr call back */
-  USBdevGotReset( );
+  usbDevEvent( USB_DEV_RESET, NULL );
 
   return( 0 );
 }
 
 
 /**
- * @brief  USBD_SetCfg
+ * @brief  USBDsetCfg
  *        Configure device and start the interface
  * @param  cfgidx: configuration index
  * @retval status
  */
-schar USBD_SetCfg( byte cfgidx )
-{ USBdeviceDesc.driver->Ctrl( ACTION_INIT, cfgidx );
+short USBDsetCfg( byte cfgIdx, byte action )
+{ USBDclassDefREC ** const * ptr= USBdeviceDesc.classHandle; /* Walk all subdevices */
+  DeviceListRec    * dList= USB_DEV.devList;
 
-  USBdevGotConfigured();  /* Upon set config call usr call back */
+  while( *ptr )
+  { static short (*jump)( word what, word cfgIdx, DeviceListRec * dList );     /* EP used by this device */
 
+    jump= (***ptr).Ctrl;
+    jump( action, cfgIdx, dList );
+    dList++; ptr++;
+  }
+
+  usbDevEvent( USB_DEV_CONFIGURED, NULL );
   return( 0 );
 }
 
-/**
- * @brief  USBDclrCfg
- *         Clear current configuration
- * @param  cfgidx: configuration index
- * @retval status: USBD_Status
- */
-schar USBDclrCfg( byte cfgidx )
-{ USBdeviceDesc.driver->Ctrl( ACTION_DEINIT, cfgidx );
 
-  return( 0 );
-}
 
 /**
  * @brief  USBDisoINIncomplete
  *         Handle iso in incomplete event
  * @retval status
  */
-schar USBDisoINIncomplete()
-{ return( USBdeviceDesc.driver->Ctrl( ACTION_ISO_INICOM, 0 ));
+short USBDisoINIncomplete()
+{ return(( ***USBdeviceDesc.classHandle ).Ctrl( ACTION_ISO_INICOM
+                                              , 0, 0 ));
 }
 
 /**
@@ -229,10 +226,9 @@ schar USBDisoINIncomplete()
  *         Handle iso out incomplete event
  * @retval status
  */
-schar USBDisoOUTIncomplete()
-{ USBdeviceDesc.driver->Ctrl( ACTION_ISO_OUTICOM, 0 );
-
-  return( 0 );
+short USBDisoOUTIncomplete()
+{ return(( ***USBdeviceDesc.classHandle).Ctrl( ACTION_ISO_OUTICOM
+                                             , 0, 0 ));
 }
 
 /**
@@ -240,7 +236,7 @@ schar USBDisoOUTIncomplete()
  *         Handle device connection event
  * @retval status
  */
-schar USBD_DevConnected()
+short USBD_DevConnected()
 { return( 0 );
 }
 
@@ -249,73 +245,59 @@ schar USBD_DevConnected()
  *         Handle device disconnection event
  * @retval status
  */
-schar USBD_DevDisconnected()
+short USBD_DevDisconnected()
 { return( 0 );
 }
 
-
-/**
- * @brief  USBinitDEV
- *         Initializes the device stack and load the class driver
- * @retval None
- */
-void * USBinitDEV( dword flags )
-{ OTGselectCore( flags );
-  OTGsetCurrentMode( DEVICE_MODE );
-  USBDcoreInit( USBdeviceDesc.epSizes );             /* set USB OTG core params */
-//  OTGsetCurrentMode( DEVICE_MODE );
-
-  return( &USBIrqHandlerDEV );  /* Be sure is linked */
-}
 
 /**
 * @brief  Configure an EP
 * @param epdesc : Endpoint Descriptor
 * @retval : status
 */
-static short doNone( dword ep )
+static short doNone( dword ep, void * a )
 { return( 0 );
 }
 
 void USBDepAction( byte epAddr
-                 , short(*doIt)( dword what ) )
+                 , short(*doIt)( dword what, void * args )
+                 , void * args )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
-  ep->doIt= doIt ? doIt : doNone;
+  ep->dev->doArgs= args ? args : ep->dev->doArgs;  /* JACS, NULL means no change */
+  ep->doIt  = doIt ? doIt : doNone;
 }
 
-void USBDepTimer( byte epAddr
-                 , word interval )
-{ USB_OTG_EP * ep= EPNUM( epAddr );
-
-  ep->reload=            /* Timer active     */
-  ep->current= interval; /* Timer next event */
-}
-
+//void USBDepTimer( byte epAddr
+//                 , word interval )
+//{ USB_OTG_EP * ep= EPNUM( epAddr );
+//
+//  ep->reload=            /* Timer active     */
+//  ep->current= interval; /* Timer next event */
+//}
 
 short USBDepOpen( byte epAddr
                 , word epMps
                 , byte epType
-                , short(*doIt)( dword what ) )
+                , short(*doIt)( dword what, void * args ))
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
-  ep->num= epAddr & 0x7F;
+  ep->num= epAddr & EPDIR_MASK;
 
- // ep->is_in= ( epAddr & 0x80 ) != 0;
   ep->maxpacket= epMps;
   ep->type= epType;
 
-  if ( epAddr & 0x80 )
-  { ep->tx_fifo_num= ep->num; /* Assign a Tx FIFO */
+  if ( epAddr & EPDIR_IN )
+  { ep->txFifoNum= ep->num; /* Assign a Tx FIFO */
   }
 
   if ( epType == EPTYPE_BULK ) /* Set initial data PID. */
   { ep->dataPidStart= 0;
   }
 
-  USBDepAction( epAddr, doIt );
+  USBDepAction(   epAddr, doIt  , NULL  );
+  USBDepActivate( epAddr, epType, epMps );
 
-  USBDepActivate( epAddr, epType, epMps  );
   return( 0 );
 }
 
@@ -337,7 +319,7 @@ schar usbDEVdeInit( void ) /* Software Init */
   { USB_OTG_EP * ep= USB_DEV.inEp + i;
 
     ep->num = i;   /* Init ep structure */
-    ep->tx_fifo_num = i;
+    ep->txFifoNum = i;
 
     ep->type      = EPTYPE_CONTROL; /* Control until ep is activated */
     ep->maxpacket = USB_OTG_MAX_EP0_SIZE;
@@ -349,7 +331,7 @@ schar usbDEVdeInit( void ) /* Software Init */
  */
     ep = USB_DEV.outEp + i;
     ep->num  = i;
-    ep->tx_fifo_num= i;
+    ep->txFifoNum= i;
 
     ep->type      = EPTYPE_CONTROL;              /* Control until ep is activated */
     ep->maxpacket = USB_OTG_MAX_EP0_SIZE;
@@ -370,8 +352,7 @@ schar usbDEVdeInit( void ) /* Software Init */
 short USBDepClose( byte epAddr )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
-  ep->num   = epAddr & 0x7F;
-  //ep->is_in = (0x80 & epAddr) != 0;
+  ep->num   = epAddr & EPDIR_MASK;
   USBDepDeactivate( epAddr );
 
   return( 0 );
@@ -395,7 +376,7 @@ void DCDdone()
  * @retval : status
  */
 short USBDepPrepareRx( byte   epAddr
-                     , byte * pbuf
+                     , void * pbuf
                      , word   bufLen )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
@@ -404,7 +385,7 @@ short USBDepPrepareRx( byte   epAddr
   ep->xferBuffEp= pbuf;
   ep->xferLen   = bufLen;
   ep->xferCount = 0;
-  ep->num       = epAddr & 0x7F;
+  ep->num       = epAddr & EPDIR_MASK;
 
 //  if ( OTGgetDmaEnable() )    // hardware later
 //  { ep->dmaAddr= (dword)pbuf;
@@ -428,48 +409,121 @@ short USBDepPrepareRx( byte   epAddr
 short  USBDepClrStall( byte epAddr )
 { USB_OTG_EP * ep= EPNUM( epAddr );
 
-  ep->is_stall= 0;
-  ep->num     = epAddr & 0x7F;
-//  ep->is_in   = ((epAddr & 0x80) == 0x80);
+  ep->isStall= 0;
+  ep->num    = epAddr & EPDIR_MASK;
 
   USBDepClearStall( epAddr );
   return( 0 );
 }
 
+DeviceListRec * USBDgetDevice( void * addr )
+{ DeviceListRec * dList= USB_DEV.devList;
+
+  while( dList->doArgs )
+  { if ( dList->doArgs == addr )
+    { return( dList );
+    }
+    dList++;
+  }
+
+  return( NULL );
+}
+
 
 /**
- * @brief  handleSofDevISR
- *         Handles the start-of-frame interrupt in host mode.
- *         schedule for channel jobs
- * @param  none
+ * @brief  walkConfig
  * @retval status
+ *
+ * This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
+ *  documentation) by the application code so that the address and size of a requested descriptor can be given
+ *  to the USB library. When the device receives a Get Descriptor request on the control endpoint, this function
+ *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
+ *  USB host.
  */
-word handleSofDevISR( word frNum )  /** 0x03 Start of frame */
-{ if ( USB_DEV.deviceStatus == USB_OTG_CONFIGURED )
-  { schar epNum= frNum & 0x0F;      /* Spread over 15 values, 24 of wich used */
-    frNum >>= 4;                    /* A step over 16 ms */
+//#define DTYPE_CDC_UNION            0x06    /** Union Functional Descriptor.             */
 
-    if ( epNum < OTGgetDevEndpoints() )
-    { USB_OTG_EP * ep= USB_DEV.inEp + epNum;
+byte * parseDeviceConfig( byte * dst )
+{ USBDclassDefREC ** const * ptr= USBdeviceDesc.classHandle;
 
-      if ( ep->reload )             /* Active timer */
-      { if ( -- ep->current <= 0 )  /* time reached */
-        { ep->doIt( frNum );        /* Fire action  1/32 ms */
-          ep->current= ep->reload;  /* Trhow again  */
-      } }
+  usbConfigDesc * header= (usbConfigDesc *)dst; dst += sizeof( *header );
 
-      ep= USB_DEV.inEp + epNum;
-      if ( ep->reload )             /* Active timer */
-      { if ( -- ep->current <= 0 )  /* time reached */
-        { ep->doIt( frNum );        /* Fire action  1/32 ms */
-          ep->current= ep->reload;  /* Trhow again  */
-    } } }
+  header->bLength       = 0x09;       /** Size of the descriptor, in bytes.*/
+  header->bType= DTYPE_CONFIGURATION; /** Configuration descriptor.*/
+  header->wTotalLength  = 0x09;       /** Size of the configuration descriptor header, and all sub descriptors inside the configuration. */
+  header->bNumInterfaces= 0x00;       /** Total number of interfaces in the configuration.*/
+  header->bConfigIndex  = 0x01;       /** Configuration index of the current configuration.*/
+  header->iConfiguration= 0x00;       /** Index of a string descriptor describing the configuration.*/
+  header->bmbmAttributes= 0xC0;       /** Mask of USB_CONFIG_ATTR_ masks. On all devices, this should include USB_CONFIG_ATTR_RESERVED at a minimum. */
+  header->bMaxPower     = 0x32;       /** Maximum power consumption of the device. USB_CFG_POWER_MA() macro.*/
 
-    else if ( epNum == ( USB_OTG_MAX_TX_FIFOS * 2 ) )        /* System schedule, symetric */
-    {
+  byte epIn= 0x81;
+  byte epOt= 0x01;
+  DeviceListRec * dList= USB_DEV.devList;
+  USB_DEV.inEp->dev=
+  USB_DEV.outEp->dev= &USB_DEV.devList0;    /* phantom */
+
+  for(  ptr= USBdeviceDesc.classHandle
+     ; *ptr
+     ;  ptr++, dList++  )                                /* Walk all subdevices */
+  { const byte * src= (**ptr)->configDescriptor;
+    byte firstIface= header->bNumInterfaces;
+
+    dList->epIn= epIn;
+    dList->epOt= epOt;
+    dList->doArgs= *ptr;
+
+    byte inSt= ( epIn & EPDIR_MASK ) - 1;
+    byte otSt= ( epOt & EPDIR_MASK ) - 1;
+
+    while( *src )   /* Iterate items list */
+    { usbHeaderDescriptor * desc= (usbHeaderDescriptor *)src; /* "C" pointer arithmetic does not allow arbitrary increase  */
+      usbHeaderDescriptor * calc= (usbHeaderDescriptor *)dst; /* "C" pointer arithmetic does not allow arbitrary increase  */
+      memcpy( dst, src, desc->bLength );   /** Unmodofied by default */
+
+      switch( desc->bType )
+     { case DTYPE_CONFIGURATION:    /* skip provided header */
+          src+=  desc->bLength;   /** point to next */
+        continue;
+
+        case DTYPE_ENDPOINT:
+          if ( desc->iIdx & EPDIR_IN )        /** New IN endpoint     */
+          { calc->iIdx+= inSt; epIn++;        /** Bias the current EP */
+            USB_DEV.inEp[ calc->iIdx & EPDIR_MASK ]
+                                .dev= dList;  /** Link the bunndle    */
+
+          }
+          else                                       /** New OUT endpoint     */
+          { calc->iIdx += otSt; epOt++;              /** Bias the current EP  */
+            USB_DEV.outEp[ calc->iIdx & EPDIR_MASK ]
+                                .dev= dList;         /** Link the bunndle     */
+          }
+        break;
+
+        case DTYPE_INTERFASEASSOC:
+          dst[ 2 ] += firstIface;  /** Bias the current master */
+        break;
+
+        case DTYPE_INTERFACE:                 // Add interface
+          calc->iIdx= header->bNumInterfaces++;                          /** Bias the current Iface */
+          USB_DEV.devIface[ calc->iIdx ]= ptr-USBdeviceDesc.classHandle; /** Associate witch device */
+        break;
+
+        case DTYPE_CS_INTERFACE:
+          if ( dst[ 2 ] == 0x06 )    /** DTYPE_CDC_UNION -> Patch union interfaces  */
+          { dst[ 3 ] += firstIface;  /** Bias the current master */
+            dst[ 4 ] += firstIface;  /** Bias the current slave */
+          }
+        break;
+      }
+
+      header->wTotalLength+= desc->bLength;
+      src                 += desc->bLength;   /** point to next ( last one ) */
+      dst                 += desc->bLength;   /** point to next */
   } }
 
-  return( 0 );
+		return( dst );
 }
+
+
 
 

@@ -53,7 +53,6 @@
 #define USB_AUDIO_CONFIG_DESC_SIZ                     109
 #define AUDIO_INTERFACE_DESC_SIZE                     9
 #define USB_AUDIO_DESC_SIZ                            0x09
-#define AUDIO_STANDARD_ENDPOINT_DESC_SIZE             0x09
 #define AUDIO_STREAMING_ENDPOINT_DESC_SIZE            0x07
 
 #define AUDIO_DESCRIPTOR_TYPE                         0x21

@@ -21,15 +21,10 @@
 
 #include "usbd_core.h"
 
-#define HID_IN_EP   0x81
 #define HID_IN_PACKET  4
 
-#define USB_HID_CONFIG_DESC_SIZ     34
 #define USB_HID_DESC_SIZ             9
 #define HID_MOUSE_REPORT_DESC_SIZE  74
-
-#define HID_DESCRIPTOR_TYPE       0x21
-#define HID_REPORT_DESC           0x22
 
 #define HID_HS_BINTERVAL          0x07
 #define HID_FS_BINTERVAL          0x0A
@@ -37,14 +32,22 @@
 #define HID_REQ_SET_REPORT        0x09
 #define HID_REQ_GET_REPORT        0x01
 
-
 extern USBDclassDefREC USBD_HID_cb;
 
-schar USBD_HID_SendReport( const void * report, word len);
-dword USBD_HID_GetPollingInterval ();
+struct USBDdriverHidRec
+{ const USBDclassDefREC * driver;          /* Base handler */
 
-word HIDpoll( word frame );
+//  short ( *ioctl)( dword opcode, ...     );  // control function
+//  short ( *read )( dword ep, void * args );  // Read function
 
+  dword  USBD_HID_AltSet;
+  dword  USBD_HID_Protocol;
+  dword  USBD_HID_IdleState;
+
+};
+
+
+dword USBD_HID_GetPollingInterval();
 
 #endif
 

@@ -30,8 +30,8 @@
 #define __USBD_MSC_BOT_H
 
 
-#include "usbd_core.h"
-
+#include "./usbd_msc.h"
+#include "./usbd_core.h"
 
 enum
 { USBD_BOT_IDLE= 0      /* Idle state */
@@ -54,7 +54,8 @@ enum
 #define USBD_CSW_CMD_FAILED   0x01
 #define USBD_CSW_PHASE_ERROR  0x02
 
-/* BOT Status */
+/* BOT Status
+ */
 #define USBD_BOT_STATUS_NORMAL             0
 #define USBD_BOT_STATUS_RECOVERY           1
 #define USBD_BOT_STATUS_ERROR              2
@@ -65,12 +66,13 @@ enum
 #define USBD_BOTH_DIR                      2
 
 
-short MSC_BOT_Init  ( void );
-short MSC_BOT_Reset ( void );
-short MSC_BOT_DeInit( void );
-short MSC_BOT_DataIn       ( dword epnum );
-short MSC_BOT_DataOut      ( dword epnum );
-short MSC_BOT_SendCSW      ( dword CSW_Status );
-short MSC_BOT_CplClrFeature( dword epnum );
+short MSC_BOT_Init         ( MSCdriverRec * );
+short MSC_BOT_Reset        ( MSCdriverRec * );
+short MSC_BOT_DeInit       ( MSCdriverRec * );
+short MSC_BOT_SendCSW      ( MSCdriverRec *, dword CSW_Status );
+short MSC_BOT_CplClrFeature( MSCdriverRec *, dword epnum );
+
+short MSC_BOT_DataIn       ( dword epnum, void * args );
+short MSC_BOT_DataOut      ( dword epnum, void * args );
 
 #endif /* __USBD_MSC_BOT_H */

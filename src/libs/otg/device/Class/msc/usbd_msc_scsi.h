@@ -29,46 +29,41 @@
 #ifndef __USBD_MSC_SCSI_H
 #define __USBD_MSC_SCSI_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif
 
-/* Includes ------------------------------------------------------------------*/
-// #include "usbd_def.h"
+#include "./usbd_msc.h"
 
 
-#define SENSE_LIST_DEEPTH                           4
+/* SCSI Commands
+ */
+#define SCSI_FORMAT_UNIT         0x04
+#define SCSI_INQUIRY             0x12
+#define SCSI_MODE_SELECT6        0x15
+#define SCSI_MODE_SELECT10       0x55
+#define SCSI_MODE_SENSE6         0x1A
+#define SCSI_MODE_SENSE10        0x5A
+#define SCSI_ALLOW_REMOVAL       0x1E
+#define SCSI_READ6               0x08
+#define SCSI_READ10              0x28
+#define SCSI_READ12              0xA8
+#define SCSI_READ16              0x88
 
-/* SCSI Commands */
-#define SCSI_FORMAT_UNIT                            0x04
-#define SCSI_INQUIRY                                0x12
-#define SCSI_MODE_SELECT6                           0x15
-#define SCSI_MODE_SELECT10                          0x55
-#define SCSI_MODE_SENSE6                            0x1A
-#define SCSI_MODE_SENSE10                           0x5A
-#define SCSI_ALLOW_REMOVAL                   0x1E
-#define SCSI_READ6                                  0x08
-#define SCSI_READ10                                 0x28
-#define SCSI_READ12                                 0xA8
-#define SCSI_READ16                                 0x88
+#define SCSI_READ_CAPACITY10     0x25
+#define SCSI_READ_CAPACITY16     0x9E
 
-#define SCSI_READ_CAPACITY10                        0x25
-#define SCSI_READ_CAPACITY16                        0x9E
+#define SCSI_REQUEST_SENSE       0x03
+#define SCSI_START_STOP_UNIT     0x1B
+#define SCSI_TEST_UNIT_READY     0x00
+#define SCSI_WRITE6              0x0A
+#define SCSI_WRITE10             0x2A
+#define SCSI_WRITE12             0xAA
+#define SCSI_WRITE16             0x8A
 
-#define SCSI_REQUEST_SENSE                          0x03
-#define SCSI_START_STOP_UNIT                        0x1B
-#define SCSI_TEST_UNIT_READY                        0x00
-#define SCSI_WRITE6                                 0x0A
-#define SCSI_WRITE10                                0x2A
-#define SCSI_WRITE12                                0xAA
-#define SCSI_WRITE16                                0x8A
+#define SCSI_VERIFY10            0x2F
+#define SCSI_VERIFY12            0xAF
+#define SCSI_VERIFY16            0x8F
 
-#define SCSI_VERIFY10                               0x2F
-#define SCSI_VERIFY12                               0xAF
-#define SCSI_VERIFY16                               0x8F
-
-#define SCSI_SEND_DIAGNOSTIC                        0x1D
-#define SCSI_READ_FMT_CAP                 0x23
+#define SCSI_SEND_DIAGNOSTIC     0x1D
+#define SCSI_READ_FMT_CAP        0x23
 
 #define NO_SENSE                                    0
 #define RECOVERED_ERROR                             1
@@ -89,46 +84,29 @@
 #define INVALID_CDB                                 0x20
 #define INVALID_FIELED_IN_COMMAND                   0x24
 #define PARAMETER_LIST_LENGTH_ERROR                 0x1A
-#define INVALID_FIELD_IN_PARAMETER_LIST             0x26
-#define ADDRESS_OUT_OF_RANGE                        0x21
-#define MEDIUM_NOT_PRESENT                          0x3A
-#define MEDIUM_HAVE_CHANGED                         0x28
-#define WRITE_PROTECTED                             0x27
-#define UNRECOVERED_READ_ERROR			    0x11
-#define WRITE_FAULT				    0x03
+#define INVALID_FIELD_IN_PARAMETER_LIST  0x26
+#define ADDRESS_OUT_OF_RANGE             0x21
+#define MEDIUM_NOT_PRESENT               0x3A
+#define MEDIUM_HAVE_CHANGED              0x28
+#define WRITE_PROTECTED                  0x27
+#define UNRECOVERED_READ_ERROR			        0x11
+#define WRITE_FAULT				                  0x03
 
-#define READ_FORMAT_CAPACITY_DATA_LEN               0x0C
-#define READ_CAPACITY10_DATA_LEN                    0x08
-#define MODE_SENSE10_DATA_LEN                       0x08
-#define MODE_SENSE6_DATA_LEN                        0x04
-#define REQUEST_SENSE_DATA_LEN                      0x12
-#define STANDARD_INQUIRY_DATA_LEN                   0x24
-#define BLKVFY                                      0x04
+#define READ_FORMAT_CAPACITY_DATA_LEN 0x0C
+#define READ_CAPACITY10_DATA_LEN      0x08
+#define MODE_SENSE10_DATA_LEN         0x08
+#define MODE_SENSE6_DATA_LEN          0x04
+#define REQUEST_SENSE_DATA_LEN        0x12
+#define STANDARD_INQUIRY_DATA_LEN     0x24
+#define BLKVFY                        0x04
 
 extern  schar Page00_Inquiry_Data[];
-extern  schar Standard_Inquiry_Data[];
-extern  schar Standard_Inquiry_Data2[];
 extern  schar Mode_Sense6_data[];
 extern  schar Mode_Sense10_data[];
-extern  schar Scsi_Sense_Data[];
-extern  schar ReadCapacity10_Data[];
-extern  schar ReadFormatCapacity_Data [];
 
-typedef struct _SENSE_ITEM
-{ char Skey;
-  union
-  { struct _ASCs
-    { char ASC;
-      char ASCQ;
-    } b;
-    unsigned int	ASC;
-    char *pData;
-  } w;
-} PACKED USBD_SCSI_SenseTypeDef;
-
-
-schar SCSI_ProcessCmd( byte lun, byte *cmd );
-void   SCSIsenseCode( byte lun, byte sKey, byte ASC);
+short SCSIprocessCmd( byte lun, MSCdriverRec *, byte *cmd );
+void  SCSIsenseCode(  byte lun, MSCdriverRec *, byte sKey, byte ASC );
+dword SCSIgetMaxLun(            MSCdriverRec * );
 
 
 #endif /* __USBD_MSC_SCSI_H */

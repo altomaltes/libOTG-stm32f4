@@ -210,7 +210,7 @@ __ALIGN_BEGIN static byte USBD_AUDIO_CfgDesc[USB_AUDIO_CONFIG_DESC_SIZ] __ALIGN_
 
 /* Endpoint 1 - Standard Descriptor
  */
-  AUDIO_STANDARD_ENDPOINT_DESC_SIZE,    /* bLength */
+  9,    /* bLength */
   USB_DESC_TYPE_ENDPOINT,               /* bDescriptorType */
   AUDIO_OUT_EP,                         /* bEndpointAddress 1 out endpoint*/
   USBD_EP_TYPE_ISOC,                    /* bmAttributes */

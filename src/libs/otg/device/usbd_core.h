@@ -21,14 +21,21 @@
 #include "../usbdef.h"
 #include "usb-glue.h"
 
+/* per device endpoints
+ */
+typedef struct
+{ struct USBDclassDefREC * doArgs; /* user scratch           */
+  byte epIn;                       /* First free in endpoint  */
+  byte epOt;                       /* First free out endpoint */
+} DeviceListRec;                   /* four devices combo      */
+
 typedef struct
 { byte   num;
   byte   type;
-  word   tx_fifo_num;
+  word   txFifoNum;
   dword  maxpacket;
 
-//  byte   is_in         : 1;
-  byte   is_stall      : 1;
+  byte   isStall     : 1;
   byte   evenOddFrame: 1;
 
 /* transaction level variables
@@ -37,18 +44,18 @@ typedef struct
   dword xferLen;
   dword xferCount;
 
-//  dword dmaAddr; Hardware layer
-
   word remDataLen;
   word totalDataLen;
-  word ctl_data_len;
+  word ctlDataLen;
   word dataPidStart;
 
-/* SCHED related
+/* JACS, SCHED related
  */
-  short reload;              /* Timer active     */
-  short current;             /* Timer next event */
-  short (*doIt)( dword what ); // JACS, action callback
+  short reload;                  /* Timer active     */
+  short current;                 /* Timer next event */
+  short (*doIt)( dword what      /* action callback  */
+               , void * args );
+  DeviceListRec * dev;           /* Args for above   */
 }
 USB_OTG_EP;
 
@@ -61,55 +68,70 @@ typedef  struct
   word  wLength;
 } USB_SETUP_REQ;
 
+
+
 typedef struct
-{ short ( *Ctrl  )( dword act, word idx );
-  short ( *Setup )( USB_SETUP_REQ  *req );
+{ short ( *Ctrl  )( word act, word conf, DeviceListRec * );
+  short ( *Setup )( USB_SETUP_REQ * req , DeviceListRec * );
   const byte * configDescriptor;
 } USBDclassDefREC;
 
+
 typedef struct
-{ byte        deviceConfig;
-  byte        deviceState;
-  byte        deviceStatus;
-  byte        testMode;
-  byte        devRemoteWakeup;
-  USB_OTG_EP  inEp [ USB_OTG_MAX_TX_FIFOS ];
-  USB_OTG_EP  outEp[ USB_OTG_MAX_TX_FIFOS ];
-  byte        setupPacket[ 8*3 ];
+{ dword USBD_ep_status  ; /* Must be dword aligned for DMA transfers */
+  dword USBD_default_cfg;
+  dword USBD_cfg_status ;
+
+  byte       deviceConfig;
+  byte       deviceState;
+  byte       deviceStatus;
+  byte       testMode;
+  byte       devRemoteWakeup;
+  USB_OTG_EP inEp [ USB_OTG_MAX_TX_FIFOS ];
+  USB_OTG_EP outEp[ USB_OTG_MAX_TX_FIFOS ];
+  byte       setupPacket[ 8*3 ];
+
+  DeviceListRec devList0;
+  DeviceListRec devList[ 4 ];
+  byte         devIface[ 8 ]; /* Devices associated to interfaces */
 }
 DCD_DEV;
+
 
 #define MAX_NUM_EP 16
 
 typedef struct
-{ const byte * deviceDescriptor;
+{ USBDclassDefREC * hnd;
+} USBDclassInstance;
+
+typedef struct
+{ const usbDeviceDesc * deviceDescriptor;
   const char * strings[ 6 ]; // 0
-
-  const word epSizes[ MAX_NUM_EP ];
-
-  USBDclassDefREC * driver;
+  const word epSizes[ 8 ];
 
 #if ( USBD_LPM_ENABLED == 1 )
   const char * GetBOSDescriptor;
 #endif
 
+  USBDclassDefREC ** classHandle[];
 
 } USBD_DEVICE;
 
 
 void * USBinitDEV( dword flags );
 
-schar USBDclrCfg( byte cfgidx );
-schar USBD_SetCfg( byte cfgidx );
+void USBDepAction( byte epAddr
+                 , short(*doIt)( dword what, void * args )
+                 , void * args );
+
+short USBDsetCfg( byte cfgidx, byte action );
 
 void  USBDparseSetupRequest( USB_SETUP_REQ * );
 
-schar USBDstdDevReq( USB_SETUP_REQ * );
-schar USBDstdItfReq( USB_SETUP_REQ * );
-schar USBDstdEPReq(  USB_SETUP_REQ * );
-
-void  USBDctlError( USB_SETUP_REQ * );
-
+short  USBDstdDevReq( USB_SETUP_REQ * );
+short  USBDstdItfReq( USB_SETUP_REQ * );
+short  USBDstdEPReq(  USB_SETUP_REQ * );
+void   USBDctlError(  USB_SETUP_REQ * );
 byte * USBDgetString( const char * desc );
 
 int USBDreadPacket(  byte epNum, word size );
@@ -118,10 +140,23 @@ int USBDgetTxCount(  byte epNum );            /* Available size */
 int USBDgetRxCount(  byte epnum );
 
 extern DCD_DEV USB_DEV;
-extern USBD_DEVICE USBdeviceDesc;
+extern const USBD_DEVICE USBdeviceDesc;
 
-/* ---------------------------------------------------- */
-#define  USB_LEN_DEV_QUALIFIER_DESC   0x0A
+DeviceListRec * USBDgetDevice( void * addr );
+
+enum
+{ USB_DEV_DEINIT
+, USB_DEV_RESET
+, USB_DEV_CONN
+, USB_DEV_DISCON
+, USB_DEV_CONFIGURED
+, USB_DEV_SUSPEND
+, USB_DEV_RESUMED
+};
+
+
+void usbDevEvent( word what, void * args );   /* HostLibInitialized */
+
 
 #define  USBD_IDX_LANGID_STR          0x00
 #define  USBD_IDX_MFC_STR             0x01
@@ -147,19 +182,15 @@ enum
 
 /*  Device Status
  */
-#define USB_OTG_DEFAULT     1
-#define USB_OTG_ADDRESSED   2
-#define USB_OTG_CONFIGURED  3
-#define USB_OTG_SUSPENDED   4
+enum
+{ USB_OTG_NULL
+, USB_OTG_DEFAULT
+, USB_OTG_SUSPENDED
 
-
-
-
-#define  SWAPBYTE(addr)        (((word)(*((byte *)(addr)))) + \
-                               (((word)(*(((byte *)(addr)) + 1))) << 8))
-
-#define LOBYTE(x)  ((byte)((x) & 0x00FF))
-#define HIBYTE(x)  ((byte)(((x) & 0xFF00) >>8))
+, USB_OTG_ADDRESSED
+, USB_OTG_CONFIGURED
+, USB_OTG_RACING
+};
 
 
 /* -------------------------------------------------------- */
@@ -171,8 +202,8 @@ short USBDctlContinueRx      ( byte * pbuf, word len );
 short USBDctlSendStatus      ( );
 short USBDctlReceiveStatus   ( );
 
-short USBDepPrepareRx( byte epnum, byte * pbuf, word buf_len );
-short USBDepOpen     ( byte epnum, word ep_mps, byte epType, short(*doIt)( dword what ) );
+short USBDepPrepareRx( byte epnum, void * pbuf, word buf_len );
+short USBDepOpen     ( byte epnum, word ep_mps, byte epType, short(*doIt)( dword what, void * args ));
 short USBDepClose    ( byte epnum );
 short USBDepTx       ( byte epnum, const void * pbuf, word buf_len );
 short USBDepStall    ( byte epnum );
@@ -180,6 +211,7 @@ short USBDepClrStall ( byte epnum );
 short USBDepFlush    ( byte epnum );
 
 
+byte * parseDeviceConfig( byte * dst );
 
 #endif /* __USBD_CORE_H */
 

@@ -29,39 +29,53 @@
 #ifndef __USBD_MSC_H
 #define __USBD_MSC_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-#include  "./usbd_msc_bot.h"
-#include  "./usbd_msc_scsi.h"
-
+#include  "usb-glue.h"
+#include  "usbd_core.h"
 #include  "usbd_mass.h"
 
-#define MSC_MAX_FS_PACKET         0x40
-#define MSC_MAX_HS_PACKET123     0x200
+#define MSC_MAX_FS_PACKET      0x40
+#define MSC_MAX_HS_PACKET123  0x200
 
-#define BOT_GET_MAX_LUN           0xFE
-#define BOT_RESET                 0xFF
-#define USB_MSC_CONFIG_DESC_SIZ   32
-
-#define MSC_EPIN_ADDR             0x81
-#define MSC_EPOUT_ADDR            0x01
+#define BOT_GET_MAX_LUN        0xFE
+#define BOT_RESET               0xFF
 
 #define MSC_MEDIA_PACKET 0x200
+#define SENSE_LIST_DEEPTH          4
 
-extern USBDdriverRec stor;
+
+struct  PACKED USBD_SCSI_SenseTypeDef
+{ char Skey;
+  union
+  { struct _ASCs
+    { char ASC;
+      char ASCQ;
+    } b;
+    unsigned int	ASC;
+    char *pData;
+  } w;
+};
+
 
 typedef struct
-{ dword max_lun;
+{ const USBDclassDefREC * driver;
+
+  short (* Ioctl ) ( dword lun, ... ); /* Must be first */
+  short (* Read  ) ( dword lun,       void * buf, dword blk_addr, dword blk_len );
+  short (* Write ) ( dword lun, const void * buf, dword blk_addr, dword blk_len );
+
+  byte epIn;
+  byte epOt;
+
   dword interface;
+  byte  max_lun;
   byte  bot_state;
   byte  bot_status;
+  byte  alingn;
 
-  MScmdBlkWrapperRec cbw;
+  MScmdBlkWrapperRec  cbw;
   MScmdStatWrapperRec csw;
 
-  USBD_SCSI_SenseTypeDef scsi_sense[ SENSE_LIST_DEEPTH ];
+  struct USBD_SCSI_SenseTypeDef scsi_sense[ SENSE_LIST_DEEPTH ];
   byte scsi_sense_head; byte scsi_sense_tail;
 
   dword scsi_blk_size;
@@ -71,12 +85,8 @@ typedef struct
   dword scsi_blk_len;
 
   word  bot_data_length;
-  byte  bot_data[ 512 ];  // MSC_MEDIA_PACKET
+  byte  bot_data[ MSC_MEDIA_PACKET ];  // MSC_MEDIA_PACKET
 
-}
-USBD_MSC_BOT_HandleTypeDef;
-
-extern USBD_MSC_BOT_HandleTypeDef hmsc;
-
+} MSCdriverRec;
 
 #endif  /* __USBD_MSC_H */
