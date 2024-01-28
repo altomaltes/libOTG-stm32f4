@@ -15,9 +15,11 @@
 #include "usbh_msc_core.h"
 
 
-#define EXTR1HEAT PORTPIN( PORTC,  7 ) // TIM3_CH2_PC7
-#define EXTR2HEAT PORTPIN( PORTB,  0 ) // TIM3_CH3_PB0
-#define EXTR3HEAT PORTPIN( PORTB,  1 ) // TIM3_CH4_PB0
+word LED1= PORTPIN( PORTC,  7 ); // TIM3_CH2_PC7
+word LED2= PORTPIN( PORTB,  0 ); // TIM3_CH3_PB0
+word LED3= PORTPIN( PORTB,  1 ); // TIM3_CH4_PB0
+
+word LED4= PORTPIN( PORTB,  0 ); // TIM3_CH4_PB0
 
 
 /**
@@ -31,16 +33,16 @@ int main( void )
 
 /* Demo pins ( carrousel leds )
  */
-  PIN_MODE( EXTR1HEAT, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
-  PIN_MODE( EXTR2HEAT, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
-  PIN_MODE( EXTR3HEAT, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
+  PIN_MODE( LED1, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
+  PIN_MODE( LED2, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
+  PIN_MODE( LED3, GPIO_OUT | GPIO_FAIR | GPIO_HIGH );
 
   USBinitDEV( 0 );    /* As device*/
 // USBinitHOST( 0 );
 
   while( 1 )
   { mDelay( 100 );
-    testForEvents( EXTR1HEAT, EXTR2HEAT );
+    testForEvents( LED1, LED2 );
 } }
 
 /**
