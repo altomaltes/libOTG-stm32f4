@@ -30,7 +30,7 @@ void testForEvents( dword l1, dword l2 );
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 42000000, 8000000 );  // 8 Mhz xtal
+{ SET_SYSCLK_HZ( 168000000, 8000000 );  // 8 Mhz xtal
   sysTickConfig( 2000 );               // OS scheduler
 
 /* Demo pins ( carrousel leds )

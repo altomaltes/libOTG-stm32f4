@@ -26,8 +26,9 @@ word LED4= PORTPIN( PORTG, 14 );
   * @retval None
   */
 int main( void )
-{ SET_SYSCLK_HZ( 42000000, 8000000 );
+{ SET_SYSCLK_HZ( 168000000, 8000000 );
   sysTickConfig( 2000 );
+  SYSCLK_HZ(0);
 
 /* Demo pins  ( carrousel leds )
  */
