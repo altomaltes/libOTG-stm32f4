@@ -25,8 +25,8 @@ struct USB_OTG_CORE_HANDLE USB_OTG_Core;
  * @retval schar : status
  */
 static schar USB_OTG_CoreReset(  )
-{ dword count = 0; do    /* Wait for AHB master IDLE state. */
-  { if ( ++count > 1800000 )
+{ volatile dword count = 0; do    /* Wait for AHB master IDLE state. */
+  { if ( ++count > 1800000 * 10 )
     { return( 0 );
   } }
   while( !STM32F4.USB.GLOBAL.GRSTCTL.AHBIDL ); /** 0x1F AHB master idle */
@@ -34,7 +34,7 @@ static schar USB_OTG_CoreReset(  )
   mDelay( 20 );  // Must wait 10ms
 
   count = 0; do  /* Core Soft Reset */
-  { if ( ++count > 1800000 )
+  { if ( ++count > 1800000 * 10 )
     { break;
   } }
   while( STM32F4.USB.GLOBAL.GRSTCTL.CSRST );
@@ -247,12 +247,12 @@ short OTGselectCore( dword flags )
  * @retval schar : status
  */
 schar usbOTGflushTxFifo( dword num )
-{ dword count    = 0;
+{ volatile dword count    = 0;
   STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH= 1;
   STM32F4.USB.GLOBAL.GRSTCTL.TXFNUM = num;
 
   do
-  { if ( ++count > 1400000 )
+  { if ( ++count > 1400000 * 10 )
     { break;
   } }
   while ( STM32F4.USB.GLOBAL.GRSTCTL.TXFFLSH );
@@ -267,15 +267,15 @@ schar usbOTGflushTxFifo( dword num )
  * @retval schar : status
  */
 schar usbOTGflushRxFifo(  )
-{ dword count = 0;
+{ volatile dword count = 0;
 
   STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH= 1;
 
   do
-  { if ( ++count > 1400000 )
+  { if ( ++count > 1400000 * 10 )
     { break;
   } }
-  while ( STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH == 1 );
+  while( STM32F4.USB.GLOBAL.GRSTCTL.RXFFLSH );
 
   mDelay( 3 );   /* Wait for 3 PHY Clocks*/
   return( 0 );

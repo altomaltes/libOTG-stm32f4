@@ -518,7 +518,7 @@ static dword XTAL;
 
 /* Configure Flash prefetch, Instruction cache, Data cache and wait state
  */
-  FLASH.ACR.LATENCY= hz / 30000000;  /** 0x00 Latency                  */
+  FLASH.ACR.LATENCY= (hz / 30000000)+1;  /** 0x00 Latency                  */
   FLASH.ACR.PRFTEN = 1;  /** 0x08 Prefetch enable          */
   FLASH.ACR.ICEN   = 1;  /** 0x09 Instruction cache enable */
   FLASH.ACR.DCEN   = 1;  /** 0x0A Data cache enable        */

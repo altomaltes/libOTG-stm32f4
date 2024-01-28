@@ -22,12 +22,15 @@
 
 #define USBD_VID  (0x03EB)
 
-#define USBdeviceDescMsc USBdeviceDesc  /** select suitable test */
+#define USBdeviceDescCdc USBdeviceDesc  /** select suitable test */
 
 #if defined(  USBdeviceDescMsc )
   #define USBD_PID  (0x204D)
 
 #elif defined( USBdeviceDescCdc )
+  #define USBD_PID  (0x204A)
+
+#elif defined( USBdeviceDescCdcCombo )
   #define USBD_PID  (0x204E)
 
 #elif defined( USBdeviceDescMscCombo )
@@ -80,7 +83,7 @@ const USBD_DEVICE USBdeviceDescHid=
 , { &hidHandle
   , NULL }};
 
-const USBD_DEVICE USBdeviceDescCdc=
+const USBD_DEVICE USBdeviceDescCdcCombo=
 { &USBD_DeviceDesc
 ,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
  ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
@@ -94,6 +97,21 @@ const USBD_DEVICE USBdeviceDescCdc=
 
 , { &hidHandle
   , &cdcHandle
+  , NULL }};
+
+const USBD_DEVICE USBdeviceDescCdc=
+{ &USBD_DeviceDesc
+,{ "\0x4\0x9"             // 0 USBD_LANGID_STRING
+ ,  "STMicroelectronics"  // 1 USBD_MANUFACTURER_STRING
+ ,  "Kinetik Serial CDC combo"    // 2 USBD_CONFIGURATION_FS_STRING
+ ,  "30201007011D"        // 3 USBD_PRODUCT_FS_STRING
+ ,  "Serial CDC - HID Config"          // 4
+ ,  "Serial CDC - HID Interface" }    // 5 USBD_INTERFACE_FS_STRING
+, { 0x80                 // GRXFSIZ, RX fifo size
+  , 0x10                  // GNPTXFSIZ, TX EPOUNT fifo size
+  , 0x20, 0x20 }    // EPIN 1 .. 3 fifo size
+
+, { &cdcHandle
   , NULL }};
 
 const USBD_DEVICE USBdeviceDescMsc=
