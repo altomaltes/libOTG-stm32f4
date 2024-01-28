@@ -144,6 +144,22 @@ PB15 | RTC_RN| TIM1_CH3N| -        | -        | -         | SPI2_MOSI | -       
 
 
 
+volatile extern struct  /** 0x50000000 General-purpose I/Os */
+{ dword MODER        ;  /** 0x00 RST: 0x7FFFFFFF GPIO port mode register */
+  dword OTYPER       ;  /** 0x04 RST: 0x00000000 GPIO port output type register */
+  dword OSPEEDR      ;  /** 0x08 RST: 0x0C000000 GPIO port output speed register */
+  dword PUPDR        ;  /** 0x0C RST: 0x24000000 GPIO port pull-up/pull-down register */
+  dword IDR          ;  /** 0x10 RST: 0x00000000 GPIO port input data register */
+  dword ODR          ;  /** 0x14 RST: 0x00000000 GPIO port output data register */
+  dword BSRR         ;  /** 0x18 RST: 0x00000000 GPIO port bit set/reset register */
+  dword LCKR         ;  /** 0x1C RST: 0x00000000 GPIO port configuration lock register */
+  dword AFRL         ;  /** 0x20 RST: 0x00000000 GPIO alternate function low register */
+  dword AFRH         ;  /** 0x24 RST: 0x00000000 GPIO alternate function high register */
+  dword BRR          ;  /** 0x28 RST: 0x00000000 port bit reset register */
+  dword gap$2C[ 245 ];  /** 0x2C Unused memory */
+} GPIOA[];
+
+
 /*
  * USART related
  */
@@ -270,71 +286,6 @@ struct  USART_STRUCT       /** 0x40011000 Universal synchronous asynchronous rec
 
    dword          gap$1C[ 249 ];  /** 0x1C Unused memory */
 };
-
-/**
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *   FLASH : FLASH                                    @ 0x40023C00 : 0x0400
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- */
-struct       /** 0x40023C00 FLASH */
-{ struct
-  { dword    LATENCY :   3; /** 0x00 Latency */
-    dword            :   5; /** 0x03 */
-    dword     PRFTEN :   1; /** 0x08 Prefetch enable */
-    dword       ICEN :   1; /** 0x09 Instruction cache enable */
-    dword       DCEN :   1; /** 0x0A Data cache enable */
-    dword      ICRST :   1; /** 0x0B Instruction cache reset */
-    dword      DCRST :   1; /** 0x0C Data cache reset */
-    dword            :  19; /** 0x0D */
-  } ACR;                    /** 0x00 RST: 0x00000000 Flash access control register */
-
-  dword      KEYR;       /** 0x04 RST: 0x00000000 Flash key register */
-  dword      OPTKEYR;    /** 0x08 RST: 0x00000000 Flash option key register */
-
-  struct
-  { dword        EOP :   1; /** 0x00 End of operation */
-    dword      OPERR :   1; /** 0x01 Operation error */
-    dword            :   2; /** 0x02 */
-    dword     WRPERR :   1; /** 0x04 Write protection error */
-    dword     PGAERR :   1; /** 0x05 Programming alignment error */
-    dword     PGPERR :   1; /** 0x06 Programming parallelism error */
-    dword     PGSERR :   1; /** 0x07 Programming sequence error */
-    dword            :   8; /** 0x08 */
-    dword        BSY :   1; /** 0x10 Busy */
-    dword            :  15; /** 0x11 */
-  } SR;    /** 0x0C RST: 0x00000000 Status register */
-
-  struct
-  { dword         PG :   1; /** 0x00 Programming */
-    dword        SER :   1; /** 0x01 Sector Erase */
-    dword        MER :   1; /** 0x02 Mass Erase */
-    dword        SNB :   4; /** 0x03 Sector number */
-    dword            :   1; /** 0x07 */
-    dword      PSIZE :   2; /** 0x08 Program size */
-    dword            :   6; /** 0x0A */
-    dword       STRT :   1; /** 0x10 Start */
-    dword            :   7; /** 0x11 */
-    dword      EOPIE :   1; /** 0x18 End of operation interrupt enable */
-    dword      ERRIE :   1; /** 0x19 Error interrupt enable */
-    dword            :   5; /** 0x1A */
-    dword       LOCK :   1; /** 0x1F Lock */
-  } CR;                     /** 0x10 RST: 0x7FFFFFFF Control register */
-
-  struct
-  { dword    OPTLOCK :   1; /** 0x00 Option lock */
-    dword    OPTSTRT :   1; /** 0x01 Option start */
-    dword    BOR_LEV :   2; /** 0x02 BOR reset Level */
-    dword            :   1; /** 0x04 */
-    dword     WDG_SW :   1; /** 0x05 WDG_SW User option bytes */
-    dword  nRST_STOP :   1; /** 0x06 nRST_STOP User option bytes */
-    dword nRST_STDBY :   1; /** 0x07 nRST_STDBY User option bytes */
-    dword        RDP :   8; /** 0x08 Read protect */
-    dword       nWRP :  12; /** 0x10 Not write protect */
-    dword            :   4; /** 0x1C */
-  } OPTCR;                  /** 0x14 RST: 0x00000014 Flash option control register */
-
-   dword          gap$18[ 250 ];    /** 0x18 Unused memory */
-} FLASH;
 
 #define AF_OTG_FS  0x0A | 0x80
 #define AF_OTG_HS  0x0C | 0x80

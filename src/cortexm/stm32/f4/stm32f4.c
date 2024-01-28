@@ -268,29 +268,37 @@ volatile extern struct
 #define PULL_DN   0x2
 #define PULL_RES  0x3
 
-volatile extern struct  /** 0x50000000 General-purpose I/Os */
-{ dword MODER        ;  /** 0x00 RST: 0x7FFFFFFF GPIO port mode register */
-  dword OTYPER       ;  /** 0x04 RST: 0x00000000 GPIO port output type register */
-  dword OSPEEDR      ;  /** 0x08 RST: 0x0C000000 GPIO port output speed register */
-  dword PUPDR        ;  /** 0x0C RST: 0x24000000 GPIO port pull-up/pull-down register */
-  dword IDR          ;  /** 0x10 RST: 0x00000000 GPIO port input data register */
-  dword ODR          ;  /** 0x14 RST: 0x00000000 GPIO port output data register */
-  dword BSRR         ;  /** 0x18 RST: 0x00000000 GPIO port bit set/reset register */
-  dword LCKR         ;  /** 0x1C RST: 0x00000000 GPIO port configuration lock register */
-  dword AFRL         ;  /** 0x20 RST: 0x00000000 GPIO alternate function low register */
-  dword AFRH         ;  /** 0x24 RST: 0x00000000 GPIO alternate function high register */
-  dword BRR          ;  /** 0x28 RST: 0x00000000 port bit reset register */
-  dword gap$2C[ 245 ];  /** 0x2C Unused memory */
-} GPIOA[];
-
 /* Must be accessed as inline macros
  */
-
+ABSOLUTE( PWR      , 0x40007000 );
+ABSOLUTE( FLASH    , 0x40023C00 );
 ABSOLUTE( GPIOA    , 0x40020000 + 0x0000 );
 ABSOLUTE( GPIO_IDR , 0x40020000 + 0x0010 );
 ABSOLUTE( GPIO_ODR , 0x40020000 + 0x0014 );
 ABSOLUTE( GPIO_BSRR, 0x40020000 + 0x0018 );
 ABSOLUTE( RCC      , 0x40020000 + 0x3800 );
+ABSOLUTE( TIM2_SR  , 0x40000000 + 0x0010 );  /* 0 General purpose timers */
+ABSOLUTE( TIM3_SR  , 0x40000400 + 0x0010 );  /* 1 General purpose timers */
+ABSOLUTE( TIM4_SR  , 0x40000800 + 0x0010 );
+ABSOLUTE( TIM5_SR  , 0x40000C00 + 0x1000 );  /* 3 General-purpose-timers */
+ABSOLUTE( TIM1_SR  , 0x40010000 + 0x0010 );  /* 40 Advanced-timers */
+ABSOLUTE( TIM8_SR  , 0x40010400 + 0x0010 );
+ABSOLUTE( TIM9_SR  , 0x40014000 + 0x0010 );  /* 50 General purpose timers */
+ABSOLUTE( TIM10_SR , 0x40014400 + 0x0010 );  /* 51 General-purpose-timers */
+ABSOLUTE( TIM11_SR , 0x40014800 + 0x0010 );  /* 52 General-purpose-timers */
+ABSOLUTE( TIM2     , 0x40000000 );  /* 0 General purpose timers */
+ABSOLUTE( TIM3     , 0x40000400 );  /* 1 General purpose timers */
+ABSOLUTE( TIM4     , 0x40000800 );  /* 2 unknown */
+ABSOLUTE( TIM5     , 0x40000C00 );  /* 3 General-purpose-timers */
+ABSOLUTE( TIM1     , 0x40010000 );  /* 40 Advanced-timers */
+ABSOLUTE( TIM8     , 0x40010400 );  /* 41 unknown */
+ABSOLUTE( TIM9     , 0x40014000 );  /* 50 General purpose timers */
+ABSOLUTE( TIM10    , 0x40014400 );  /* 51 General-purpose-timers */
+ABSOLUTE( TIM11    , 0x40014800 );  /* 52 General-purpose-timers */
+
+
+
+
 
 /* ------------------------------------------------------------------------- */
    word getMode( word mode )
@@ -392,30 +400,91 @@ ABSOLUTE( RCC      , 0x40020000 + 0x3800 );
 
 /**
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *   FLASH : FLASH                                    @ 0x40023C00 : 0x0400
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+extern volatile struct      /** 0x40023C00 FLASH */
+{ volatile struct
+  { dword    LATENCY :   3; /** 0x00 Latency                  */
+    dword            :   5; /** 0x03                          */
+    dword     PRFTEN :   1; /** 0x08 Prefetch enable          */
+    dword       ICEN :   1; /** 0x09 Instruction cache enable */
+    dword       DCEN :   1; /** 0x0A Data cache enable        */
+    dword      ICRST :   1; /** 0x0B Instruction cache reset  */
+    dword      DCRST :   1; /** 0x0C Data cache reset         */
+    dword            :  19; /** 0x0D */
+  } ACR;                    /** 0x00 RST: 0x00000000 Flash access control register */
+
+  dword      KEYR;       /** 0x04 RST: 0x00000000 Flash key register */
+  dword      OPTKEYR;    /** 0x08 RST: 0x00000000 Flash option key register */
+
+  volatile struct
+  { dword        EOP :   1; /** 0x00 End of operation */
+    dword      OPERR :   1; /** 0x01 Operation error */
+    dword            :   2; /** 0x02 */
+    dword     WRPERR :   1; /** 0x04 Write protection error */
+    dword     PGAERR :   1; /** 0x05 Programming alignment error */
+    dword     PGPERR :   1; /** 0x06 Programming parallelism error */
+    dword     PGSERR :   1; /** 0x07 Programming sequence error */
+    dword            :   8; /** 0x08 */
+    dword        BSY :   1; /** 0x10 Busy */
+    dword            :  15; /** 0x11 */
+  } SR;    /** 0x0C RST: 0x00000000 Status register */
+
+  volatile struct
+  { dword         PG :   1; /** 0x00 Programming */
+    dword        SER :   1; /** 0x01 Sector Erase */
+    dword        MER :   1; /** 0x02 Mass Erase */
+    dword        SNB :   4; /** 0x03 Sector number */
+    dword            :   1; /** 0x07 */
+    dword      PSIZE :   2; /** 0x08 Program size */
+    dword            :   6; /** 0x0A */
+    dword       STRT :   1; /** 0x10 Start */
+    dword            :   7; /** 0x11 */
+    dword      EOPIE :   1; /** 0x18 End of operation interrupt enable */
+    dword      ERRIE :   1; /** 0x19 Error interrupt enable */
+    dword            :   5; /** 0x1A */
+    dword       LOCK :   1; /** 0x1F Lock */
+  } CR;                     /** 0x10 RST: 0x7FFFFFFF Control register */
+
+  volatile struct
+  { dword    OPTLOCK :   1; /** 0x00 Option lock */
+    dword    OPTSTRT :   1; /** 0x01 Option start */
+    dword    BOR_LEV :   2; /** 0x02 BOR reset Level */
+    dword            :   1; /** 0x04 */
+    dword     WDG_SW :   1; /** 0x05 WDG_SW User option bytes */
+    dword  nRST_STOP :   1; /** 0x06 nRST_STOP User option bytes */
+    dword nRST_STDBY :   1; /** 0x07 nRST_STDBY User option bytes */
+    dword        RDP :   8; /** 0x08 Read protect */
+    dword       nWRP :  12; /** 0x10 Not write protect */
+    dword            :   4; /** 0x1C */
+  } OPTCR;                  /** 0x14 RST: 0x00000014 Flash option control register */
+
+   dword          gap$18[ 250 ];    /** 0x18 Unused memory */
+} FLASH;
+
+/**
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *   PWR : Power control                            @ 0x40007000 : 0x0400
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
-union PWR$CR
-{ struct
-  { dword       LPDS :   1; /** 0x00 Low-power deep sleep */
-    dword       PDDS :   1; /** 0x01 Power down deepsleep */
-    dword       CWUF :   1; /** 0x02 Clear wakeup flag */
-    dword       CSBF :   1; /** 0x03 Clear standby flag */
+extern volatile struct         /** 0x40007000 Power control */
+{ volatile struct PWR$CR
+  { dword       LPDS :   1; /** 0x00 Low-power deep sleep          */
+    dword       PDDS :   1; /** 0x01 Power down deepsleep          */
+    dword       CWUF :   1; /** 0x02 Clear wakeup flag             */
+    dword       CSBF :   1; /** 0x03 Clear standby flag            */
     dword       PVDE :   1; /** 0x04 Power voltage detector enable */
-    dword        PLS :   3; /** 0x05 PVD level selection */
+    dword        PLS :   3; /** 0x05 PVD level selection           */
     dword        DBP :   1; /** 0x08 Disable backup domain write protection */
     dword       FPDS :   1; /** 0x09 Flash power down in Stop mode */
     dword            :   3; /** 0x0A */
     dword     ADCDC1 :   1; /** 0x0D ADCDC1 */
     dword        VOS :   2; /** 0x0E Regulator voltage scaling output selection */
     dword            :  16; /** 0x10 */
-  };
+  } CR;
 
-  dword atomic;            /** atomic access */
-};
-
-union PWR$CSR
-{ struct
+  volatile struct
   { dword        WUF :   1; /** 0x00 Wakeup flag */
     dword        SBF :   1; /** 0x01 Standby flag */
     dword       PVDO :   1; /** 0x02 PVD output */
@@ -426,17 +495,11 @@ union PWR$CSR
     dword            :   4; /** 0x0A */
     dword     VOSRDY :   1; /** 0x0E Regulator voltage scaling output selection ready bit */
     dword            :  17; /** 0x0F */
-  };
+  } CSR;
 
-  dword atomic;            /** atomic access */
-};
-
-struct                 /** 0x40007000 Power control */
-{ union PWR$CR  CR;    /** 0x00 RST: 0x00000000 power control register */
-  union PWR$CSR CSR;   /** 0x04 RST: 0x00000000 power control/status register */
-
-   dword          gap$08[ 254 ];    /** 0x08 Unused memory */
+  dword gap$08[ 254 ];         /** 0x08 Unused memory */
 } PWR;
+
 
 /*            PLL (clocked by HSE) used as System clock source                */
 
@@ -446,12 +509,19 @@ struct                 /** 0x40007000 Power control */
 
 #define HSE_STARTUP_TIMEOUT 0x05000   /*!< Time out for HSE start up */
 
-static dword XTAL= 25;
+static dword XTAL;
 
 /** ------------------------------------------------------------------------- */
     dword SET_SYSCLK_HZ( dword hz, dword xtal )
 /** ------------------------------------------------------------------------- */
 { volatile dword StartUpCounter= 0;
+
+/* Configure Flash prefetch, Instruction cache, Data cache and wait state
+ */
+  FLASH.ACR.LATENCY= hz / 30000000;  /** 0x00 Latency                  */
+  FLASH.ACR.PRFTEN = 1;  /** 0x08 Prefetch enable          */
+  FLASH.ACR.ICEN   = 1;  /** 0x09 Instruction cache enable */
+  FLASH.ACR.DCEN   = 1;  /** 0x0A Data cache enable        */
 
   RCC.CR.HSEON= 1;  /* Enable HSE */
 
@@ -461,7 +531,7 @@ static dword XTAL= 25;
 
   if ( RCC.CR.HSERDY ) /* Enable high performance mode, System frequency up to 168 MHz */
   { DEVICE_ENABLE( RCC_PWR );
-    PWR.CR.VOS= 1;               /** 0x0E Regulator voltage scaling output selection */
+    PWR.CR.VOS= 3;               /** 0x0E Regulator voltage scaling output selection */
 
     RCC.CFGR.HPRE = 1;  /* HCLK = SYSCLK / 1*/
     RCC.CFGR.PPRE2= 2;  /** 0x0D APB high-speed prescaler (APB2) */
@@ -480,14 +550,6 @@ static dword XTAL= 25;
     RCC.PLLCFRG.PLLQ0 =  7       ; /** 0x18 Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
 
     RCC.CR.PLLON= 1; while( !RCC.CR.PLLRDY );  /* Enable the main PLL, Wait till the main PLL is ready */
-
-/* Configure Flash prefetch, Instruction cache, Data cache and wait state
- */
- //   FLASH.ACR.PRFTEN = 1;
- //   FLASH.ACR.ICEN   = 1;
-  //  FLASH.ACR.DCEN   = 1;       // wait states
- //   FLASH.ACR.LATENCY= 2;       // wait states
- //   FLASH.ACR.ICEN= 1; FLASH.ACR.DCEN= 1; FLASH.ACR_LATENCY= 5;
 
     RCC.CFGR.SW= SWS_PLL;              /* Select the main PLL as system clock source */
     while ( RCC.CFGR.SWS != SWS_PLL ); /* Wait till the main PLL is used as system clock source */
@@ -871,20 +933,6 @@ static struct
 };
 
 
-/* Interrupt handlers needs this register
- */
-
-ABSOLUTE( TIM2_SR , 0x40000000 + 0x10 );  /* 0 General purpose timers */
-ABSOLUTE( TIM3_SR , 0x40000400 + 0x10 );  /* 1 General purpose timers */
-ABSOLUTE( TIM4_SR , 0x40000800 + 0x10 );
-ABSOLUTE( TIM5_SR , 0x40000C00 + 0x10 );  /* 3 General-purpose-timers */
-ABSOLUTE( TIM1_SR , 0x40010000 + 0x10 );  /* 40 Advanced-timers */
-ABSOLUTE( TIM8_SR , 0x40010400 + 0x10 );
-ABSOLUTE( TIM9_SR , 0x40014000 + 0x10 );  /* 50 General purpose timers */
-ABSOLUTE( TIM10_SR, 0x40014400 + 0x10 );  /* 51 General-purpose-timers */
-ABSOLUTE( TIM11_SR, 0x40014800 + 0x10 );  /* 52 General-purpose-timers */
-
-
 /* ------------------------------------------------------------------------- */
    short CAPCOM_TIMER( dword mangle, dword period  )
 /* ------------------------------------------------------------------------- */
@@ -1129,15 +1177,4 @@ ABSOLUTE( TIM11_SR, 0x40014800 + 0x10 );  /* 52 General-purpose-timers */
 //#endif /* STM32F401xx */
 
 }
-
-ABSOLUTE(  TIM2, 0x40000000 );  /* 0 General purpose timers */
-ABSOLUTE(  TIM3, 0x40000400 );  /* 1 General purpose timers */
-ABSOLUTE(  TIM4, 0x40000800 );  /* 2 unknown */
-ABSOLUTE(  TIM5, 0x40000C00 );  /* 3 General-purpose-timers */
-
-ABSOLUTE(  TIM1, 0x40010000 );  /* 40 Advanced-timers */
-ABSOLUTE(  TIM8, 0x40010400 );  /* 41 unknown */
-ABSOLUTE(  TIM9, 0x40014000 );  /* 50 General purpose timers */
-ABSOLUTE( TIM10, 0x40014400 );  /* 51 General-purpose-timers */
-ABSOLUTE( TIM11, 0x40014800 );  /* 52 General-purpose-timers */
 
